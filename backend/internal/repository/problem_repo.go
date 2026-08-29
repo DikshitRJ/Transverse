@@ -460,3 +460,18 @@ func (r *ProblemRepo) IncrementAttemptCount(ctx context.Context, problemID strin
 
 	return nil
 }
+
+// GetByIDs retrieves multiple problems by their IDs.
+func (r *ProblemRepo) GetByIDs(ctx context.Context, ids []string) ([]models.Problem, error) {
+	if len(ids) == 0 {
+		return []models.Problem{}, nil
+	}
+	var problems []models.Problem
+	for _, id := range ids {
+		p, err := r.GetByID(ctx, id)
+		if err == nil && p != nil {
+			problems = append(problems, *p)
+		}
+	}
+	return problems, nil
+}

@@ -173,3 +173,22 @@ func UpdateLearningDNA(
 
 	return current
 }
+
+// ComputeAvgOpponentRating calculates the mean Glicko rating of all attempted problems.
+func ComputeAvgOpponentRating(responses []models.SessionResponse, problemMap map[string]models.Problem) float64 {
+	if len(responses) == 0 {
+		return 1500.0
+	}
+	var sum float64
+	var count int
+	for _, r := range responses {
+		if p, ok := problemMap[r.ProblemID]; ok && p.GlickoRating > 0 {
+			sum += p.GlickoRating
+			count++
+		}
+	}
+	if count == 0 {
+		return 1500.0
+	}
+	return sum / float64(count)
+}

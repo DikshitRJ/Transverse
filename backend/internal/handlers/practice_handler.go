@@ -40,14 +40,36 @@ func (h *PracticeHandler) StartSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.practice.StartSession(r.Context(), userID, req)
+	startReq := services.StartRequest{
+		UserID:          userID,
+		Mode:            req.Mode,
+		Topics:          req.Scope.Topics,
+		Subtopics:       req.Scope.Subtopics,
+		Sources:         req.Scope.Sources,
+		DifficultyRange: req.Scope.DifficultyRange,
+	}
+
+	resp, err := h.practice.Start(r.Context(), startReq)
 	if err != nil {
 		slog.Error("failed to start practice session", "user_id", userID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to start session: "+err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, resp)
+	var currentProblem *models.ProblemPayload
+	if resp.FirstProblem != nil {
+		cp := models.ToProblemPayload(resp.FirstProblem)
+		currentProblem = &cp
+	}
+
+	writeJSON(w, http.StatusOK, models.StartSessionResponse{
+		SessionID:      resp.Session.ID,
+		Mode:           resp.Session.Mode,
+		Theta:          resp.ThetaStart,
+		CurrentProblem: currentProblem,
+		Status:         resp.Session.Status,
+		CreatedAt:      resp.Session.CreatedAt,
+	})
 }
 
 type submitPayload struct {
@@ -80,14 +102,40 @@ func (h *PracticeHandler) SubmitAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.practice.SubmitAnswer(r.Context(), userID, payload.SessionID, payload.Judge0Token, payload.TimeTakenMs)
+	submitReq := services.SubmitRequest{
+		UserID:      userID,
+		SessionID:   payload.SessionID,
+		ProblemID:   payload.ProblemID,
+		Judge0Token: payload.Judge0Token,
+		TimeTakenMs: payload.TimeTakenMs,
+	}
+	resp, err := h.practice.Submit(r.Context(), submitReq)
 	if err != nil {
 		slog.Error("failed to submit answer", "user_id", userID, "session_id", payload.SessionID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to submit answer: "+err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, resp)
+	var np *models.ProblemPayload
+	if resp.NextProblem != nil {
+		p := models.ToProblemPayload(resp.NextProblem)
+		np = &p
+	}
+
+	writeJSON(w, http.StatusOK, models.SubmitResponse{
+		IsCorrect: resp.IsCorrect,
+		Verdict: models.VerdictDetail{
+			StatusID:      resp.Verdict.StatusID,
+			StatusDesc:    resp.Verdict.StatusDesc,
+			TimeMs:        resp.Verdict.TimeMs,
+			MemoryKB:      resp.Verdict.MemoryKB,
+			Stderr:        resp.Verdict.Stderr,
+			CompileOutput: resp.Verdict.CompileOut,
+		},
+		ThetaBefore: resp.ThetaBefore,
+		ThetaAfter:  resp.ThetaAfter,
+		NextProblem: np,
+	})
 }
 
 type skipPayload struct {
@@ -114,14 +162,25 @@ func (h *PracticeHandler) SkipProblem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.practice.SkipProblem(r.Context(), userID, payload.SessionID, payload.TimeTakenMs)
+	resp, err := h.practice.Skip(r.Context(), userID, payload.SessionID, payload.ProblemID, payload.TimeTakenMs)
 	if err != nil {
 		slog.Error("failed to skip problem", "user_id", userID, "session_id", payload.SessionID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to skip problem: "+err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, resp)
+	var np *models.ProblemPayload
+	if resp.NextProblem != nil {
+		p := models.ToProblemPayload(resp.NextProblem)
+		np = &p
+	}
+
+	writeJSON(w, http.StatusOK, models.SkipResponse{
+		Skipped:       true,
+		ThetaBefore:   resp.ThetaBefore,
+		ThetaAfter:    resp.ThetaAfter,
+		NextProblem:   np,
+	})
 }
 
 type closePayload struct {
@@ -146,14 +205,32 @@ func (h *PracticeHandler) CloseSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.practice.CloseSession(r.Context(), userID, payload.SessionID)
+	resp, err := h.practice.Close(r.Context(), userID, payload.SessionID)
 	if err != nil {
 		slog.Error("failed to close session", "user_id", userID, "session_id", payload.SessionID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to close session: "+err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, resp)
+	topicBreakdown := make(map[string]models.TopicProgress)
+	for k, v := range resp.TopicBreakdown {
+		topicBreakdown[k] = models.TopicProgress{
+			Topic:        v.Topic,
+			MasteryScore: v.MasteryScore,
+		}
+	}
+
+	writeJSON(w, http.StatusOK, models.CloseSessionResponse{
+		SessionID:         resp.SessionID,
+		Status:            "CLOSED",
+		ThetaStart:        resp.ThetaStart,
+		ThetaFinal:        resp.ThetaFinal,
+		MasteryScore:      resp.MasteryScore,
+		Accuracy:          resp.Accuracy,
+		TotalQuestions:    resp.TotalProblems,
+		TotalSolved:       resp.CorrectCount,
+		PerTopicBreakdown: topicBreakdown,
+	})
 }
 
 // GetSession retrieves the complete details of a specific practice session.
@@ -170,14 +247,35 @@ func (h *PracticeHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.practice.GetSession(r.Context(), userID, sessionID)
+	session, currentProblem, err := h.practice.GetSession(r.Context(), userID, sessionID)
 	if err != nil {
 		slog.Error("failed to get session", "user_id", userID, "session_id", sessionID, "error", err)
 		writeError(w, http.StatusNotFound, "session not found: "+err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, resp)
+	var cp *models.ProblemPayload
+	if currentProblem != nil {
+		p := models.ToProblemPayload(currentProblem)
+		cp = &p
+	}
+	responses, _ := session.Responses()
+	scope, _ := session.Scope()
+
+	writeJSON(w, http.StatusOK, models.GetSessionResponse{
+		SessionID:      session.ID,
+		UserID:         session.UserID,
+		Mode:           session.Mode,
+		Status:         session.Status,
+		Scope:          scope,
+		ThetaStart:     session.ThetaStart,
+		ThetaCurrent:   session.ThetaCurrent,
+		QuestionCount:  session.QuestionCount,
+		CurrentProblem: cp,
+		Responses:      responses,
+		CreatedAt:      session.CreatedAt,
+		UpdatedAt:      session.UpdatedAt,
+	})
 }
 
 // GetSimilar returns nearest-neighbor problems using cosine embedding similarity.
@@ -201,7 +299,7 @@ func (h *PracticeHandler) GetSimilar(w http.ResponseWriter, r *http.Request) {
 		Limit:     limit,
 	}
 
-	similar, err := h.practice.GetSimilar(r.Context(), req)
+	similar, err := h.practice.GetSimilar(r.Context(), problemID, "", req.Limit)
 	if err != nil {
 		slog.Error("failed to find similar problems", "problem_id", problemID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to find similar problems: "+err.Error())
@@ -210,7 +308,7 @@ func (h *PracticeHandler) GetSimilar(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, models.SimilarProblemsResponse{
 		ProblemID:       problemID,
-		SimilarProblems: similar,
+		SimilarProblems: models.ToProblemPayloads(similar),
 	})
 }
 
@@ -229,8 +327,19 @@ func (h *PracticeHandler) GetTopics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	progress := make([]models.TopicProgress, len(topics))
+	for i, t := range topics {
+		progress[i] = models.TopicProgress{
+			Topic:        t.Topic,
+			MasteryScore: t.MasteryScore,
+			Theta:        t.Theta,
+			GlickoRating: t.GlickoRating,
+			AttemptCount: t.AttemptCount,
+			CorrectCount: t.CorrectCount,
+		}
+	}
 	writeJSON(w, http.StatusOK, models.TopicsResponse{
-		Topics: topics,
+		Topics: progress,
 	})
 }
 

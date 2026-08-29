@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -38,7 +37,7 @@ func main() {
 
 	// 3. Connect to database pool
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	pool, err := database.NewPool(ctx, cfg)
+	pool, err := database.NewPostgresPool(ctx, cfg)
 	cancel()
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
@@ -77,8 +76,8 @@ func main() {
 	graphSvc := services.NewGraphService(topicGraph)
 	judge0Svc := services.NewJudge0Service(cfg)
 	practiceSvc := services.NewPracticeService(
-		problemRepo, statsRepo, sessionRepo, userRepo, probStats,
-		graphSvc, appCache, pool, judge0Svc,
+		pool, problemRepo, statsRepo, sessionRepo, userRepo, probStats,
+		graphSvc, appCache, cfg,
 	)
 
 	// 8. Build handlers

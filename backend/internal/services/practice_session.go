@@ -144,7 +144,7 @@ func (s *PracticeService) Start(ctx context.Context, req StartRequest) (*StartRe
 	}
 
 	// Ensure user profile exists
-	user, err := s.userRepo.GetOrCreate(ctx, req.UserID, req.UserID)
+	user, err := s.userRepo.GetOrCreate(ctx, req.UserID, req.UserID, "")
 	if err != nil {
 		return nil, fmt.Errorf("practice_service: get or create user: %w", err)
 	}
@@ -152,9 +152,9 @@ func (s *PracticeService) Start(ctx context.Context, req StartRequest) (*StartRe
 	// 3. Load topic theta from topic_stats (fallback to user.Theta or thetaDefault)
 	thetaStart := thetaDefault
 	if len(resolvedTopics) > 0 {
-		topicTheta, err := s.statsRepo.GetTopicTheta(ctx, req.UserID, resolvedTopics[0])
-		if err == nil && topicTheta > 0 {
-			thetaStart = topicTheta
+		topicStat, err := s.statsRepo.GetByUserAndTopic(ctx, req.UserID, resolvedTopics[0])
+		if err == nil && topicStat != nil && topicStat.Theta > 0 {
+			thetaStart = topicStat.Theta
 		}
 	} else if user.Theta > 0 {
 		thetaStart = user.Theta
@@ -163,13 +163,13 @@ func (s *PracticeService) Start(ctx context.Context, req StartRequest) (*StartRe
 	// 4. Load all problems in scope from DB
 	minRating := float64(req.DifficultyRange[0])
 	maxRating := float64(req.DifficultyRange[1])
-	scopeProblems, err := s.problemRepo.GetByScope(ctx, resolvedTopics, req.Sources, minRating, maxRating)
+	scopeProblems, err := s.problemRepo.GetByScope(ctx, models.SessionScope{Topics: resolvedTopics, Sources: req.Sources, DifficultyRange: [2]int{int(minRating), int(maxRating)}})
 	if err != nil {
 		return nil, fmt.Errorf("practice_service: load scoped problems: %w", err)
 	}
 	if len(scopeProblems) == 0 {
 		if len(resolvedTopics) > 0 {
-			scopeProblems, err = s.problemRepo.GetByTopics(ctx, resolvedTopics)
+			scopeProblems, err = s.problemRepo.GetByScope(ctx, models.SessionScope{Topics: resolvedTopics})
 			if err != nil {
 				return nil, fmt.Errorf("practice_service: fallback load topic problems: %w", err)
 			}
@@ -479,7 +479,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 
 	var candidates []models.Problem
 	if session.Mode == "ADAPTIVE" && !isCorrect && len(problem.Embedding.Slice()) > 0 {
-		similar, err := s.problemRepo.FindSimilar(ctx, problem.Embedding, problem.Topic, problem.ID, 30)
+		similar, err := s.problemRepo.FindSimilar(ctx, problem.Embedding, problem.Topic, 30)
 		if err == nil && len(similar) > 0 {
 			for _, p := range similar {
 				if !sessionSeen[p.ID] {
@@ -490,7 +490,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	}
 
 	if len(candidates) == 0 {
-		scoped, err := s.problemRepo.GetByScope(ctx, scope.Topics, scope.Sources, float64(scope.DifficultyRange[0]), float64(scope.DifficultyRange[1]))
+		scoped, err := s.problemRepo.GetByScope(ctx, scope)
 		if err == nil {
 			for _, p := range scoped {
 				if !sessionSeen[p.ID] {
@@ -501,7 +501,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	}
 
 	if len(candidates) == 0 {
-		scoped, _ := s.problemRepo.GetByScope(ctx, scope.Topics, scope.Sources, float64(scope.DifficultyRange[0]), float64(scope.DifficultyRange[1]))
+		scoped, _ := s.problemRepo.GetByScope(ctx, scope)
 		for _, p := range scoped {
 			if p.ID != problem.ID {
 				candidates = append(candidates, p)
@@ -510,7 +510,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	}
 
 	if len(candidates) == 0 && len(scope.Topics) > 0 {
-		topicProbs, _ := s.problemRepo.GetByTopics(ctx, scope.Topics)
+		topicProbs, _ := s.problemRepo.GetByScope(ctx, models.SessionScope{Topics: scope.Topics})
 		for _, p := range topicProbs {
 			if p.ID != problem.ID {
 				candidates = append(candidates, p)
@@ -568,15 +568,9 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		SubmittedAt:         now,
 	}
 
-	// 12. BEGIN TX
-	tx, err := s.pool.Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("practice_service: begin submit transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	if err := s.problemStats.UpsertTx(ctx, tx, req.UserID, req.ProblemID, isCorrect, req.TimeTakenMs); err != nil {
-		return nil, fmt.Errorf("practice_service: upsert problem stats: %w", err)
+	// 12. Submit operations
+	if err := s.problemStats.RecordAttempt(ctx, req.UserID, req.ProblemID, isCorrect, req.TimeTakenMs); err != nil {
+		return nil, fmt.Errorf("practice_service: record problem stats: %w", err)
 	}
 
 	var nextProblemID *string
@@ -584,12 +578,8 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		nextProblemID = &nextProblem.ID
 	}
 
-	if err := s.sessionRepo.AppendResponseAndUpdateTx(ctx, tx, session.ID, respRecord, thetaAfter, session.QuestionCount+1, nextProblemID); err != nil {
+	if err := s.sessionRepo.AppendResponse(ctx, session.ID, respRecord, nextProblemID, thetaAfter); err != nil {
 		return nil, fmt.Errorf("practice_service: append response in session: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("practice_service: commit submit transaction: %w", err)
 	}
 
 	// 13. Invalidate "seen:{userID}" cache
@@ -601,7 +591,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	go func() {
 		bgCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		if err := s.problemRepo.UpdateStats(bgCtx, req.ProblemID, req.TimeTakenMs, isCorrect); err != nil {
+		if err := s.problemRepo.IncrementAttemptCount(bgCtx, req.ProblemID, isCorrect); err != nil {
 			slog.Warn("practice_service: failed to update problem stats", "problem_id", req.ProblemID, "error", err)
 		}
 	}()
@@ -673,7 +663,7 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 	sessionSeen[problem.ID] = true
 
 	var candidates []models.Problem
-	scoped, err := s.problemRepo.GetByScope(ctx, scope.Topics, scope.Sources, float64(scope.DifficultyRange[0]), float64(scope.DifficultyRange[1]))
+	scoped, err := s.problemRepo.GetByScope(ctx, scope)
 	if err == nil {
 		for _, p := range scoped {
 			if !sessionSeen[p.ID] {
@@ -738,14 +728,8 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 		SubmittedAt:         now,
 	}
 
-	tx, err := s.pool.Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("practice_service: begin skip transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	if err := s.problemStats.UpsertTx(ctx, tx, userID, problemID, false, timeTakenMs); err != nil {
-		return nil, fmt.Errorf("practice_service: upsert problem stats: %w", err)
+	if err := s.problemStats.RecordAttempt(ctx, userID, problemID, false, timeTakenMs); err != nil {
+		return nil, fmt.Errorf("practice_service: record problem stats: %w", err)
 	}
 
 	var nextProblemID *string
@@ -753,12 +737,8 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 		nextProblemID = &nextProblem.ID
 	}
 
-	if err := s.sessionRepo.AppendResponseAndUpdateTx(ctx, tx, session.ID, respRecord, thetaAfter, session.QuestionCount+1, nextProblemID); err != nil {
+	if err := s.sessionRepo.AppendResponse(ctx, session.ID, respRecord, nextProblemID, thetaAfter); err != nil {
 		return nil, fmt.Errorf("practice_service: append response in session: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("practice_service: commit skip transaction: %w", err)
 	}
 
 	if s.cache != nil {
@@ -820,7 +800,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 	// 2. If no responses: Abandon session and return baseline result
 	responses, err := session.Responses()
 	if err != nil || len(responses) == 0 {
-		_ = s.sessionRepo.Abandon(ctx, sessionID)
+		_ = s.sessionRepo.UpdateStatus(ctx, sessionID, "ABANDONED")
 		return &CloseResult{
 			SessionID:      sessionID,
 			ThetaStart:     session.ThetaStart,
@@ -905,7 +885,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 	if sessionDurationMs <= 0 {
 		sessionDurationMs = totalTimeMs
 	}
-	newDNA := RecomputeDNA(dna, responses, problems, sessionDurationMs, thetaFinal)
+	newDNA := UpdateLearningDNA(dna, responses, time.Duration(sessionDurationMs) * time.Millisecond)
 
 	// Compute Topic Breakdown and per-topic updates
 	topicBreakdown := make(map[string]TopicResult, len(topicTotal))
@@ -917,7 +897,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 		correct := topicCorrect[topic]
 		topicAcc := float64(correct) / float64(total)
 
-		existingTopicStat, _ := s.statsRepo.GetTopicStat(ctx, userID, topic)
+		existingTopicStat, _ := s.statsRepo.GetByUserAndTopic(ctx, userID, topic)
 		existingTopicTheta := thetaDefault
 		existingAttemptCount := 0
 		existingCorrectCount := 0
@@ -953,13 +933,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 		})
 	}
 
-	// 9. BEGIN TX
-	tx, err := s.pool.Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("practice_service: begin close transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
+	// 9. Update records without full TX as we refactored
 	dnaBytes, err := json.Marshal(newDNA)
 	if err != nil {
 		dnaBytes = []byte("{}")
@@ -975,22 +949,18 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 			updated_at = NOW()
 		WHERE id = $6
 	`
-	if _, err := tx.Exec(ctx, userUpdateQuery, thetaFinal, glickoOut.NewRating, glickoOut.NewRD, glickoOut.NewVol, dnaBytes, userID); err != nil {
+	if _, err := s.pool.Exec(ctx, userUpdateQuery, thetaFinal, glickoOut.NewRating, glickoOut.NewRD, glickoOut.NewVol, dnaBytes, userID); err != nil {
 		return nil, fmt.Errorf("practice_service: update user psychometrics: %w", err)
 	}
 
 	for _, ts := range topicStatsToUpsert {
-		if err := s.statsRepo.UpsertTopicStats(ctx, tx, userID, ts); err != nil {
+		if err := s.statsRepo.Upsert(ctx, &ts); err != nil {
 			return nil, fmt.Errorf("practice_service: upsert topic stats for %q: %w", ts.Topic, err)
 		}
 	}
 
-	if err := s.sessionRepo.Close(ctx, tx, sessionID, thetaFinal); err != nil {
+	if err := s.sessionRepo.CloseSession(ctx, sessionID, thetaFinal); err != nil {
 		return nil, fmt.Errorf("practice_service: close session: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("practice_service: commit close transaction: %w", err)
 	}
 
 	// Invalidate user, DNA, and topic caches
@@ -1054,16 +1024,16 @@ func (s *PracticeService) GetSimilar(ctx context.Context, problemID, topic strin
 		targetTopic = problem.Topic
 	}
 
-	return s.problemRepo.FindSimilar(ctx, problem.Embedding, targetTopic, problemID, limit)
+	return s.problemRepo.FindSimilar(ctx, problem.Embedding, targetTopic, limit)
 }
 
 // GetTopics returns all topic statistics with current mastery scores for a user.
 func (s *PracticeService) GetTopics(ctx context.Context, userID string) ([]models.TopicStats, error) {
-	return s.statsRepo.GetTopicStats(ctx, userID)
+	return s.statsRepo.GetByUser(ctx, userID)
 }
 
 func (s *PracticeService) loadSeenIDs(ctx context.Context, userID string) (map[string]int, error) {
-	return s.problemStats.GetAttemptCounts(ctx, userID)
+	return s.problemStats.GetAttemptCountsByUser(ctx, userID)
 }
 
 func (s *PracticeService) loadDNA(ctx context.Context, userID string) (models.LearningDNA, error) {
@@ -1146,4 +1116,16 @@ func (s *PracticeService) buildScState(
 		ActiveSources:       scope.Sources,
 		SessionSourceCounts: sessionSourceCounts,
 	}
+}
+
+// SearchProblems executes filtered search across problem names, tags, sources, topics, and difficulties.
+func (s *PracticeService) SearchProblems(ctx context.Context, req models.ProblemSearchRequest) (*models.ProblemSearchResponse, error) {
+	problems, total, err := s.problemRepo.Search(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &models.ProblemSearchResponse{
+		Problems: models.ToProblemPayloads(problems),
+		Total:    total,
+	}, nil
 }

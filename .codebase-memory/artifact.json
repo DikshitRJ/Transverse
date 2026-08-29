@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "7b75172203afbece485610850521dfaf24ecd0e0",
-    "indexed_at": "2026-08-29T20:31:30Z",
+    "commit": "911d1b46b764d1ebcfa273e4d514e45941e32a27",
+    "indexed_at": "2026-08-29T22:18:01Z",
     "project": "mnt-Data-smart_india_hackathon-Screening_transverse",
-    "nodes": 1354,
-    "edges": 3959,
-    "original_size": 126156800,
-    "compressed_size": 1407971,
+    "nodes": 1350,
+    "edges": 3864,
+    "original_size": 125960192,
+    "compressed_size": 1400945,
     "compression_level": 3
 }
