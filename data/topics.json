@@ -1,0 +1,274 @@
+{
+  "topics": [
+    {
+      "id": "foundations",
+      "name": "Foundations & Implementation",
+      "parent": "",
+      "prerequisites": [],
+      "tag_aliases": ["implementation", "brute force", "simulation", "constructive algorithms", "*special", "adhoc", "ad-hoc", "general", "basic programming", "foundations", "interactive", "interactive problems", "introductory problems", "construction problems", "advanced techniques", "additional problems i", "additional problems ii", "communication"],
+      "difficulty_range": [800, 1600],
+      "order": 1
+    },
+    {
+      "id": "arrays-hashing",
+      "name": "Arrays & Hashing",
+      "parent": "foundations",
+      "prerequisites": ["foundations"],
+      "tag_aliases": ["array", "arrays", "hash table", "hash map", "hashing", "hash-table", "arrays & hashing", "hashmap", "frequency table"],
+      "difficulty_range": [800, 1600],
+      "order": 2
+    },
+    {
+      "id": "two-pointers",
+      "name": "Two Pointers",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["two pointers", "two-pointers", "2-pointers", "pointers", "two pointer", "two_pointers"],
+      "difficulty_range": [900, 1800],
+      "order": 3
+    },
+    {
+      "id": "sliding-window",
+      "name": "Sliding Window",
+      "parent": "two-pointers",
+      "prerequisites": ["two-pointers"],
+      "tag_aliases": ["sliding window", "sliding-window", "sliding_window", "sliding window problems"],
+      "difficulty_range": [1000, 1900],
+      "order": 4
+    },
+    {
+      "id": "stack-queues",
+      "name": "Stacks & Queues",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["stack", "stacks", "queue", "queues", "deque", "monotonic stack", "monotonic queue", "expression parsing"],
+      "difficulty_range": [900, 2000],
+      "order": 5
+    },
+    {
+      "id": "binary-search",
+      "name": "Binary Search",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["binary search", "binary-search", "binary_search", "ternary search", "ternary-search", "bsearch", "bisection"],
+      "difficulty_range": [900, 2200],
+      "order": 6
+    },
+    {
+      "id": "sorting-searching",
+      "name": "Sorting & Searching",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["sortings", "sorting", "sorting and searching", "order statistics", "quick sort", "merge sort", "custom sort"],
+      "difficulty_range": [800, 1800],
+      "order": 7
+    },
+    {
+      "id": "linked-list",
+      "name": "Linked Lists",
+      "parent": "foundations",
+      "prerequisites": ["two-pointers"],
+      "tag_aliases": ["linked list", "linked-list", "linked_list", "doubly-linked-list", "singly-linked-list"],
+      "difficulty_range": [800, 1600],
+      "order": 8
+    },
+    {
+      "id": "trees",
+      "name": "Trees & Binary Trees",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing", "stack-queues"],
+      "tag_aliases": ["trees", "tree", "binary tree", "binary search tree", "bst", "lca", "tree algorithms", "lowest common ancestor", "euler tour"],
+      "difficulty_range": [1000, 2400],
+      "order": 9
+    },
+    {
+      "id": "tries",
+      "name": "Tries",
+      "parent": "trees",
+      "prerequisites": ["trees"],
+      "tag_aliases": ["trie", "prefix tree", "tries", "radix tree"],
+      "difficulty_range": [1200, 2200],
+      "order": 10
+    },
+    {
+      "id": "heaps-priority-queues",
+      "name": "Heaps & Priority Queues",
+      "parent": "trees",
+      "prerequisites": ["trees"],
+      "tag_aliases": ["heap", "heaps", "priority queue", "priority-queue", "priority_queue", "heap / priority queue", "binary heap"],
+      "difficulty_range": [1100, 2100],
+      "order": 11
+    },
+    {
+      "id": "backtracking",
+      "name": "Backtracking & Recursion",
+      "parent": "foundations",
+      "prerequisites": ["trees"],
+      "tag_aliases": ["backtracking", "recursion", "dfs and similar", "exhaustive search", "branch and bound"],
+      "difficulty_range": [1000, 2200],
+      "order": 12
+    },
+    {
+      "id": "graphs",
+      "name": "Graphs",
+      "parent": "foundations",
+      "prerequisites": ["trees", "stack-queues"],
+      "tag_aliases": ["graphs", "graph", "graph algorithms", "dfs", "bfs", "breadth-first search", "depth-first search", "bipartite", "connected components", "advanced graph problems"],
+      "difficulty_range": [1100, 2600],
+      "order": 13
+    },
+    {
+      "id": "shortest-paths",
+      "name": "Shortest Paths",
+      "parent": "graphs",
+      "prerequisites": ["graphs", "heaps-priority-queues"],
+      "tag_aliases": ["shortest paths", "shortest path", "shortest_paths", "dijkstra", "bellman-ford", "floyd-warshall", "spfa", "0-1 bfs"],
+      "difficulty_range": [1300, 2500],
+      "order": 14
+    },
+    {
+      "id": "disjoint-set-union",
+      "name": "Disjoint Set Union (DSU)",
+      "parent": "graphs",
+      "prerequisites": ["graphs"],
+      "tag_aliases": ["dsu", "union find", "disjoint set", "union-find", "union_find", "disjoint-set-union"],
+      "difficulty_range": [1200, 2200],
+      "order": 15
+    },
+    {
+      "id": "topological-sort",
+      "name": "Topological Sort & DAGs",
+      "parent": "graphs",
+      "prerequisites": ["graphs"],
+      "tag_aliases": ["topological sort", "topo sort", "topological-sort", "dag", "2-sat", "strongly connected components", "scc", "tarjan", "kosaraju"],
+      "difficulty_range": [1300, 2400],
+      "order": 16
+    },
+    {
+      "id": "minimum-spanning-tree",
+      "name": "Minimum Spanning Tree",
+      "parent": "graphs",
+      "prerequisites": ["graphs", "disjoint-set-union"],
+      "tag_aliases": ["mst", "minimum spanning tree", "kruskal", "prim", "minimum-spanning-tree"],
+      "difficulty_range": [1300, 2300],
+      "order": 17
+    },
+    {
+      "id": "network-flows",
+      "name": "Network Flows & Matchings",
+      "parent": "graphs",
+      "prerequisites": ["shortest-paths"],
+      "tag_aliases": ["flows", "network flow", "max flow", "min cut", "graph matchings", "bipartite matching", "dinic", "edmonds-karp", "hungarian algorithm", "min cost max flow", "mcmf"],
+      "difficulty_range": [1700, 3000],
+      "order": 18
+    },
+    {
+      "id": "dynamic-programming",
+      "name": "Dynamic Programming",
+      "parent": "foundations",
+      "prerequisites": ["backtracking", "arrays-hashing"],
+      "tag_aliases": ["dp", "dynamic programming", "1-d dp", "2-d dp", "memoization", "knapsack", "longest common subsequence", "longest increasing subsequence", "interval dp"],
+      "difficulty_range": [1100, 2800],
+      "order": 19
+    },
+    {
+      "id": "advanced-dp",
+      "name": "Advanced Dynamic Programming",
+      "parent": "dynamic-programming",
+      "prerequisites": ["dynamic-programming", "bit-manipulation"],
+      "tag_aliases": ["bitmask dp", "digit dp", "tree dp", "dp on trees", "sos dp", "convex hull trick", "divide and conquer optimization", "aliens trick", "matrix dp"],
+      "difficulty_range": [1800, 3200],
+      "order": 20
+    },
+    {
+      "id": "greedy",
+      "name": "Greedy Algorithms",
+      "parent": "foundations",
+      "prerequisites": ["sorting-searching"],
+      "tag_aliases": ["greedy", "greedy algorithms", "interval scheduling", "activity selection", "huffman coding", "intervals"],
+      "difficulty_range": [900, 2400],
+      "order": 21
+    },
+    {
+      "id": "bit-manipulation",
+      "name": "Bit Manipulation",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["bitmasks", "bit manipulation", "bitwise", "bitmask", "xor", "bits", "bitwise operations"],
+      "difficulty_range": [900, 2300],
+      "order": 22
+    },
+    {
+      "id": "math-number-theory",
+      "name": "Math & Number Theory",
+      "parent": "foundations",
+      "prerequisites": [],
+      "tag_aliases": ["math", "mathematics", "number theory", "prime", "gcd", "sieve", "modular arithmetic", "extended euclidean", "chinese remainder theorem", "euler totient", "diophantine"],
+      "difficulty_range": [800, 2600],
+      "order": 23
+    },
+    {
+      "id": "combinatorics-probability",
+      "name": "Combinatorics & Probability",
+      "parent": "math-number-theory",
+      "prerequisites": ["math-number-theory"],
+      "tag_aliases": ["combinatorics", "probabilities", "probability", "expected value", "permutations", "combinations", "catalan numbers", "inclusion exclusion", "stars and bars", "pigeonhole", "counting problems"],
+      "difficulty_range": [1200, 2700],
+      "order": 24
+    },
+    {
+      "id": "matrices-fft",
+      "name": "Linear Algebra & FFT",
+      "parent": "math-number-theory",
+      "prerequisites": ["math-number-theory"],
+      "tag_aliases": ["matrices", "matrix exponentiation", "fft", "fast fourier transform", "ntt", "gaussian elimination", "matrix multiplication"],
+      "difficulty_range": [1600, 3000],
+      "order": 25
+    },
+    {
+      "id": "geometry",
+      "name": "Computational Geometry",
+      "parent": "foundations",
+      "prerequisites": ["math-number-theory"],
+      "tag_aliases": ["geometry", "computational geometry", "convex hull", "cross product", "line sweep", "polygon", "point in polygon", "closest pair"],
+      "difficulty_range": [1200, 2800],
+      "order": 26
+    },
+    {
+      "id": "string-algorithms",
+      "name": "String Algorithms",
+      "parent": "foundations",
+      "prerequisites": ["arrays-hashing"],
+      "tag_aliases": ["strings", "string", "string algorithms", "kmp", "z-algorithm", "rabin-karp", "suffix array", "suffix automaton", "string suffix structures", "aho-corasick", "manacher", "rolling hash"],
+      "difficulty_range": [1100, 2800],
+      "order": 27
+    },
+    {
+      "id": "range-queries",
+      "name": "Range Queries & Segment Trees",
+      "parent": "foundations",
+      "prerequisites": ["trees", "binary-search"],
+      "tag_aliases": ["range queries", "data structures", "segment tree", "fenwick tree", "bit", "sparse table", "lazy propagation", "treap", "sqrt decomposition", "mo's algorithm", "merge sort tree", "persistent segment tree"],
+      "difficulty_range": [1300, 2800],
+      "order": 28
+    },
+    {
+      "id": "game-theory",
+      "name": "Game Theory",
+      "parent": "foundations",
+      "prerequisites": ["math-number-theory", "dynamic-programming"],
+      "tag_aliases": ["games", "game theory", "nim", "sprague-grundy", "minimax", "game"],
+      "difficulty_range": [1200, 2500],
+      "order": 29
+    },
+    {
+      "id": "divide-and-conquer",
+      "name": "Divide and Conquer",
+      "parent": "foundations",
+      "prerequisites": ["sorting-searching"],
+      "tag_aliases": ["divide and conquer", "divide-and-conquer", "meet-in-the-middle", "cdq divide and conquer", "d&c"],
+      "difficulty_range": [1200, 2600],
+      "order": 30
+    }
+  ]
+}
