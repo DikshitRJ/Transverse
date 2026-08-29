@@ -1,25 +1,48 @@
-# Transverse problem corpus extractor
+# Transverse
 
-Build the JSON corpus with Python 3.10+ and no third-party packages:
+Transverse is a skill verification and adaptive learning platform. This repository contains the Go backend, which provides an asynchronous, LLM-orchestrated, and highly private learning pipeline. The Next.js frontend is built against this backend's formal API contract.
 
-```bash
-python3 scripts/extract_problems.py
-```
+## Features
 
-The command writes `codeforces.json`, `cses.json`, `atcoder.json`,
-`leetcode_index.json`, and `all_problems.json` to `data/generated/`, and logs
-the count for every source. Use `--output-dir <directory>` to write elsewhere.
+- **Deep Skill Verification**: Uploads public profiles (GitHub, LeetCode, Codeforces) or private documents (resumes, codebase zips). Evidence is extracted into JSON hypotheses and the raw files are immediately deleted (zero-cloud privacy).
+- **Adaptive Quiz Engine**: Hypotheses are tested via a deterministic Glicko-2 scoring engine. Correct answers confirm hypotheses and raise topic ratings; failures debunk them.
+- **Dynamic Roadmaps**: An LLM orchestrates a DAG-based learning progression. Nodes are gated by mastery thresholds. Users can "test out" of nodes they already know.
+- **Closed-Loop Remediation**: If a user fails 3 times on the same practice topic, the engine automatically drops the difficulty threshold, triggers an LLM error analysis, and regenerates upcoming roadmap phases.
 
-The extractor uses a single official Codeforces batch API request, requests
-only CSES's public list page after checking its `robots.txt`, and uses the
-public AtCoder Problems APIs. It never requests LeetCode pages: the
-`data/leetcode_index_seed.json` file is local, hand-curated link metadata and
-can be extended without adding statements, constraints, or examples.
+## Repository Structure
 
-If a public source fails, the command still writes a valid empty file for that
-source and builds the merged file from successful sources. For an offline check
-of the local index and output schema, run:
+- `backend/cmd/server/`: The main entry point and Chi router wiring.
+- `backend/internal/`: The core domain logic (Clean Architecture):
+  - `evidence/`, `connectors/`: Ingests and scrubs user signals.
+  - `llm/`, `jobs/`, `realtime/`: Async LLM orchestration and SSE streaming.
+  - `hypothesis/`, `quiz/`: The adaptive assessment loop.
+  - `roadmap/`: Progression and gating engine.
+  - `oauth/`, `middleware/`: Identity and access management.
+- `backend/sql/`: Postgres schema migrations.
+- `backend/pipeline/seed/`: Offline CLI tool for seeding problems and tutorials.
+- `Documentation/`: Contains the formal `openapi.yaml`, architecture diagrams, and end-to-end integration walkthroughs.
+- `data/`: Contains `topics.json`, the canonical topic DAG.
 
-```bash
-python3 scripts/extract_problems.py --skip-network
-```
+## Status
+
+**Completed:**
+- Full infrastructure configuration (Postgres/pgvector, Redis, MinIO, Judge0).
+- All 11 milestones of the backend architecture (Evidence, Connectors, OAuth, LLM, Quiz, Roadmap, Practice Loop, Remediation, Content Ingestion).
+- Formal API contracts (OpenAPI 3.1) and testing suites.
+
+**Left to do:**
+- Next.js Frontend implementation (UI and Server Actions).
+
+## Getting Started
+
+1. Set up your `.env` file (use `backend/.env.example` as a template).
+2. Start the infrastructure:
+   ```bash
+   cd backend
+   docker-compose up -d
+   ```
+3. Run the API:
+   ```bash
+   go run ./cmd/server
+   ```
+4. Refer to `Documentation/end-to-end-walkthrough.md` to simulate a user journey.
