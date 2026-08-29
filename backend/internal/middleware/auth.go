@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"transverse/internal/cache"
 )
 
 type contextKey string
@@ -22,7 +23,7 @@ const (
 
 // Auth validates Bearer JWT tokens and injects userID and username into the request context.
 // If BYPASS_AUTH is set to "true" or "1", or in development mode, it injects a default dev user ("dev-user-001").
-func Auth(jwtSecret string) func(http.Handler) http.Handler {
+func Auth(jwtSecret string, appCache cache.Cache) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			bypass := os.Getenv("BYPASS_AUTH") == "true" || os.Getenv("BYPASS_AUTH") == "1"
@@ -71,6 +72,18 @@ func Auth(jwtSecret string) func(http.Handler) http.Handler {
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = w.Write([]byte(`{"error":"invalid token claims"}`))
 				return
+			}
+
+			if jti, ok := claims["jti"].(string); ok && jti != "" && appCache != nil {
+				var dummy string
+				err := appCache.Get(r.Context(), "jwt:denylist:"+jti, &dummy)
+				if err == nil {
+					// Found in denylist
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusUnauthorized)
+					_, _ = w.Write([]byte(`{"error":"token has been revoked"}`))
+					return
+				}
 			}
 
 			userID, ok := claims["sub"].(string)

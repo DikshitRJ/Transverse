@@ -23,7 +23,7 @@ func main() {
 	dataDir := flag.String("data-dir", "./data/generated", "Path to problem dataset JSON directory (required)")
 	modelPath := flag.String("model", "./models/bge-small-en-v1.5.onnx", "Path to ONNX embedding model (required)")
 	tokenizerDir := flag.String("tokenizer", "", "Path to tokenizer directory (defaults to model directory)")
-	topicsPath := flag.String("topics", "./data/topics.json", "Path to topics.json knowledge graph file")
+	topicsPath := flag.String("topics", "../data/topics.json", "Path to topics.json knowledge graph file")
 	dbURL := flag.String("db", "", "Database URL connection string (or read from DATABASE_URL env)")
 	sqlDir := flag.String("sql-dir", "./backend/sql", "Path to directory containing SQL migration scripts")
 	batchSize := flag.Int("batch-size", 32, "ONNX inference batch size per worker forward pass")

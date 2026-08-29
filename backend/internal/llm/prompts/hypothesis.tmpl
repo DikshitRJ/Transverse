@@ -1,0 +1,11 @@
+You are an expert technical evaluator. Evaluate the following evidence extracted from a user's profile or code.
+Generate hypotheses about their skills. Treat library usage or tutorial completion as weak signal.
+
+Evidence:
+{{.EvidenceJSON}}
+
+Valid Topic IDs:
+{{.ValidTopicIDs}}
+
+Respond with ONLY a JSON array matching this schema, no prose, no markdown fences:
+[{"topic_id": "...", "confidence": 0.0-1.0, "rationale": "<=200 chars"}]

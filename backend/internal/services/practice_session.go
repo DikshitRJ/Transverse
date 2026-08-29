@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 	"transverse/internal/cache"
 	"transverse/internal/config"
 	"transverse/internal/models"
@@ -45,6 +46,7 @@ type PracticeService struct {
 	pool         *pgxpool.Pool
 	cfg          *config.Config
 	httpClient   *http.Client
+	rdb          *redis.Client
 }
 
 // NewPracticeService constructs and initializes a new PracticeService instance.
@@ -58,6 +60,7 @@ func NewPracticeService(
 	graphSvc *GraphService,
 	cache cache.Cache,
 	cfg *config.Config,
+	rdb *redis.Client,
 ) *PracticeService {
 	timeout := 5 * time.Second
 	if cfg != nil && cfg.Judge0TimeoutMs > 0 {
@@ -77,6 +80,7 @@ func NewPracticeService(
 		httpClient: &http.Client{
 			Timeout: timeout,
 		},
+		rdb: rdb,
 	}
 }
 
@@ -566,6 +570,82 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		ThetaEffective:      thetaEff,
 		Momentum:            momentum,
 		SubmittedAt:         now,
+	}
+
+	// 11.5 Enqueue LLM error analysis and check for remediation
+	if !isCorrect {
+		// Rate limit error analysis: 5 per problem per day per user
+		if s.rdb != nil {
+			rlKey := fmt.Sprintf("ratelimit:error_analysis:%s:%s", req.UserID, req.ProblemID)
+			// Small lua script execution or simple check via rate limiter
+			// Create rate limiter per problem (max 5 per day)
+			capacity, refill := 5.0, 5.0/(24*3600)
+			now := float64(time.Now().UnixNano()) / 1e9
+			res, rlErr := s.rdb.Eval(ctx, `
+				local key = KEYS[1]
+				local cap = tonumber(ARGV[1])
+				local refill = tonumber(ARGV[2])
+				local now = tonumber(ARGV[3])
+				local b = redis.call("HMGET", key, "tokens", "last_refill")
+				local tokens = tonumber(b[1]) or cap
+				local last_refill = tonumber(b[2]) or now
+				tokens = math.min(cap, tokens + (math.max(0, now - last_refill) * refill))
+				if tokens >= 1 then
+					redis.call("HMSET", key, "tokens", tokens - 1, "last_refill", now)
+					redis.call("EXPIRE", key, 86400)
+					return 1
+				end
+				return 0
+			`, []string{rlKey}, capacity, refill, now).Result()
+
+			if rlErr == nil && res.(int64) == 1 {
+				// Enqueue error analysis job
+				jobMsg, _ := json.Marshal(map[string]interface{}{
+					"type":       "error_analysis",
+					"user_id":    req.UserID,
+					"session_id": session.ID,
+					"problem_id": req.ProblemID,
+					"status":     verdict.StatusDesc,
+				})
+				s.rdb.RPush(ctx, "jobs:llm", jobMsg)
+			}
+		}
+
+		// Remediation check: 3 consecutive failures
+		if consecWrong >= 3 && s.rdb != nil {
+			topic := state.Topic
+			// Trigger remediation: drop effective difficulty target
+			if dna.TopicBias == nil {
+				dna.TopicBias = make(map[string]float64)
+			}
+			dna.TopicBias[topic] -= 0.5 // Drops target by up to 100 points
+			if dna.TopicBias[topic] < -1.0 {
+				dna.TopicBias[topic] = -1.0
+			}
+
+			// Persist updated DNA
+			dnaBytes, _ := json.Marshal(dna)
+			s.pool.Exec(ctx, "UPDATE users SET dna = $1, updated_at = NOW() WHERE id = $2", dnaBytes, req.UserID)
+			if s.cache != nil {
+				s.cache.Del(ctx, CacheKeyDNA(req.UserID))
+			}
+
+			// Trigger roadmap.Regenerate by enqueuing a remediation job
+			remMsg, _ := json.Marshal(map[string]interface{}{
+				"type":    "roadmap_regenerate",
+				"user_id": req.UserID,
+				"topic":   topic,
+			})
+			s.rdb.RPush(ctx, "jobs:llm", remMsg)
+
+			// Fire exactly one roadmap.updated event per product requirement
+			evtMsg, _ := json.Marshal(map[string]interface{}{
+				"type":    "roadmap.updated",
+				"user_id": req.UserID,
+				"topic":   topic,
+			})
+			s.rdb.Publish(ctx, fmt.Sprintf("user:%s:events", req.UserID), evtMsg)
+		}
 	}
 
 	// 12. Submit operations
@@ -1127,5 +1207,95 @@ func (s *PracticeService) SearchProblems(ctx context.Context, req models.Problem
 	return &models.ProblemSearchResponse{
 		Problems: models.ToProblemPayloads(problems),
 		Total:    total,
+	}, nil
+}
+
+// RequestHint enqueues an LLM hint job for the current problem in an active session.
+// Enforces a static rate limit using Redis.
+func (s *PracticeService) RequestHint(ctx context.Context, userID, sessionID string, hintLevel int) (string, error) {
+	if sessionID == "" {
+		return "", errors.New("practice_service: session_id is required")
+	}
+
+	session, err := s.sessionRepo.GetByID(ctx, sessionID)
+	if err != nil {
+		return "", fmt.Errorf("practice_service: get session: %w", err)
+	}
+	if session == nil {
+		return "", errors.New("practice_service: session not found")
+	}
+	if session.UserID != userID {
+		return "", errors.New("practice_service: unauthorized")
+	}
+
+	if s.rdb != nil {
+		rlKey := fmt.Sprintf("ratelimit:hint:%s:%s", userID, sessionID)
+		// Max 10 hints per session
+		capacity, refill := 10.0, 10.0/(24*3600)
+		now := float64(time.Now().UnixNano()) / 1e9
+		res, rlErr := s.rdb.Eval(ctx, `
+			local key = KEYS[1]
+			local cap = tonumber(ARGV[1])
+			local refill = tonumber(ARGV[2])
+			local now = tonumber(ARGV[3])
+			local b = redis.call("HMGET", key, "tokens", "last_refill")
+			local tokens = tonumber(b[1]) or cap
+			local last_refill = tonumber(b[2]) or now
+			tokens = math.min(cap, tokens + (math.max(0, now - last_refill) * refill))
+			if tokens >= 1 then
+				redis.call("HMSET", key, "tokens", tokens - 1, "last_refill", now)
+				redis.call("EXPIRE", key, 86400)
+				return 1
+			end
+			return 0
+		`, []string{rlKey}, capacity, refill, now).Result()
+
+		if rlErr == nil && res.(int64) == 0 {
+			return "", errors.New("practice_service: rate limit exceeded for hints")
+		}
+	}
+
+	jobID := generateID("job")
+
+	if s.rdb != nil {
+		var probID string
+		if session.CurrentProblemID != nil {
+			probID = *session.CurrentProblemID
+		}
+		jobMsg, _ := json.Marshal(map[string]interface{}{
+			"type":       "hint",
+			"job_id":     jobID,
+			"user_id":    userID,
+			"session_id": sessionID,
+			"problem_id": probID,
+			"hint_level": hintLevel,
+		})
+		s.rdb.RPush(ctx, "jobs:llm", jobMsg)
+	}
+
+	return jobID, nil
+}
+
+// GetErrorAnalysis retrieves the most recent error analysis for a session.
+// In a full implementation, this might read from an error_analyses table or Redis.
+func (s *PracticeService) GetErrorAnalysis(ctx context.Context, userID, sessionID string) (map[string]interface{}, error) {
+	// For now, we stub this out as it requires the internal/jobs LLM workers to populate the DB.
+	// We'll look up the session to validate ownership.
+	session, err := s.sessionRepo.GetByID(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("practice_service: get session: %w", err)
+	}
+	if session == nil {
+		return nil, errors.New("practice_service: session not found")
+	}
+	if session.UserID != userID {
+		return nil, errors.New("practice_service: unauthorized")
+	}
+
+	// Stub: return pending state or error indicating job not found/done yet.
+	// Normally this would query the error_analyses table.
+	return map[string]interface{}{
+		"status": "pending_or_not_found",
+		"message": "Error analysis results will appear here once the LLM job completes.",
 	}, nil
 }

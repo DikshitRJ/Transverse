@@ -278,6 +278,73 @@ func (h *PracticeHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type hintPayload struct {
+	HintLevel int `json:"hint_level"`
+}
+
+// RequestHint requests the next-level LLM hint for a practice session.
+// POST /api/v1/practice/{id}/hint
+func (h *PracticeHandler) RequestHint(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok || userID == "" {
+		userID = "dev-user-001"
+	}
+
+	sessionID := chi.URLParam(r, "id")
+	if sessionID == "" {
+		writeError(w, http.StatusBadRequest, "session id parameter is required")
+		return
+	}
+
+	var payload hintPayload
+	if r.ContentLength > 0 {
+		_ = decodeJSON(w, r, &payload)
+	}
+	if payload.HintLevel <= 0 {
+		payload.HintLevel = 1
+	}
+
+	jobID, err := h.practice.RequestHint(r.Context(), userID, sessionID, payload.HintLevel)
+	if err != nil {
+		slog.Error("failed to request hint", "user_id", userID, "session_id", sessionID, "error", err)
+		if strings.Contains(err.Error(), "rate limit") {
+			writeError(w, http.StatusTooManyRequests, err.Error())
+		} else {
+			writeError(w, http.StatusInternalServerError, "failed to request hint: "+err.Error())
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	writeJSON(w, http.StatusAccepted, map[string]string{
+		"job_id": jobID,
+	})
+}
+
+// GetErrorAnalysis retrieves the latest LLM error analysis for the session.
+// GET /api/v1/practice/{id}/error-analysis
+func (h *PracticeHandler) GetErrorAnalysis(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok || userID == "" {
+		userID = "dev-user-001"
+	}
+
+	sessionID := chi.URLParam(r, "id")
+	if sessionID == "" {
+		writeError(w, http.StatusBadRequest, "session id parameter is required")
+		return
+	}
+
+	analysis, err := h.practice.GetErrorAnalysis(r.Context(), userID, sessionID)
+	if err != nil {
+		slog.Error("failed to get error analysis", "user_id", userID, "session_id", sessionID, "error", err)
+		writeError(w, http.StatusInternalServerError, "failed to get error analysis: "+err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, analysis)
+}
+
 // GetSimilar returns nearest-neighbor problems using cosine embedding similarity.
 // GET /api/v1/practice/similar?problem_id=X&limit=5
 func (h *PracticeHandler) GetSimilar(w http.ResponseWriter, r *http.Request) {

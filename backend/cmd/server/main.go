@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/redis/go-redis/v9"
 
 	"transverse/internal/cache"
 	"transverse/internal/config"
@@ -22,6 +23,9 @@ import (
 	"transverse/internal/middleware"
 	"transverse/internal/repository"
 	"transverse/internal/services"
+	"transverse/internal/services/ingest"
+	"transverse/internal/jobs"
+	"transverse/internal/realtime"
 )
 
 func main() {
@@ -47,9 +51,21 @@ func main() {
 
 	slog.Info("connected to postgres database pool")
 
+	// 3.5 Setup Redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr: cfg.RedisAddr,
+		DB:   cfg.RedisDB,
+	})
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		slog.Warn("failed to ping redis", "error", err)
+	} else {
+		slog.Info("connected to redis", "addr", cfg.RedisAddr)
+	}
+
 	// 4. Setup cache
 	var appCache cache.Cache
 	if cfg.CacheEnabled {
+		// Ideally use cache.NewRedisCache(rdb) if it existed, but fallback to memory for now
 		appCache = cache.NewMemoryCache()
 		slog.Info("in-memory cache enabled")
 	} else {
@@ -77,12 +93,24 @@ func main() {
 	judge0Svc := services.NewJudge0Service(cfg)
 	practiceSvc := services.NewPracticeService(
 		pool, problemRepo, statsRepo, sessionRepo, userRepo, probStats,
-		graphSvc, appCache, cfg,
+		graphSvc, appCache, cfg, rdb,
 	)
+	ingestRepo := repository.NewIngestRepo(pool)
+	ingestSvc := ingest.NewService(ingestRepo, graphSvc)
 
 	// 8. Build handlers
 	practiceH := handlers.NewPracticeHandler(practiceSvc, judge0Svc)
 	userH := handlers.NewUserHandler(userRepo, statsRepo, sessionRepo)
+	oauthRepo := repository.NewOAuthRepo(pool)
+	authH := handlers.NewAuthHandler(cfg, oauthRepo, userRepo, appCache)
+
+	// Jobs & Realtime
+	jobQueue := jobs.NewQueue(rdb)
+	workerPool := jobs.NewWorkerPool(jobQueue, rdb)
+	workerPool.Start(context.Background()) // Note: context should be proper in real prod
+
+	jobsH := jobs.NewHandler(jobQueue)
+	realtimeH := realtime.NewHandler(rdb)
 
 	// 9. Setup router
 	r := chi.NewRouter()
@@ -92,25 +120,38 @@ func main() {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(chimiddleware.CleanPath)
 	r.Use(chimiddleware.Timeout(30 * time.Second))
-	r.Use(middleware.RateLimit(120, time.Minute))
+	r.Use(middleware.RateLimit(rdb, 120, time.Minute))
 
 	// Health check endpoint (unauthenticated)
 	r.Get("/health", handlers.HealthHandler(pool))
 
 	// API v1 routes
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Use(middleware.Auth(cfg.JWTSecret))
-
-		// Practice endpoints
-		r.Route("/practice", func(r chi.Router) {
-			r.Post("/start", practiceH.StartSession)
-			r.Post("/submit", practiceH.SubmitAnswer)
-			r.Post("/skip", practiceH.SkipProblem)
-			r.Post("/close", practiceH.CloseSession)
-			r.Get("/session/{id}", practiceH.GetSession)
-			r.Get("/similar", practiceH.GetSimilar)
-			r.Get("/topics", practiceH.GetTopics)
+		// Public routes
+		r.Route("/auth", func(r chi.Router) {
+			r.Get("/oauth/{provider}/redirect", authH.Redirect)
+			r.Get("/oauth/{provider}/callback", authH.Callback)
+			r.Post("/refresh", authH.Refresh)
+			r.Post("/logout", authH.Logout)
 		})
+
+		// Protected routes
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.Auth(cfg.JWTSecret, appCache))
+			r.Get("/auth/me", authH.Me)
+
+			// Practice endpoints
+			r.Route("/practice", func(r chi.Router) {
+				r.Post("/start", practiceH.StartSession)
+				r.Post("/submit", practiceH.SubmitAnswer)
+				r.Post("/skip", practiceH.SkipProblem)
+				r.Post("/close", practiceH.CloseSession)
+				r.Get("/session/{id}", practiceH.GetSession)
+				r.Post("/{id}/hint", practiceH.RequestHint)
+				r.Get("/{id}/error-analysis", practiceH.GetErrorAnalysis)
+				r.Get("/similar", practiceH.GetSimilar)
+				r.Get("/topics", practiceH.GetTopics)
+			})
 
 		// Code execution endpoints
 		r.Route("/execute", func(r chi.Router) {
@@ -121,10 +162,23 @@ func main() {
 		// Problem repository search
 		r.Get("/problems/search", practiceH.SearchProblems)
 
+		// Realtime SSE endpoint
+		r.Get("/events/stream", realtimeH.StreamEvents)
+		
+		// Jobs polling endpoint
+		r.Get("/jobs/{id}", jobsH.GetJob)
+
 		// User profile & history endpoints
 		r.Route("/user", func(r chi.Router) {
 			r.Get("/profile", userH.GetProfile)
 			r.Get("/history", userH.GetHistory)
+		})
+
+		// Admin endpoints
+		r.Route("/admin", func(r chi.Router) {
+			r.Post("/tutorials/ingest", ingestH.IngestTutorials)
+			r.Post("/roadmaps/ingest", ingestH.IngestRoadmaps)
+		})
 		})
 	})
 

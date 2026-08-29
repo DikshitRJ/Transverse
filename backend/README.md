@@ -108,7 +108,7 @@ $$\theta_{\text{eff}} = \theta_{\text{current}} + (\text{TopicBias} \times 200) 
 | `DB_POOL_MIN_CONNS` | `4` | Minimum database connections in pool |
 | `DB_POOL_MAX_CONNS` | `20` | Maximum database connections in pool |
 | `ONNX_MODEL_PATH` | `./models/bge-small-en-v1.5.onnx` | Path to the ONNX embedding model |
-| `TOPICS_GRAPH_PATH` | `./data/topics.json` | Path to the topic knowledge graph DAG |
+| `TOPICS_GRAPH_PATH` | `../data/topics.json` | Path to the topic knowledge graph DAG |
 | `JUDGE0_BASE_URL` | `https://judge0-ce.p.rapidapi.com` | Judge0 code execution API base URL |
 | `JUDGE0_API_KEY` | `""` | Judge0 / RapidAPI authentication key |
 | `JUDGE0_TIMEOUT_MS` | `5000` | Judge0 HTTP timeout in milliseconds |

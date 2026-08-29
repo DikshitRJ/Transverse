@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: transverse
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: transverse
+    ports:
+      - "5432:5432"
+    networks:
+      - transverse_test_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    networks:
+      - transverse_test_net
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    networks:
+      - transverse_test_net
+
+  # Mock API or Backend Service could be built here, 
+  # or tests can run against a manually started backend instance.
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile # Assuming standard go dockerfile
+    environment:
+      - REDIS_ADDR=redis:6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password123
+      - MINIO_USE_SSL=false
+      - ZAI_API_KEY=mock-key
+      - CACHE_DRIVER=redis
+      - INTEGRATION_TEST=1
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+    networks:
+      - transverse_test_net
+
+networks:
+  transverse_test_net:
+    driver: bridge

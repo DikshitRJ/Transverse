@@ -1,0 +1,19 @@
+You are an expert curriculum designer. Generate a personalized learning roadmap.
+
+Target Role: {{.TargetRole}}
+Per-Topic Mastery:
+{{.MasteryJSON}}
+
+Confirmed Topic IDs:
+{{.ConfirmedTopics}}
+
+Debunked Topic IDs:
+{{.DebunkedTopics}}
+
+Topic DAG (Allowed Topics & Dependencies):
+{{.TopicDAG}}
+
+Sequence and phase nodes drawn ONLY from the provided Topic DAG. Do not invent new topics.
+
+Respond with ONLY a JSON object matching this schema, no prose, no markdown fences:
+{"phases":[{"title":"...","nodes":[{"topic_id":"...","unlock_rule":{"type":"no_prerequisite"}}]}]}

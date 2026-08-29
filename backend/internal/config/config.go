@@ -42,6 +42,35 @@ type Config struct {
 
 	// JWTSecret is the secret key used for signing and validating JWT tokens.
 	JWTSecret string `json:"jwt_secret"`
+
+	// Connector configurations
+	GithubAPIBase            string `json:"github_api_base"`
+	LeetcodeGraphQLURL       string `json:"leetcode_graphql_url"`
+	CodeforcesAPIBase        string `json:"codeforces_api_base"`
+	ConnectorTimeoutSeconds  int    `json:"connector_timeout_seconds"`
+	ConnectorMaxReposScanned int    `json:"connector_max_repos_scanned"`
+	GithubToken              string `json:"github_token"` // Optional PAT for higher rate limits
+
+	// OAuth2
+	OAuthGithubClientID     string `json:"oauth_github_client_id"`
+	OAuthGithubClientSecret string `json:"oauth_github_client_secret"`
+	OAuthGithubRedirectURL  string `json:"oauth_github_redirect_url"`
+	OAuthGoogleClientID     string `json:"oauth_google_client_id"`
+	OAuthGoogleClientSecret string `json:"oauth_google_client_secret"`
+	OAuthGoogleRedirectURL  string `json:"oauth_google_redirect_url"`
+	JWTAccessTTLMinutes     int    `json:"jwt_access_ttl_minutes"`
+	JWTRefreshTTLDays       int    `json:"jwt_refresh_ttl_days"`
+
+	// Redis
+	RedisAddr string `json:"redis_addr"`
+	RedisDB   int    `json:"redis_db"`
+
+	// LLM
+	ZaiAPIKey      string `json:"zai_api_key"`
+	ZaiBaseURL     string `json:"zai_base_url"`
+	ZaiModel       string `json:"zai_model"`
+	ZaiTimeoutSecs int    `json:"zai_timeout_secs"`
+	ZaiMaxRetries  int    `json:"zai_max_retries"`
 }
 
 // Load reads all configuration from environment variables, applying defaults
@@ -53,12 +82,37 @@ func Load() *Config {
 		DBPoolMinConns:  getEnvAsInt("DB_POOL_MIN_CONNS", 4),
 		DBPoolMaxConns:  getEnvAsInt("DB_POOL_MAX_CONNS", 20),
 		ONNXModelPath:   getEnvWithDefault("ONNX_MODEL_PATH", "./models/bge-small-en-v1.5.onnx"),
-		TopicsGraphPath: getEnvWithDefault("TOPICS_GRAPH_PATH", "./data/topics.json"),
+		TopicsGraphPath: getEnvWithDefault("TOPICS_GRAPH_PATH", "../data/topics.json"),
 		Judge0BaseURL:   getEnvWithDefault("JUDGE0_BASE_URL", "https://judge0-ce.p.rapidapi.com"),
 		Judge0APIKey:    getEnvWithDefault("JUDGE0_API_KEY", ""),
 		Judge0TimeoutMs: getEnvAsInt("JUDGE0_TIMEOUT_MS", 5000),
 		CacheEnabled:    getEnvAsBool("CACHE_ENABLED", true),
 		JWTSecret:       getEnvWithDefault("JWT_SECRET", "change-me-in-production"),
+		
+		GithubAPIBase:            getEnvWithDefault("GITHUB_API_BASE", "https://api.github.com"),
+		LeetcodeGraphQLURL:       getEnvWithDefault("LEETCODE_GRAPHQL_URL", "https://leetcode.com/graphql"),
+		CodeforcesAPIBase:        getEnvWithDefault("CODEFORCES_API_BASE", "https://codeforces.com/api"),
+		ConnectorTimeoutSeconds:  getEnvAsInt("CONNECTOR_TIMEOUT_SECONDS", 10),
+		ConnectorMaxReposScanned: getEnvAsInt("CONNECTOR_MAX_REPOS_SCANNED", 15),
+		GithubToken:              os.Getenv("GITHUB_TOKEN"),
+
+		OAuthGithubClientID:     os.Getenv("OAUTH_GITHUB_CLIENT_ID"),
+		OAuthGithubClientSecret: os.Getenv("OAUTH_GITHUB_CLIENT_SECRET"),
+		OAuthGithubRedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URL"),
+		OAuthGoogleClientID:     os.Getenv("OAUTH_GOOGLE_CLIENT_ID"),
+		OAuthGoogleClientSecret: os.Getenv("OAUTH_GOOGLE_CLIENT_SECRET"),
+		OAuthGoogleRedirectURL:  os.Getenv("OAUTH_GOOGLE_REDIRECT_URL"),
+		JWTAccessTTLMinutes:     getEnvAsInt("JWT_ACCESS_TTL_MINUTES", 15),
+		JWTRefreshTTLDays:       getEnvAsInt("JWT_REFRESH_TTL_DAYS", 30),
+
+		RedisAddr: getEnvWithDefault("REDIS_ADDR", "redis:6379"),
+		RedisDB:   getEnvAsInt("REDIS_DB", 0),
+		
+		ZaiAPIKey:      os.Getenv("ZAI_API_KEY"),
+		ZaiBaseURL:     getEnvWithDefault("ZAI_BASE_URL", "https://api.z.ai/api/paas/v4"),
+		ZaiModel:       getEnvWithDefault("ZAI_MODEL", "glm-4.7-flash"),
+		ZaiTimeoutSecs: getEnvAsInt("ZAI_TIMEOUT_SECONDS", 30),
+		ZaiMaxRetries:  getEnvAsInt("ZAI_MAX_RETRIES", 2),
 	}
 }
 

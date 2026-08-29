@@ -1,2 +1,20 @@
 /.codebase-memory/
 /.cursor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Go
+/backend/transverse
+
+# Env
+.env
+*.env.local
+
+# Data
+/backend/data/
+
+# OS
+.DS_Store

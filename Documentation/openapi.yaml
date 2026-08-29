@@ -1,0 +1,703 @@
+openapi: 3.1.0
+info:
+  title: Transverse API
+  version: 1.0.0
+  description: Transverse Backend API for Next.js UI Integration.
+servers:
+  - url: /api/v1
+    description: Transverse Base API Path
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    JobAcceptedResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+    EvidenceSource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [github, leetcode, codeforces, resume, codebase]
+        external_ref:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, fetching, processing, done, failed, purged]
+        created_at:
+          type: string
+          format: date-time
+    EvidenceExtract:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        evidence_source_id:
+          type: string
+          format: uuid
+        extracted_json:
+          type: object
+        confidence:
+          type: number
+    TutorialIngestSchema:
+      type: object
+      properties:
+        source:
+          type: string
+        source_url:
+          type: string
+        title:
+          type: string
+        topic_tags:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          enum: [article, video, interactive, playlist]
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        estimated_minutes:
+          type: integer
+        summary:
+          type: string
+        author:
+          type: string
+        thumbnail_url:
+          type: string
+        license_note:
+          type: string
+    RoadmapTemplateSchema:
+      type: object
+      properties:
+        roadmap_name:
+          type: string
+        target_role:
+          type: string
+        phases:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              sequence:
+                type: integer
+              unlock_rule:
+                type: object
+              nodes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    topic_tag:
+                      type: string
+                    sequence:
+                      type: integer
+                    tutorial_source_urls:
+                      type: array
+                      items:
+                        type: string
+                    practice_topic_tags:
+                      type: array
+                      items:
+                        type: string
+security:
+  - bearerAuth: []
+paths:
+  /auth/oauth/{provider}/redirect:
+    get:
+      tags:
+        - Auth
+      summary: OAuth Redirect
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [github, google]
+      responses:
+        '302':
+          description: Redirect to OAuth provider
+  /auth/oauth/{provider}/callback:
+    get:
+      tags:
+        - Auth
+      summary: OAuth Callback
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [github, google]
+      responses:
+        '200':
+          description: OK
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh token
+      responses:
+        '200':
+          description: Tokens refreshed
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout and revoke token
+      responses:
+        '200':
+          description: OK
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Authenticated identity summary
+      responses:
+        '200':
+          description: OK
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Profile and global Glicko rating
+      responses:
+        '200':
+          description: OK
+    patch:
+      tags:
+        - Users
+      summary: Update profile
+      responses:
+        '200':
+          description: OK
+  /users/me/skill-profile:
+    get:
+      tags:
+        - Users
+      summary: Per-topic mastery and rating
+      responses:
+        '200':
+          description: OK
+  /users/me/learning-dna:
+    get:
+      tags:
+        - Users
+      summary: Learning DNA output
+      responses:
+        '200':
+          description: OK
+  /evidence/upload-url:
+    post:
+      tags:
+        - Evidence
+      summary: Get presigned MinIO PUT URL
+      responses:
+        '200':
+          description: OK
+  /evidence/{id}/confirm:
+    post:
+      tags:
+        - Evidence
+      summary: Confirm upload landed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAcceptedResponse'
+  /evidence/github:
+    post:
+      tags:
+        - Evidence
+      summary: GitHub connector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+  /evidence/leetcode:
+    post:
+      tags:
+        - Evidence
+      summary: LeetCode connector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+  /evidence/codeforces:
+    post:
+      tags:
+        - Evidence
+      summary: Codeforces connector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                handle:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+  /evidence:
+    get:
+      tags:
+        - Evidence
+      summary: List evidence sources
+      responses:
+        '200':
+          description: OK
+  /evidence/{id}:
+    get:
+      tags:
+        - Evidence
+      summary: Single evidence source
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags:
+        - Evidence
+      summary: Delete evidence source
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+  /hypotheses/generate:
+    post:
+      tags:
+        - Hypotheses
+      summary: Trigger hypothesis generation
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAcceptedResponse'
+  /hypotheses:
+    get:
+      tags:
+        - Hypotheses
+      summary: List hypotheses
+      responses:
+        '200':
+          description: OK
+  /jobs/{id}:
+    get:
+      tags:
+        - Jobs
+      summary: Poll job status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /events/stream:
+    get:
+      tags:
+        - Jobs
+      summary: SSE stream of user's Redis events
+      responses:
+        '200':
+          description: OK (SSE stream)
+          content:
+            text/event-stream:
+              schema:
+                type: string
+  /quiz/verification/start:
+    post:
+      tags:
+        - Verification Quiz
+      summary: Build quiz session
+      responses:
+        '200':
+          description: OK
+  /quiz/{sessionId}/next:
+    get:
+      tags:
+        - Verification Quiz
+      summary: Next unanswered item
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /quiz/{sessionId}/answer:
+    post:
+      tags:
+        - Verification Quiz
+      summary: Submit code for current item
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /quiz/{sessionId}/complete:
+    post:
+      tags:
+        - Verification Quiz
+      summary: Finalize session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /quiz/{sessionId}/result:
+    get:
+      tags:
+        - Verification Quiz
+      summary: Quiz result
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /roadmap/generate:
+    post:
+      tags:
+        - Roadmap
+      summary: Generate roadmap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_role:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAcceptedResponse'
+  /roadmap/me:
+    get:
+      tags:
+        - Roadmap
+      summary: Current active roadmap
+      responses:
+        '200':
+          description: OK
+  /roadmap/{id}:
+    get:
+      tags:
+        - Roadmap
+      summary: Specific roadmap detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /roadmap/{id}/nodes/{nodeId}/test-out:
+    post:
+      tags:
+        - Roadmap
+      summary: Attempt to bypass a node
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /roadmap/{id}/regenerate:
+    post:
+      tags:
+        - Roadmap
+      summary: Trigger remediation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /topics:
+    get:
+      tags:
+        - Tutorials & Topics
+      summary: List DAG nodes
+      responses:
+        '200':
+          description: OK
+  /topics/{id}:
+    get:
+      tags:
+        - Tutorials & Topics
+      summary: Single topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /tutorials:
+    get:
+      tags:
+        - Tutorials & Topics
+      summary: List tutorials for a topic
+      parameters:
+        - name: topic_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /tutorials/{id}:
+    get:
+      tags:
+        - Tutorials & Topics
+      summary: Tutorial detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /admin/tutorials/ingest:
+    post:
+      tags:
+        - Tutorials & Topics
+      summary: Bulk upsert tutorials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TutorialIngestSchema'
+      responses:
+        '200':
+          description: OK
+  /admin/roadmaps/ingest:
+    post:
+      tags:
+        - Tutorials & Topics
+      summary: Bulk load curated roadmap template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoadmapTemplateSchema'
+      responses:
+        '200':
+          description: OK
+  /practice/start:
+    post:
+      tags:
+        - Practice
+      summary: Start practice
+      responses:
+        '200':
+          description: OK
+  /practice/submit:
+    post:
+      tags:
+        - Practice
+      summary: Submit practice
+      responses:
+        '200':
+          description: OK
+  /practice/skip:
+    post:
+      tags:
+        - Practice
+      summary: Skip practice
+      responses:
+        '200':
+          description: OK
+  /practice/close:
+    post:
+      tags:
+        - Practice
+      summary: Close practice
+      responses:
+        '200':
+          description: OK
+  /practice/session/{id}:
+    get:
+      tags:
+        - Practice
+      summary: Practice session detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /practice/{sessionId}/hint:
+    post:
+      tags:
+        - Practice
+      summary: Request next-level LLM hint
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAcceptedResponse'
+  /practice/{sessionId}/error-analysis:
+    get:
+      tags:
+        - Practice
+      summary: Latest LLM error analysis
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /admin/seed/problems:
+    post:
+      tags:
+        - Admin
+      summary: Trigger problem seeding
+      responses:
+        '200':
+          description: OK
+  /admin/seed/topics:
+    post:
+      tags:
+        - Admin
+      summary: Reload topics
+      responses:
+        '200':
+          description: OK
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Liveness
+      security: []
+      responses:
+        '200':
+          description: OK
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness
+      security: []
+      responses:
+        '200':
+          description: OK
