@@ -20,12 +20,15 @@ import (
 	"transverse/internal/database"
 	"transverse/internal/graph"
 	"transverse/internal/handlers"
+	"transverse/internal/jobs"
+	"transverse/internal/llm"
 	"transverse/internal/middleware"
+	"transverse/internal/realtime"
 	"transverse/internal/repository"
+	"transverse/internal/roadmap"
+	"transverse/internal/scraper"
 	"transverse/internal/services"
 	"transverse/internal/services/ingest"
-	"transverse/internal/jobs"
-	"transverse/internal/realtime"
 )
 
 func main() {
@@ -65,9 +68,13 @@ func main() {
 	// 4. Setup cache
 	var appCache cache.Cache
 	if cfg.CacheEnabled {
-		// Ideally use cache.NewRedisCache(rdb) if it existed, but fallback to memory for now
-		appCache = cache.NewMemoryCache()
-		slog.Info("in-memory cache enabled")
+		if rdb != nil {
+			appCache = cache.NewRedisCache(rdb)
+			slog.Info("redis cache enabled")
+		} else {
+			appCache = cache.NewMemoryCache()
+			slog.Info("in-memory cache enabled (redis unavailable)")
+		}
 	} else {
 		appCache = cache.NewNoopCache()
 		slog.Info("cache disabled (using noop cache)")
@@ -97,12 +104,18 @@ func main() {
 	)
 	ingestRepo := repository.NewIngestRepo(pool)
 	ingestSvc := ingest.NewService(ingestRepo, graphSvc)
+	problemScraper := scraper.NewUnifiedScraper(15 * time.Second)
+	roadmapRepo := repository.NewRoadmapRepo(pool)
+	llmClient := llm.NewZaiClient(cfg, rdb)
+	roadmapSvc, _ := roadmap.NewService(roadmapRepo, userRepo, problemRepo, statsRepo, topicGraph, llmClient, rdb, "")
 
 	// 8. Build handlers
-	practiceH := handlers.NewPracticeHandler(practiceSvc, judge0Svc)
+	practiceH := handlers.NewPracticeHandler(practiceSvc, judge0Svc, problemRepo, problemScraper)
 	userH := handlers.NewUserHandler(userRepo, statsRepo, sessionRepo)
+	ingestH := handlers.NewIngestHandler(ingestSvc)
 	oauthRepo := repository.NewOAuthRepo(pool)
 	authH := handlers.NewAuthHandler(cfg, oauthRepo, userRepo, appCache)
+	roadmapH := handlers.NewRoadmapHandler(roadmapSvc)
 
 	// Jobs & Realtime
 	jobQueue := jobs.NewQueue(rdb)
@@ -153,14 +166,25 @@ func main() {
 				r.Get("/topics", practiceH.GetTopics)
 			})
 
+		// Dynamic Progressive Roadmap endpoints
+		r.Route("/roadmap", func(r chi.Router) {
+			r.Get("/", roadmapH.GetCurrentRoadmap)
+			r.Get("/me", roadmapH.GetCurrentRoadmap)
+			r.Post("/nodes/{id}/complete", roadmapH.CompleteNode)
+			r.Post("/nodes/{id}/test-out", roadmapH.TestOutNode)
+			r.Post("/generate", roadmapH.GenerateRoadmap)
+		})
+
 		// Code execution endpoints
 		r.Route("/execute", func(r chi.Router) {
 			r.Post("/", practiceH.Execute)
+			r.Post("/batch", practiceH.ExecuteBatch)
 			r.Get("/{token}", practiceH.GetVerdict)
 		})
 
-		// Problem repository search
+		// Problem repository search and scraping
 		r.Get("/problems/search", practiceH.SearchProblems)
+		r.Post("/problems/scrape", practiceH.ScrapeProblem)
 
 		// Realtime SSE endpoint
 		r.Get("/events/stream", realtimeH.StreamEvents)

@@ -183,3 +183,129 @@ func (r *RoadmapRepo) UpdateUserRoadmapPhase(ctx context.Context, id uuid.UUID, 
 	}
 	return nil
 }
+
+func (r *RoadmapRepo) GetPhaseByID(ctx context.Context, phaseID uuid.UUID) (*models.RoadmapPhase, error) {
+	var p models.RoadmapPhase
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, roadmap_template_id, sequence, title, unlock_rule, created_at
+		FROM roadmap_phases WHERE id = $1
+	`, phaseID).Scan(&p.ID, &p.RoadmapTemplateID, &p.Sequence, &p.Title, &p.UnlockRule, &p.CreatedAt)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("roadmap_repo: get phase by id: %w", err)
+	}
+	return &p, nil
+}
+
+func (r *RoadmapRepo) GetNodeByID(ctx context.Context, nodeID uuid.UUID) (*models.RoadmapNode, error) {
+	var n models.RoadmapNode
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, phase_id, topic_id, sequence, unlock_rule, tutorial_ids, practice_topic_ids, created_at
+		FROM roadmap_nodes WHERE id = $1
+	`, nodeID).Scan(&n.ID, &n.PhaseID, &n.TopicID, &n.Sequence, &n.UnlockRule, &n.TutorialIDs, &n.PracticeTopicIDs, &n.CreatedAt)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("roadmap_repo: get node by id: %w", err)
+	}
+	return &n, nil
+}
+
+func (r *RoadmapRepo) GetUserProgressByNode(ctx context.Context, userRoadmapID, nodeID uuid.UUID) (*models.UserRoadmapNodeProgress, error) {
+	var p models.UserRoadmapNodeProgress
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, user_roadmap_id, node_id, status, unlocked_at, mastered_at
+		FROM user_roadmap_node_progress WHERE user_roadmap_id = $1 AND node_id = $2
+	`, userRoadmapID, nodeID).Scan(&p.ID, &p.UserRoadmapID, &p.NodeID, &p.Status, &p.UnlockedAt, &p.MasteredAt)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("roadmap_repo: get user progress by node: %w", err)
+	}
+	return &p, nil
+}
+
+func (r *RoadmapRepo) GetCuratedTemplate(ctx context.Context) (*models.RoadmapTemplate, error) {
+	var tmpl models.RoadmapTemplate
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, target_role, source, version, created_at
+		FROM roadmap_templates
+		ORDER BY created_at DESC LIMIT 1
+	`).Scan(&tmpl.ID, &tmpl.TargetRole, &tmpl.Source, &tmpl.Version, &tmpl.CreatedAt)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("roadmap_repo: get curated template: %w", err)
+	}
+	return &tmpl, nil
+}
+
+func (r *RoadmapRepo) GetTutorialsByTopic(ctx context.Context, topicID string) ([]models.Tutorial, error) {
+	query := `
+		SELECT id, source, source_url, title, topic_tags, type, difficulty, estimated_minutes, COALESCE(summary, ''), COALESCE(thumbnail_url, '')
+		FROM tutorials
+		WHERE $1 = ANY(topic_tags) OR $1 = ANY(string_to_array(title, ' '))
+		LIMIT 5
+	`
+	rows, err := r.pool.Query(ctx, query, topicID)
+	if err != nil {
+		return []models.Tutorial{}, nil
+	}
+	defer rows.Close()
+
+	var tutorials []models.Tutorial
+	for rows.Next() {
+		var t models.Tutorial
+		var thumb string
+		var summary string
+		if err := rows.Scan(
+			&t.ID, &t.Source, &t.SourceURL, &t.Title, &t.TopicTags,
+			&t.Type, &t.Difficulty, &t.EstimatedMinutes, &summary, &thumb,
+		); err == nil {
+			t.Summary = summary
+			t.ThumbnailURL = thumb
+			t.Status = "UNREAD"
+			tutorials = append(tutorials, t)
+		}
+	}
+	return tutorials, nil
+}
+
+func (r *RoadmapRepo) GetTutorialsByIDs(ctx context.Context, ids []uuid.UUID) ([]models.Tutorial, error) {
+	if len(ids) == 0 {
+		return []models.Tutorial{}, nil
+	}
+	query := `
+		SELECT id, source, source_url, title, topic_tags, type, difficulty, estimated_minutes, COALESCE(summary, ''), COALESCE(thumbnail_url, '')
+		FROM tutorials
+		WHERE id = ANY($1)
+	`
+	rows, err := r.pool.Query(ctx, query, ids)
+	if err != nil {
+		return []models.Tutorial{}, nil
+	}
+	defer rows.Close()
+
+	var tutorials []models.Tutorial
+	for rows.Next() {
+		var t models.Tutorial
+		var thumb string
+		var summary string
+		if err := rows.Scan(
+			&t.ID, &t.Source, &t.SourceURL, &t.Title, &t.TopicTags,
+			&t.Type, &t.Difficulty, &t.EstimatedMinutes, &summary, &thumb,
+		); err == nil {
+			t.Summary = summary
+			t.ThumbnailURL = thumb
+			t.Status = "UNREAD"
+			tutorials = append(tutorials, t)
+		}
+	}
+	return tutorials, nil
+}
+

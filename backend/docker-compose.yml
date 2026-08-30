@@ -17,6 +17,56 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  judge0-server:
+    image: judge0/judge0:1.13.1
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "2358:2358"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=transverse
+      - POSTGRES_PASSWORD=transverse
+      - POSTGRES_DB=transverse
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  judge0-workers:
+    image: judge0/judge0:1.13.1
+    restart: unless-stopped
+    privileged: true
+    command: ["./scripts/workers"]
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=transverse
+      - POSTGRES_PASSWORD=transverse
+      - POSTGRES_DB=transverse
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    depends_on:
+      judge0-server:
+        condition: service_started
+
   backend:
     build:
       context: .
@@ -25,6 +75,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      judge0-server:
+        condition: service_started
     env_file:
       - path: .env
         required: false
@@ -35,6 +89,9 @@ services:
       ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
       CACHE_ENABLED: "true"
       BYPASS_AUTH: "true"
+      REDIS_ADDR: "redis:6379"
+      JUDGE0_BASE_URL: "http://judge0-server:2358"
+      JUDGE0_API_KEY: ""
     ports:
       - "8080:8080"
     volumes:

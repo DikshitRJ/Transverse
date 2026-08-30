@@ -150,3 +150,27 @@ func (r *UserRepo) UpdateDNA(ctx context.Context, id string, dna models.Learning
 
 	return nil
 }
+
+// UpdatePsychometrics updates a user's latent theta, Glicko rating parameters, and DNA profile.
+func (r *UserRepo) UpdatePsychometrics(ctx context.Context, userID string, theta, glickoRating, glickoRD, glickoVol float64, dnaJSON []byte) error {
+	_, err := r.pool.Exec(ctx, `
+		UPDATE users SET
+			theta = $1,
+			glicko_rating = $2,
+			glicko_rd = $3,
+			glicko_vol = $4,
+			dna = $5,
+			updated_at = NOW()
+		WHERE id = $6
+	`, theta, glickoRating, glickoRD, glickoVol, dnaJSON, userID)
+	if err != nil {
+		return fmt.Errorf("user_repo: update psychometrics: %w", err)
+	}
+	
+	if r.cache != nil {
+		_ = r.cache.Del(ctx, fmt.Sprintf("user:%s", userID))
+		_ = r.cache.Del(ctx, fmt.Sprintf("dna:%s", userID))
+	}
+	
+	return nil
+}

@@ -1,22 +1,29 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"transverse/internal/templates"
+)
 
 // ProblemPayload represents sanitized problem information safe for external client consumption,
 // excluding internal psychometric parameters and embedding vectors.
 type ProblemPayload struct {
-	ID              string   `json:"id"`
-	Source          string   `json:"source"`
-	Name            string   `json:"name"`
-	URL             string   `json:"url"`
-	Slug            string   `json:"slug"`
-	ContestID       string   `json:"contest_id,omitempty"`
-	Tags            []string `json:"tags"`
-	Topic           string   `json:"topic"`
-	Subtopic        string   `json:"subtopic"`
-	DifficultyLabel string   `json:"difficulty_label"`
-	SolveRate       float64  `json:"solve_rate"`
-	AvgTimeMs       int      `json:"avg_time_ms"`
+	ID              string            `json:"id"`
+	Source          string            `json:"source"`
+	Name            string            `json:"name"`
+	URL             string            `json:"url"`
+	Slug            string            `json:"slug"`
+	ContestID       string            `json:"contest_id,omitempty"`
+	Tags            []string          `json:"tags"`
+	Topic           string            `json:"topic"`
+	Subtopic        string            `json:"subtopic"`
+	DifficultyLabel string            `json:"difficulty_label"`
+	SolveRate       float64           `json:"solve_rate"`
+	AvgTimeMs       int               `json:"avg_time_ms"`
+	Statement       string            `json:"statement,omitempty"`
+	TestCases       []TestCase        `json:"test_cases,omitempty"`
+	Templates       map[string]string `json:"templates,omitempty"`
 }
 
 // ToProblemPayload converts a database Problem entity into a sanitized ProblemPayload.
@@ -27,6 +34,10 @@ func ToProblemPayload(p *Problem) ProblemPayload {
 	tags := p.Tags
 	if tags == nil {
 		tags = []string{}
+	}
+	testCases := p.TestCases
+	if testCases == nil {
+		testCases = []TestCase{}
 	}
 	return ProblemPayload{
 		ID:              p.ID,
@@ -41,6 +52,9 @@ func ToProblemPayload(p *Problem) ProblemPayload {
 		DifficultyLabel: p.DifficultyLabel,
 		SolveRate:       p.SolveRate,
 		AvgTimeMs:       p.AvgTimeMs,
+		Statement:       p.Statement,
+		TestCases:       testCases,
+		Templates:       templates.GenerateTemplates(p.Name, p.Slug, p.Topic),
 	}
 }
 
@@ -209,6 +223,41 @@ type VerdictPollResponse struct {
 	CompileOutput string `json:"compile_output,omitempty"`
 	Message       string `json:"message,omitempty"`
 	IsDone        bool   `json:"is_done"`
+}
+
+// TestCaseResult represents the outcome for an individual test case run.
+type TestCaseResult struct {
+	Index          int    `json:"index"`
+	Input          string `json:"input,omitempty"`
+	ExpectedOutput string `json:"expected_output,omitempty"`
+	ActualStdout   string `json:"actual_stdout,omitempty"`
+	Stderr         string `json:"stderr,omitempty"`
+	CompileOutput  string `json:"compile_output,omitempty"`
+	StatusID       int    `json:"status_id"`
+	StatusDesc     string `json:"status_desc"`
+	TimeMs         int    `json:"time_ms"`
+	MemoryKB       int    `json:"memory_kb"`
+	Passed         bool   `json:"passed"`
+}
+
+// BatchExecuteRequest represents a request to execute code against multiple test cases.
+type BatchExecuteRequest struct {
+	ProblemID   string     `json:"problem_id,omitempty"`
+	LanguageID  int        `json:"language_id"`
+	SourceCode  string     `json:"source_code"`
+	TestCases   []TestCase `json:"test_cases,omitempty"`
+}
+
+// BatchExecuteResponse contains the aggregated results from running multiple test cases.
+type BatchExecuteResponse struct {
+	AllPassed       bool             `json:"all_passed"`
+	PassedCount     int              `json:"passed_count"`
+	TotalCount      int              `json:"total_count"`
+	OverallStatus   string           `json:"overall_status"`
+	OverallStatusID int              `json:"overall_status_id"`
+	MaxTimeMs       int              `json:"max_time_ms"`
+	MaxMemoryKB     int              `json:"max_memory_kb"`
+	TestCases       []TestCaseResult `json:"test_cases"`
 }
 
 // ProblemSearchRequest defines filtering parameters for searching the problem repository.

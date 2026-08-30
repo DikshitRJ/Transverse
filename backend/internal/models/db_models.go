@@ -9,6 +9,14 @@ import (
 	"github.com/pgvector/pgvector-go"
 )
 
+// TestCase represents a single test case input/output pair for a problem.
+type TestCase struct {
+	Input       string `json:"input"`
+	Output      string `json:"output"`
+	Explanation string `json:"explanation,omitempty"`
+	IsHidden    bool   `json:"is_hidden,omitempty"`
+}
+
 // Problem represents a DSA/CP problem from any competitive programming platform
 // stored in the central problem repository.
 type Problem struct {
@@ -28,6 +36,8 @@ type Problem struct {
 	AttemptCount     int             `json:"attempt_count" db:"attempt_count"`
 	SolveRate        float64         `json:"solve_rate" db:"solve_rate"`
 	AvgTimeMs        int             `json:"avg_time_ms" db:"avg_time_ms"`
+	Statement        string          `json:"statement" db:"statement"`
+	TestCases        []TestCase      `json:"test_cases" db:"test_cases"`
 	Embedding        pgvector.Vector `json:"embedding" db:"embedding"` // 384-dimensional dense vector
 	EmbedText        string          `json:"embed_text" db:"embed_text"`
 	CreatedAt        time.Time       `json:"created_at" db:"created_at"`

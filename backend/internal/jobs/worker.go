@@ -2,8 +2,7 @@ package jobs
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -48,7 +47,7 @@ func (w *WorkerPool) pollQueue(ctx context.Context, jobType string) {
 			res, err := w.rdb.BRPop(ctx, 2*time.Second, queueKey).Result()
 			if err != nil {
 				if err != redis.Nil {
-					log.Printf("Worker polling error: %v", err)
+					slog.Warn("worker polling error", "error", err)
 					time.Sleep(1 * time.Second)
 				}
 				continue
@@ -61,7 +60,7 @@ func (w *WorkerPool) pollQueue(ctx context.Context, jobType string) {
 			jobID := res[1]
 			job, err := w.q.GetJob(ctx, jobID)
 			if err != nil {
-				log.Printf("Failed to get job %s: %v", jobID, err)
+				slog.Error("failed to get job", "job_id", jobID, "error", err)
 				continue
 			}
 
@@ -72,7 +71,9 @@ func (w *WorkerPool) pollQueue(ctx context.Context, jobType string) {
 			_ = w.q.UpdateJob(ctx, job)
 
 			// Process
-			err = p(ctx, job)
+			jobCtx, jobCancel := context.WithTimeout(ctx, 5*time.Minute)
+			err = p(jobCtx, job)
+			jobCancel()
 			
 			nowDone := time.Now()
 			job.DoneAt = &nowDone

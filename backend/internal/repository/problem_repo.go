@@ -3,6 +3,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -41,16 +42,18 @@ func (r *ProblemRepo) GetByID(ctx context.Context, id string) (*models.Problem, 
 
 	var p models.Problem
 	var emb pgvector.Vector
+	var tcRaw []byte
+	var statement *string
 	err := r.pool.QueryRow(ctx, `
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-		       attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-		       created_at, updated_at
+		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
+		       embedding, embed_text, created_at, updated_at
 		FROM problems WHERE id = $1
 	`, id).Scan(
 		&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
 		&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-		&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &emb, &p.EmbedText,
+		&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
 		&p.CreatedAt, &p.UpdatedAt,
 	)
 	if err != nil {
@@ -61,6 +64,15 @@ func (r *ProblemRepo) GetByID(ctx context.Context, id string) (*models.Problem, 
 	}
 
 	p.Embedding = emb
+	if statement != nil {
+		p.Statement = *statement
+	}
+	if len(tcRaw) > 0 {
+		_ = json.Unmarshal(tcRaw, &p.TestCases)
+	}
+	if p.TestCases == nil {
+		p.TestCases = []models.TestCase{}
+	}
 
 	if r.cache != nil {
 		_ = r.cache.Set(ctx, cacheKey, p, 24*time.Hour)
@@ -82,8 +94,8 @@ func (r *ProblemRepo) GetByTopic(ctx context.Context, topic string) ([]models.Pr
 	rows, err := r.pool.Query(ctx, `
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-		       attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-		       created_at, updated_at
+		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
+		       embedding, embed_text, created_at, updated_at
 		FROM problems WHERE topic = $1
 		ORDER BY glicko_rating ASC
 	`, topic)
@@ -96,15 +108,26 @@ func (r *ProblemRepo) GetByTopic(ctx context.Context, topic string) ([]models.Pr
 	for rows.Next() {
 		var p models.Problem
 		var emb pgvector.Vector
+		var tcRaw []byte
+		var statement *string
 		if err := rows.Scan(
 			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
 			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &emb, &p.EmbedText,
+			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
 			&p.CreatedAt, &p.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan problem: %w", err)
 		}
 		p.Embedding = emb
+		if statement != nil {
+			p.Statement = *statement
+		}
+		if len(tcRaw) > 0 {
+			_ = json.Unmarshal(tcRaw, &p.TestCases)
+		}
+		if p.TestCases == nil {
+			p.TestCases = []models.TestCase{}
+		}
 		problems = append(problems, p)
 	}
 
@@ -124,8 +147,8 @@ func (r *ProblemRepo) GetByScope(ctx context.Context, scope models.SessionScope)
 	query := `
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-		       attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-		       created_at, updated_at
+		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
+		       embedding, embed_text, created_at, updated_at
 		FROM problems
 		WHERE 1=1
 	`
@@ -177,15 +200,26 @@ func (r *ProblemRepo) GetByScope(ctx context.Context, scope models.SessionScope)
 	for rows.Next() {
 		var p models.Problem
 		var emb pgvector.Vector
+		var tcRaw []byte
+		var statement *string
 		if err := rows.Scan(
 			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
 			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &emb, &p.EmbedText,
+			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
 			&p.CreatedAt, &p.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan scope problem: %w", err)
 		}
 		p.Embedding = emb
+		if statement != nil {
+			p.Statement = *statement
+		}
+		if len(tcRaw) > 0 {
+			_ = json.Unmarshal(tcRaw, &p.TestCases)
+		}
+		if p.TestCases == nil {
+			p.TestCases = []models.TestCase{}
+		}
 		problems = append(problems, p)
 	}
 
@@ -201,8 +235,8 @@ func (r *ProblemRepo) FindSimilar(ctx context.Context, embedding pgvector.Vector
 	query := `
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-		       attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-		       created_at, updated_at
+		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
+		       embedding, embed_text, created_at, updated_at
 		FROM problems
 	`
 	args := []interface{}{embedding}
@@ -224,15 +258,26 @@ func (r *ProblemRepo) FindSimilar(ctx context.Context, embedding pgvector.Vector
 	for rows.Next() {
 		var p models.Problem
 		var emb pgvector.Vector
+		var tcRaw []byte
+		var statement *string
 		if err := rows.Scan(
 			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
 			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &emb, &p.EmbedText,
+			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
 			&p.CreatedAt, &p.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan similar problem: %w", err)
 		}
 		p.Embedding = emb
+		if statement != nil {
+			p.Statement = *statement
+		}
+		if len(tcRaw) > 0 {
+			_ = json.Unmarshal(tcRaw, &p.TestCases)
+		}
+		if p.TestCases == nil {
+			p.TestCases = []models.TestCase{}
+		}
 		problems = append(problems, p)
 	}
 
@@ -259,9 +304,10 @@ func (r *ProblemRepo) Search(ctx context.Context, req models.ProblemSearchReques
 
 	if strings.TrimSpace(req.Query) != "" {
 		q := "%" + strings.ToLower(strings.TrimSpace(req.Query)) + "%"
-		whereClauses = append(whereClauses, fmt.Sprintf("(LOWER(name) LIKE $%d OR LOWER(slug) LIKE $%d OR $%d = ANY(tags))", argIdx, argIdx, strings.ToLower(strings.TrimSpace(req.Query))))
-		args = append(args, q)
-		argIdx++
+		rawQ := strings.ToLower(strings.TrimSpace(req.Query))
+		whereClauses = append(whereClauses, fmt.Sprintf("(LOWER(name) LIKE $%d OR LOWER(slug) LIKE $%d OR $%d = ANY(tags))", argIdx, argIdx, argIdx+1))
+		args = append(args, q, rawQ)
+		argIdx += 2
 	}
 
 	if strings.TrimSpace(req.Topic) != "" {
@@ -293,8 +339,8 @@ func (r *ProblemRepo) Search(ctx context.Context, req models.ProblemSearchReques
 	dataQuery := fmt.Sprintf(`
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-		       attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-		       created_at, updated_at
+		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
+		       embedding, embed_text, created_at, updated_at
 		FROM problems
 		WHERE %s
 		ORDER BY glicko_rating ASC
@@ -313,15 +359,26 @@ func (r *ProblemRepo) Search(ctx context.Context, req models.ProblemSearchReques
 	for rows.Next() {
 		var p models.Problem
 		var emb pgvector.Vector
+		var tcRaw []byte
+		var statement *string
 		if err := rows.Scan(
 			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
 			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &emb, &p.EmbedText,
+			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
 			&p.CreatedAt, &p.UpdatedAt,
 		); err != nil {
 			return nil, 0, fmt.Errorf("problem_repo: scan search row: %w", err)
 		}
 		p.Embedding = emb
+		if statement != nil {
+			p.Statement = *statement
+		}
+		if len(tcRaw) > 0 {
+			_ = json.Unmarshal(tcRaw, &p.TestCases)
+		}
+		if p.TestCases == nil {
+			p.TestCases = []models.TestCase{}
+		}
 		problems = append(problems, p)
 	}
 
@@ -330,14 +387,19 @@ func (r *ProblemRepo) Search(ctx context.Context, req models.ProblemSearchReques
 
 // Upsert inserts or updates a single problem.
 func (r *ProblemRepo) Upsert(ctx context.Context, p *models.Problem) error {
-	_, err := r.pool.Exec(ctx, `
+	tcBytes, err := json.Marshal(p.TestCases)
+	if err != nil {
+		tcBytes = []byte("[]")
+	}
+
+	_, err = r.pool.Exec(ctx, `
 		INSERT INTO problems (
 			id, source, name, url, slug, contest_id, tags, topic, subtopic,
 			difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-			attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-			created_at, updated_at
+			attempt_count, solve_rate, avg_time_ms, statement, test_cases,
+			embedding, embed_text, created_at, updated_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW()
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW(), NOW()
 		)
 		ON CONFLICT (id) DO UPDATE SET
 			source = EXCLUDED.source,
@@ -355,13 +417,15 @@ func (r *ProblemRepo) Upsert(ctx context.Context, p *models.Problem) error {
 			attempt_count = EXCLUDED.attempt_count,
 			solve_rate = EXCLUDED.solve_rate,
 			avg_time_ms = EXCLUDED.avg_time_ms,
+			statement = EXCLUDED.statement,
+			test_cases = EXCLUDED.test_cases,
 			embedding = EXCLUDED.embedding,
 			embed_text = EXCLUDED.embed_text,
 			updated_at = NOW()
 	`,
 		p.ID, p.Source, p.Name, p.URL, p.Slug, p.ContestID, p.Tags, p.Topic, p.Subtopic,
 		p.DifficultyLabel, p.GlickoRating, p.GlickoRD, p.GlickoVolatility,
-		p.AttemptCount, p.SolveRate, p.AvgTimeMs, p.Embedding, p.EmbedText,
+		p.AttemptCount, p.SolveRate, p.AvgTimeMs, p.Statement, tcBytes, p.Embedding, p.EmbedText,
 	)
 	if err != nil {
 		return fmt.Errorf("problem_repo: upsert: %w", err)
@@ -388,14 +452,19 @@ func (r *ProblemRepo) BatchUpsert(ctx context.Context, problems []models.Problem
 	defer tx.Rollback(ctx)
 
 	for _, p := range problems {
-		_, err := tx.Exec(ctx, `
+		tcBytes, err := json.Marshal(p.TestCases)
+		if err != nil {
+			tcBytes = []byte("[]")
+		}
+
+		_, err = tx.Exec(ctx, `
 			INSERT INTO problems (
 				id, source, name, url, slug, contest_id, tags, topic, subtopic,
 				difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
-				attempt_count, solve_rate, avg_time_ms, embedding, embed_text,
-				created_at, updated_at
+				attempt_count, solve_rate, avg_time_ms, statement, test_cases,
+				embedding, embed_text, created_at, updated_at
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW()
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW(), NOW()
 			)
 			ON CONFLICT (id) DO UPDATE SET
 				source = EXCLUDED.source,
@@ -413,13 +482,15 @@ func (r *ProblemRepo) BatchUpsert(ctx context.Context, problems []models.Problem
 				attempt_count = EXCLUDED.attempt_count,
 				solve_rate = EXCLUDED.solve_rate,
 				avg_time_ms = EXCLUDED.avg_time_ms,
+				statement = EXCLUDED.statement,
+				test_cases = EXCLUDED.test_cases,
 				embedding = EXCLUDED.embedding,
 				embed_text = EXCLUDED.embed_text,
 				updated_at = NOW()
 		`,
 			p.ID, p.Source, p.Name, p.URL, p.Slug, p.ContestID, p.Tags, p.Topic, p.Subtopic,
 			p.DifficultyLabel, p.GlickoRating, p.GlickoRD, p.GlickoVolatility,
-			p.AttemptCount, p.SolveRate, p.AvgTimeMs, p.Embedding, p.EmbedText,
+			p.AttemptCount, p.SolveRate, p.AvgTimeMs, p.Statement, tcBytes, p.Embedding, p.EmbedText,
 		)
 		if err != nil {
 			return fmt.Errorf("problem_repo: batch upsert item %q: %w", p.ID, err)

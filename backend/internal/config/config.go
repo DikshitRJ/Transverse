@@ -83,9 +83,9 @@ func Load() *Config {
 		DBPoolMaxConns:  getEnvAsInt("DB_POOL_MAX_CONNS", 20),
 		ONNXModelPath:   getEnvWithDefault("ONNX_MODEL_PATH", "./models/bge-small-en-v1.5.onnx"),
 		TopicsGraphPath: getEnvWithDefault("TOPICS_GRAPH_PATH", "../data/topics.json"),
-		Judge0BaseURL:   getEnvWithDefault("JUDGE0_BASE_URL", "https://judge0-ce.p.rapidapi.com"),
+		Judge0BaseURL:   getEnvWithDefault("JUDGE0_BASE_URL", "http://localhost:2358"),
 		Judge0APIKey:    getEnvWithDefault("JUDGE0_API_KEY", ""),
-		Judge0TimeoutMs: getEnvAsInt("JUDGE0_TIMEOUT_MS", 5000),
+		Judge0TimeoutMs: getEnvAsInt("JUDGE0_TIMEOUT_MS", 10000),
 		CacheEnabled:    getEnvAsBool("CACHE_ENABLED", true),
 		JWTSecret:       getEnvWithDefault("JWT_SECRET", "change-me-in-production"),
 		

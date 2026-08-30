@@ -2,18 +2,15 @@ package llm
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"text/template"
 )
 
-// Generate the templates logic
+//go:embed prompts/*.tmpl
+var promptsFS embed.FS
 
-var promptTemplates *template.Template
-
-// Initialize templates
-func init() {
-	promptTemplates = template.Must(template.New("").ParseGlob("internal/llm/prompts/*.tmpl"))
-}
+var promptTemplates = template.Must(template.ParseFS(promptsFS, "prompts/*.tmpl"))
 
 func RenderPrompt(name string, data interface{}) (string, error) {
 	var buf bytes.Buffer

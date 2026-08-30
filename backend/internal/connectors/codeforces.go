@@ -50,6 +50,7 @@ func (c *CodeforcesConnector) Fetch(ctx context.Context, handle string) (*RawSig
 	if err != nil {
 		return nil, err
 	}
+	reqInfo.Header.Set("User-Agent", "Transverse/1.0")
 
 	respInfo, err := c.httpClient.Do(reqInfo)
 	if err != nil {
@@ -79,6 +80,7 @@ func (c *CodeforcesConnector) Fetch(ctx context.Context, handle string) (*RawSig
 	if err != nil {
 		return nil, err
 	}
+	reqStatus.Header.Set("User-Agent", "Transverse/1.0")
 
 	respStatus, err := c.httpClient.Do(reqStatus)
 	if err != nil {

@@ -17,6 +17,24 @@ import (
 	"transverse/internal/models"
 )
 
+// Judge0 execution status IDs.
+const (
+	Judge0InQueue             = 1
+	Judge0Processing          = 2
+	Judge0Accepted            = 3
+	Judge0WrongAnswer         = 4
+	Judge0TimeLimitExceeded   = 5
+	Judge0CompilationError    = 6
+	Judge0RuntimeErrorSIGSEGV  = 7
+	Judge0RuntimeErrorSIGXFSZ = 8
+	Judge0RuntimeErrorSIGFPE  = 9
+	Judge0RuntimeErrorSIGABRT = 10
+	Judge0RuntimeErrorNZEC    = 11
+	Judge0RuntimeErrorOther   = 12
+	Judge0InternalError       = 13
+	Judge0ExecFormatError     = 14
+)
+
 // Judge0Service handles all communication with the Judge0 API.
 type Judge0Service struct {
 	client  *http.Client
@@ -29,7 +47,7 @@ type Judge0Service struct {
 func NewJudge0Service(cfg *config.Config) *Judge0Service {
 	timeout := time.Duration(cfg.Judge0TimeoutMs) * time.Millisecond
 	if timeout <= 0 {
-		timeout = 10 * time.Second
+		timeout = 15 * time.Second
 	}
 
 	baseURL := strings.TrimRight(cfg.Judge0BaseURL, "/")
@@ -77,7 +95,6 @@ type judge0Verdict struct {
 }
 
 // SubmitCode submits source code to Judge0 and returns the submission token asynchronously.
-// Does NOT wait for execution completion (verdict polling is done separately).
 func (j *Judge0Service) SubmitCode(ctx context.Context, req SubmitCodeRequest) (string, error) {
 	reqBody, err := json.Marshal(req)
 	if err != nil {
@@ -193,14 +210,122 @@ func (j *Judge0Service) GetVerdict(ctx context.Context, token string) (models.Ve
 	}, nil
 }
 
-// IsAccepted returns true for Judge0 status 3 (Accepted).
-func IsAccepted(statusID int) bool {
-	return statusID == 3
+// ExecuteSync submits code and polls Judge0 until a final verdict is reached or context expires.
+func (j *Judge0Service) ExecuteSync(ctx context.Context, req SubmitCodeRequest) (models.VerdictDetail, string, error) {
+	token, err := j.SubmitCode(ctx, req)
+	if err != nil {
+		return models.VerdictDetail{}, "", err
+	}
+
+	ticker := time.NewTicker(150 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return models.VerdictDetail{}, token, ctx.Err()
+		case <-ticker.C:
+			verdict, err := j.GetVerdict(ctx, token)
+			if err != nil {
+				return models.VerdictDetail{}, token, err
+			}
+			// Status > 2 means finished (1: In Queue, 2: Processing, 3+: Finished)
+			if verdict.StatusID > 2 {
+				return verdict, token, nil
+			}
+		}
+	}
 }
 
-// IsCompileError returns true for Judge0 status 6 or 7.
+// ExecuteMultipleTestCases runs the given source code against each test case individually,
+// collecting metrics, verifying output match, and calculating an overall verdict.
+func (j *Judge0Service) ExecuteMultipleTestCases(ctx context.Context, req models.BatchExecuteRequest) (*models.BatchExecuteResponse, error) {
+	if len(req.TestCases) == 0 {
+		return nil, fmt.Errorf("no test cases provided for batch execution")
+	}
+
+	var results []models.TestCaseResult
+	passedCount := 0
+	maxTimeMs := 0
+	maxMemoryKB := 0
+	overallStatusID := Judge0Accepted
+	overallStatusDesc := "Accepted"
+
+	for i, tc := range req.TestCases {
+		verdict, _, err := j.ExecuteSync(ctx, SubmitCodeRequest{
+			SourceCode:     req.SourceCode,
+			LanguageID:     req.LanguageID,
+			Stdin:          tc.Input,
+			ExpectedOutput: tc.Output,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed executing testcase %d: %w", i+1, err)
+		}
+
+		if verdict.TimeMs > maxTimeMs {
+			maxTimeMs = verdict.TimeMs
+		}
+		if verdict.MemoryKB > maxMemoryKB {
+			maxMemoryKB = verdict.MemoryKB
+		}
+
+		passed := (verdict.StatusID == Judge0Accepted)
+		if passed {
+			passedCount++
+		} else {
+			// If not accepted, update overall status priority:
+			// Compilation Error > Runtime Error > TLE > Wrong Answer
+			if verdict.StatusID == Judge0CompilationError || overallStatusID == Judge0Accepted {
+				overallStatusID = verdict.StatusID
+				overallStatusDesc = verdict.StatusDesc
+			}
+		}
+
+		results = append(results, models.TestCaseResult{
+			Index:          i + 1,
+			Input:          tc.Input,
+			ExpectedOutput: tc.Output,
+			Stderr:         verdict.Stderr,
+			CompileOutput:  verdict.CompileOutput,
+			StatusID:       verdict.StatusID,
+			StatusDesc:     verdict.StatusDesc,
+			TimeMs:         verdict.TimeMs,
+			MemoryKB:       verdict.MemoryKB,
+			Passed:         passed,
+		})
+
+		// If compilation error occurs, subsequent test cases will also fail compilation; break early
+		if verdict.StatusID == Judge0CompilationError {
+			break
+		}
+	}
+
+	allPassed := (passedCount == len(req.TestCases))
+	if !allPassed && overallStatusID == Judge0Accepted {
+		overallStatusID = Judge0WrongAnswer
+		overallStatusDesc = "Wrong Answer"
+	}
+
+	return &models.BatchExecuteResponse{
+		AllPassed:       allPassed,
+		PassedCount:     passedCount,
+		TotalCount:      len(req.TestCases),
+		OverallStatus:   overallStatusDesc,
+		OverallStatusID: overallStatusID,
+		MaxTimeMs:       maxTimeMs,
+		MaxMemoryKB:     maxMemoryKB,
+		TestCases:       results,
+	}, nil
+}
+
+// IsAccepted returns true for Judge0 status 3 (Accepted).
+func IsAccepted(statusID int) bool {
+	return statusID == Judge0Accepted
+}
+
+// IsCompileError returns true for Judge0 status 6.
 func IsCompileError(statusID int) bool {
-	return statusID == 6 || statusID == 7
+	return statusID == Judge0CompilationError
 }
 
 // SupportedLanguages maps language identifier keys to Judge0 language_ids.

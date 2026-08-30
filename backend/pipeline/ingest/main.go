@@ -28,10 +28,7 @@ func main() {
 		log.Fatalf("Usage: ingest -mode [tutorial|roadmap] -file <path>")
 	}
 
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+	cfg := config.Load()
 
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)

@@ -395,7 +395,7 @@ func computeStreaks(responses []models.SessionResponse, latestCorrect bool) (con
 
 	consecutiveWrong = 1
 	for i := len(responses) - 1; i >= 0; i-- {
-		if !responses[i].IsCorrect {
+		if !responses[i].IsCorrect && !responses[i].Skipped {
 			consecutiveWrong++
 		} else {
 			break

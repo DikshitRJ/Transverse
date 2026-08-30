@@ -1,7 +1,6 @@
 package realtime
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -59,12 +58,22 @@ func (h *Handler) StreamEvents(w http.ResponseWriter, r *http.Request) {
 	ch := pubsub.Channel()
 	
 	ctx := r.Context()
+	heartbeat := time.NewTicker(15 * time.Second)
+	defer heartbeat.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			// Client disconnected
 			return
-		case msg := <-ch:
+		case <-heartbeat.C:
+			fmt.Fprintf(w, ": keepalive\n\n")
+			flusher.Flush()
+		case msg, ok := <-ch:
+			if !ok {
+				// Channel closed
+				return
+			}
 			// msg.Payload is the JSON string from Queue.PublishEvent
 			fmt.Fprintf(w, "data: %s\n\n", msg.Payload)
 			flusher.Flush()

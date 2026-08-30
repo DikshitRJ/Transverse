@@ -1,15 +1,16 @@
 package handlers
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"net/http"
-	"time"
 	"fmt"
-	"context"
+	"net/http"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
@@ -18,7 +19,6 @@ import (
 
 	"transverse/internal/cache"
 	"transverse/internal/config"
-	"transverse/internal/models"
 	"transverse/internal/repository"
 	"transverse/internal/middleware"
 	"transverse/internal/oauth"
@@ -212,8 +212,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	// Denylist the current access token
 	authHeader := r.Header.Get("Authorization")
-	if authHeader != "" {
-		tokenString := authHeader[len("Bearer "):]
+	if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) { return []byte(h.cfg.JWTSecret), nil })
 		if token != nil {
 			if claims, ok := token.Claims.(jwt.MapClaims); ok {
@@ -245,7 +245,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	writeJSON(w, http.StatusOK, user)
 }
 
 func (h *AuthHandler) issueTokens(w http.ResponseWriter, ctx context.Context, userID, username string) {

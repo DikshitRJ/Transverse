@@ -23,15 +23,7 @@ import (
 	"transverse/internal/repository"
 )
 
-// Judge0 execution status IDs.
-const (
-	Judge0Accepted            = 3
-	Judge0WrongAnswer         = 4
-	Judge0TimeLimitExceeded   = 5
-	Judge0RuntimeError        = 6
-	Judge0CompilationError    = 7
-	Judge0MemoryLimitExceeded = 8
-)
+
 
 // PracticeService coordinates the adaptive practice session lifecycle,
 // psychometric scoring, problem recommendation heuristics, and code execution evaluation.
@@ -624,11 +616,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 			}
 
 			// Persist updated DNA
-			dnaBytes, _ := json.Marshal(dna)
-			s.pool.Exec(ctx, "UPDATE users SET dna = $1, updated_at = NOW() WHERE id = $2", dnaBytes, req.UserID)
-			if s.cache != nil {
-				s.cache.Del(ctx, CacheKeyDNA(req.UserID))
-			}
+			_ = s.userRepo.UpdateDNA(ctx, req.UserID, dna)
 
 			// Trigger roadmap.Regenerate by enqueuing a remediation job
 			remMsg, _ := json.Marshal(map[string]interface{}{
@@ -965,7 +953,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 	if sessionDurationMs <= 0 {
 		sessionDurationMs = totalTimeMs
 	}
-	newDNA := UpdateLearningDNA(dna, responses, time.Duration(sessionDurationMs) * time.Millisecond)
+	newDNA := UpdateLearningDNA(dna, responses, time.Duration(sessionDurationMs) * time.Millisecond, problemMap)
 
 	// Compute Topic Breakdown and per-topic updates
 	topicBreakdown := make(map[string]TopicResult, len(topicTotal))
@@ -1019,17 +1007,7 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 		dnaBytes = []byte("{}")
 	}
 
-	userUpdateQuery := `
-		UPDATE users SET
-			theta = $1,
-			glicko_rating = $2,
-			glicko_rd = $3,
-			glicko_vol = $4,
-			dna = $5,
-			updated_at = NOW()
-		WHERE id = $6
-	`
-	if _, err := s.pool.Exec(ctx, userUpdateQuery, thetaFinal, glickoOut.NewRating, glickoOut.NewRD, glickoOut.NewVol, dnaBytes, userID); err != nil {
+	if err := s.userRepo.UpdatePsychometrics(ctx, userID, thetaFinal, glickoOut.NewRating, glickoOut.NewRD, glickoOut.NewVol, dnaBytes); err != nil {
 		return nil, fmt.Errorf("practice_service: update user psychometrics: %w", err)
 	}
 

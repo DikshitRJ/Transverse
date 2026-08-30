@@ -74,8 +74,8 @@ func (c *zaiClient) Complete(ctx context.Context, req CompletionRequest, useCach
 
 	var lastErr error
 	maxRetries := c.cfg.ZaiMaxRetries
-	if maxRetries <= 0 {
-		maxRetries = 1
+	if maxRetries < 0 {
+		maxRetries = 0
 	}
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {

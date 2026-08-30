@@ -2,7 +2,7 @@ package evidence
 
 import (
 	"context"
-	"encoding/json"
+	"crypto/rand"
 	"fmt"
 	"time"
 
@@ -73,7 +73,8 @@ func (s *Service) StartConnectorSource(ctx context.Context, userID string, kind 
 	// Dispatch processing asynchronously
 	go func() {
 		// Use a detached context for background processing
-		bgCtx := context.Background()
+		bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
 		s.processConnector(bgCtx, source)
 	}()
 
@@ -164,7 +165,8 @@ func (s *Service) ConfirmUpload(ctx context.Context, sourceID string) error {
 
 	// Dispatch processing asynchronously
 	go func() {
-		bgCtx := context.Background()
+		bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
 		s.processUpload(bgCtx, source)
 	}()
 
@@ -243,5 +245,11 @@ func (s *Service) extractFileSignal(kind models.EvidenceKind, data []byte) map[s
 }
 
 func generateID() string {
-	return fmt.Sprintf("%d", time.Now().UnixNano())
+	return fmt.Sprintf("%d-%s", time.Now().UnixNano(), randomHex(4))
+}
+
+func randomHex(n int) string {
+	b := make([]byte, n)
+	_, _ = rand.Read(b)
+	return fmt.Sprintf("%x", b)
 }

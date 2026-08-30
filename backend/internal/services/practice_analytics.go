@@ -53,6 +53,7 @@ func UpdateLearningDNA(
 	current models.LearningDNA,
 	sessionResponses []models.SessionResponse,
 	sessionDuration time.Duration,
+	problemMap map[string]models.Problem,
 ) models.LearningDNA {
 	if len(sessionResponses) == 0 {
 		return current
@@ -74,6 +75,27 @@ func UpdateLearningDNA(
 
 	for _, resp := range sessionResponses {
 		totalTimeInSession += resp.TimeTakenMs
+		
+		// Get problem metadata if available
+		if p, ok := problemMap[resp.ProblemID]; ok {
+			if p.Source != "" {
+				platformCounts[p.Source]++
+			}
+			if p.Topic != "" {
+				topicSessionTotal[p.Topic]++
+				if resp.IsCorrect && !resp.Skipped {
+					topicSessionCorrect[p.Topic]++
+				}
+			}
+			// Carelessness: wrong on problems where difficulty <= theta - 200
+			if p.GlickoRating <= resp.ThetaBefore-200 {
+				carelessTotal++
+				if !resp.IsCorrect {
+					carelessWrong++
+				}
+			}
+		}
+
 		if resp.IsCorrect && !resp.Skipped {
 			correctInSession++
 			streak++
@@ -82,14 +104,6 @@ func UpdateLearningDNA(
 			}
 		} else {
 			streak = 0
-		}
-
-		// Carelessness: check wrong rate on problems where difficulty was <= theta - 200
-		if resp.ThetaBefore > 1500 && !resp.IsCorrect {
-			carelessWrong++
-			carelessTotal++
-		} else if resp.ThetaBefore > 1500 {
-			carelessTotal++
 		}
 	}
 

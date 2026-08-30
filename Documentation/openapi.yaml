@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Transverse API
-  version: 1.0.0
-  description: Transverse Backend API for Next.js UI Integration.
+  version: 1.1.0
+  description: Transverse Backend API for Next.js UI Integration with Local Judge0 Sandbox, Problem Scraping, and Dynamic Progressive Roadmap Engine.
 servers:
   - url: /api/v1
     description: Transverse Base API Path
@@ -29,48 +29,125 @@ components:
         job_id:
           type: string
           format: uuid
-    EvidenceSource:
+    TestCase:
+      type: object
+      properties:
+        input:
+          type: string
+        output:
+          type: string
+    ProblemPayload:
       type: object
       properties:
         id:
           type: string
-          format: uuid
-        user_id:
+        name:
           type: string
-          format: uuid
-        kind:
+        source:
           type: string
-          enum: [github, leetcode, codeforces, resume, codebase]
-        external_ref:
+        url:
           type: string
-          nullable: true
+        slug:
+          type: string
+        topic:
+          type: string
+        difficulty_label:
+          type: string
+          enum: [easy, medium, hard]
+        glicko_rating:
+          type: number
+        solve_rate:
+          type: number
         status:
           type: string
-          enum: [pending, fetching, processing, done, failed, purged]
-        created_at:
+          enum: [SOLVED, UNSOLVED, ATTEMPTED]
+        statement:
           type: string
-          format: date-time
-    EvidenceExtract:
+        test_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCase'
+        templates:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of starter code templates keyed by language slug (py, cpp, java, js, go, rust, c, kt)
+    TestCaseResult:
+      type: object
+      properties:
+        test_case_index:
+          type: integer
+        input:
+          type: string
+        expected_output:
+          type: string
+        actual_stdout:
+          type: string
+        stderr:
+          type: string
+        compile_output:
+          type: string
+        status_id:
+          type: integer
+        status_desc:
+          type: string
+        time_ms:
+          type: integer
+        memory_kb:
+          type: integer
+        passed:
+          type: boolean
+    BatchExecuteRequest:
+      type: object
+      required:
+        - language_id
+        - source_code
+      properties:
+        language_id:
+          type: integer
+          description: Judge0 language ID (e.g. 71 for Python, 54 for C++, 62 for Java, 63 for JavaScript, 60 for Go, 73 for Rust, 50 for C, 78 for Kotlin)
+        source_code:
+          type: string
+        problem_id:
+          type: string
+        test_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCase'
+    BatchExecuteResponse:
+      type: object
+      properties:
+        all_passed:
+          type: boolean
+        passed_count:
+          type: integer
+        total_count:
+          type: integer
+        overall_status:
+          type: string
+        overall_status_id:
+          type: integer
+        max_time_ms:
+          type: integer
+        max_memory_kb:
+          type: integer
+        test_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCaseResult'
+    Tutorial:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        evidence_source_id:
-          type: string
-          format: uuid
-        extracted_json:
-          type: object
-        confidence:
-          type: number
-    TutorialIngestSchema:
-      type: object
-      properties:
         source:
           type: string
         source_url:
           type: string
         title:
+          type: string
+        topic_id:
           type: string
         topic_tags:
           type: array
@@ -86,47 +163,125 @@ components:
           type: integer
         summary:
           type: string
-        author:
-          type: string
         thumbnail_url:
           type: string
-        license_note:
+        status:
           type: string
-    RoadmapTemplateSchema:
+          enum: [UNREAD, COMPLETED]
+    RoadmapSubsection:
       type: object
       properties:
-        roadmap_name:
+        node_id:
           type: string
-        target_role:
+          format: uuid
+        topic_id:
           type: string
-        phases:
+        title:
+          type: string
+        sequence:
+          type: integer
+        status:
+          type: string
+          enum: [locked, unlocked, in_progress, mastered, tested_out]
+        user_rating:
+          type: number
+        target_rating:
+          type: number
+        mastery_score:
+          type: number
+          description: Normalized 0-100% mastery score
+        tutorials:
           type: array
           items:
-            type: object
-            properties:
-              title:
-                type: string
-              sequence:
-                type: integer
-              unlock_rule:
-                type: object
-              nodes:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    topic_tag:
-                      type: string
-                    sequence:
-                      type: integer
-                    tutorial_source_urls:
-                      type: array
-                      items:
-                        type: string
-                    practice_topic_tags:
-                      type: array
-                      items:
-                        type: string
+            $ref: '#/components/schemas/Tutorial'
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemPayload'
+    RoadmapSection:
+      type: object
+      properties:
+        phase_id:
+          type: string
+          format: uuid
+        sequence:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, COMPLETED, LOCKED]
+        progress_percentage:
+          type: number
+        subsections:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadmapSubsection'
+    UpcomingSectionPreview:
+      type: object
+      properties:
+        sequence:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+          enum: [LOCKED]
+    RoadmapCurrentResponse:
+      type: object
+      properties:
+        roadmap_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        user_rating:
+          type: number
+        target_role:
+          type: string
+        status:
+          type: string
+          enum: [active, completed, abandoned]
+        total_sections:
+          type: integer
+        current_section:
+          $ref: '#/components/schemas/RoadmapSection'
+        upcoming_sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingSectionPreview'
+    ScrapedProblemResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        source:
+          type: string
+        url:
+          type: string
+        difficulty:
+          type: string
+        statement:
+          type: string
+        input_spec:
+          type: string
+        output_spec:
+          type: string
+        time_limit:
+          type: string
+        memory_limit:
+          type: string
+        test_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCase'
+        templates:
+          type: object
+          additionalProperties:
+            type: string
+
 security:
   - bearerAuth: []
 paths:
@@ -186,261 +341,68 @@ paths:
       responses:
         '200':
           description: OK
-  /users/me:
+
+  /roadmap:
     get:
       tags:
-        - Users
-      summary: Profile and global Glicko rating
+        - Dynamic Progressive Roadmap
+      summary: Fetch dynamic roadmap on frontend load (Single Active Section + Upcoming Locked Previews)
+      description: Re-evaluates progression and returns full details (tutorials, questions, starter code templates, ratings, status) only for the single current active section. Subsequent sections are locked until the active section is completed.
       responses:
         '200':
-          description: OK
-    patch:
-      tags:
-        - Users
-      summary: Update profile
-      responses:
-        '200':
-          description: OK
-  /users/me/skill-profile:
-    get:
-      tags:
-        - Users
-      summary: Per-topic mastery and rating
-      responses:
-        '200':
-          description: OK
-  /users/me/learning-dna:
-    get:
-      tags:
-        - Users
-      summary: Learning DNA output
-      responses:
-        '200':
-          description: OK
-  /evidence/upload-url:
-    post:
-      tags:
-        - Evidence
-      summary: Get presigned MinIO PUT URL
-      responses:
-        '200':
-          description: OK
-  /evidence/{id}/confirm:
-    post:
-      tags:
-        - Evidence
-      summary: Confirm upload landed
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '202':
-          description: Accepted
+          description: Current dynamic roadmap state
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobAcceptedResponse'
-  /evidence/github:
-    post:
-      tags:
-        - Evidence
-      summary: GitHub connector
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-      responses:
-        '202':
-          description: Accepted
-  /evidence/leetcode:
-    post:
-      tags:
-        - Evidence
-      summary: LeetCode connector
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-      responses:
-        '202':
-          description: Accepted
-  /evidence/codeforces:
-    post:
-      tags:
-        - Evidence
-      summary: Codeforces connector
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                handle:
-                  type: string
-      responses:
-        '202':
-          description: Accepted
-  /evidence:
+                $ref: '#/components/schemas/RoadmapCurrentResponse'
+  /roadmap/me:
     get:
       tags:
-        - Evidence
-      summary: List evidence sources
+        - Dynamic Progressive Roadmap
+      summary: Alias for GET /roadmap
       responses:
         '200':
-          description: OK
-  /evidence/{id}:
-    get:
-      tags:
-        - Evidence
-      summary: Single evidence source
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-    delete:
-      tags:
-        - Evidence
-      summary: Delete evidence source
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: No Content
-  /hypotheses/generate:
-    post:
-      tags:
-        - Hypotheses
-      summary: Trigger hypothesis generation
-      responses:
-        '202':
-          description: Accepted
+          description: Current dynamic roadmap state
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobAcceptedResponse'
-  /hypotheses:
-    get:
+                $ref: '#/components/schemas/RoadmapCurrentResponse'
+  /roadmap/nodes/{id}/complete:
+    post:
       tags:
-        - Hypotheses
-      summary: List hypotheses
-      responses:
-        '200':
-          description: OK
-  /jobs/{id}:
-    get:
-      tags:
-        - Jobs
-      summary: Poll job status
+        - Dynamic Progressive Roadmap
+      summary: Mark a roadmap subsection / tutorial as mastered
+      description: Triggers unlock re-evaluation. If all nodes in the current section are completed, automatically advances to and unlocks the next progressive section.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: OK
-  /events/stream:
-    get:
-      tags:
-        - Jobs
-      summary: SSE stream of user's Redis events
-      responses:
-        '200':
-          description: OK (SSE stream)
-          content:
-            text/event-stream:
-              schema:
-                type: string
-  /quiz/verification/start:
+  /roadmap/nodes/{id}/test-out:
     post:
       tags:
-        - Verification Quiz
-      summary: Build quiz session
-      responses:
-        '200':
-          description: OK
-  /quiz/{sessionId}/next:
-    get:
-      tags:
-        - Verification Quiz
-      summary: Next unanswered item
+        - Dynamic Progressive Roadmap
+      summary: Test-out bypass for a roadmap subsection
       parameters:
-        - name: sessionId
+        - name: id
           in: path
           required: true
           schema:
             type: string
-      responses:
-        '200':
-          description: OK
-  /quiz/{sessionId}/answer:
-    post:
-      tags:
-        - Verification Quiz
-      summary: Submit code for current item
-      parameters:
-        - name: sessionId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-  /quiz/{sessionId}/complete:
-    post:
-      tags:
-        - Verification Quiz
-      summary: Finalize session
-      parameters:
-        - name: sessionId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-  /quiz/{sessionId}/result:
-    get:
-      tags:
-        - Verification Quiz
-      summary: Quiz result
-      parameters:
-        - name: sessionId
-          in: path
-          required: true
-          schema:
-            type: string
+            format: uuid
       responses:
         '200':
           description: OK
   /roadmap/generate:
     post:
       tags:
-        - Roadmap
-      summary: Generate roadmap
+        - Dynamic Progressive Roadmap
+      summary: Generate or regenerate personalized roadmap
       requestBody:
         content:
           application/json:
@@ -449,178 +411,155 @@ paths:
               properties:
                 target_role:
                   type: string
+                confirmed_hypotheses:
+                  type: array
+                  items:
+                    type: string
+                debunked_hypotheses:
+                  type: array
+                  items:
+                    type: string
       responses:
-        '202':
-          description: Accepted
+        '200':
+          description: Newly generated roadmap
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobAcceptedResponse'
-  /roadmap/me:
-    get:
-      tags:
-        - Roadmap
-      summary: Current active roadmap
-      responses:
-        '200':
-          description: OK
-  /roadmap/{id}:
-    get:
-      tags:
-        - Roadmap
-      summary: Specific roadmap detail
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-  /roadmap/{id}/nodes/{nodeId}/test-out:
+                $ref: '#/components/schemas/RoadmapCurrentResponse'
+
+  /execute:
     post:
       tags:
-        - Roadmap
-      summary: Attempt to bypass a node
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: nodeId
-          in: path
-          required: true
-          schema:
-            type: string
+        - Code Execution
+      summary: Submit single test case to local Judge0 instance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language_id:
+                  type: integer
+                source_code:
+                  type: string
+                stdin:
+                  type: string
+                expected_output:
+                  type: string
       responses:
         '200':
-          description: OK
-  /roadmap/{id}/regenerate:
+          description: Execution verdict
+  /execute/batch:
     post:
       tags:
-        - Roadmap
-      summary: Trigger remediation
+        - Code Execution
+      summary: Multi-test-case execution (Runs code against all problem test cases individually)
+      description: Iterates through each test case against local Judge0. Stops early on compilation error. Aggregates results, pass/fail counts, max time, max memory, and per-test-case stdout/stderr.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchExecuteRequest'
+      responses:
+        '200':
+          description: Aggregated batch execution verdict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchExecuteResponse'
+  /execute/{token}:
+    get:
+      tags:
+        - Code Execution
+      summary: Get Judge0 execution verdict by token
       parameters:
-        - name: id
+        - name: token
           in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: OK
-  /topics:
-    get:
+          description: Verdict details
+
+  /problems/scrape:
+    post:
       tags:
-        - Tutorials & Topics
-      summary: List DAG nodes
+        - Problem Scraping
+      summary: Scrape problem statement, test cases, and starter templates from URL
+      description: Scrapes LeetCode (GraphQL), Codeforces (HTML), or generic CP platforms. Extracts problem statement HTML, sample input/output test cases, and automatically generates 8-language starter templates.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  example: "https://leetcode.com/problems/two-sum/"
       responses:
         '200':
-          description: OK
-  /topics/{id}:
+          description: Scraped problem details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScrapedProblemResponse'
+  /problems/search:
     get:
       tags:
-        - Tutorials & Topics
-      summary: Single topic
+        - Problems
+      summary: Search problem repository
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-  /tutorials:
-    get:
-      tags:
-        - Tutorials & Topics
-      summary: List tutorials for a topic
-      parameters:
-        - name: topic_id
+        - name: q
           in: query
-          required: false
+          schema:
+            type: string
+        - name: topic
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
           schema:
             type: string
       responses:
         '200':
-          description: OK
-  /tutorials/{id}:
-    get:
-      tags:
-        - Tutorials & Topics
-      summary: Tutorial detail
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-  /admin/tutorials/ingest:
-    post:
-      tags:
-        - Tutorials & Topics
-      summary: Bulk upsert tutorials
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/TutorialIngestSchema'
-      responses:
-        '200':
-          description: OK
-  /admin/roadmaps/ingest:
-    post:
-      tags:
-        - Tutorials & Topics
-      summary: Bulk load curated roadmap template
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RoadmapTemplateSchema'
-      responses:
-        '200':
-          description: OK
+          description: Matching problems with statements, test cases, and templates
+
   /practice/start:
     post:
       tags:
         - Practice
-      summary: Start practice
+      summary: Start adaptive practice session
       responses:
         '200':
-          description: OK
+          description: Practice session initialized
   /practice/submit:
     post:
       tags:
         - Practice
-      summary: Submit practice
+      summary: Submit problem answer and update Glicko-2 ability rating
       responses:
         '200':
-          description: OK
+          description: Answer evaluation and next problem
   /practice/skip:
     post:
       tags:
         - Practice
-      summary: Skip practice
+      summary: Skip problem
       responses:
         '200':
-          description: OK
+          description: Skipped
   /practice/close:
     post:
       tags:
         - Practice
-      summary: Close practice
+      summary: Close session and calculate learning DNA
       responses:
         '200':
-          description: OK
+          description: Closed session metrics
   /practice/session/{id}:
     get:
       tags:
@@ -634,12 +573,12 @@ paths:
             type: string
       responses:
         '200':
-          description: OK
+          description: Session state
   /practice/{sessionId}/hint:
     post:
       tags:
         - Practice
-      summary: Request next-level LLM hint
+      summary: Request LLM hint
       parameters:
         - name: sessionId
           in: path
@@ -648,11 +587,7 @@ paths:
             type: string
       responses:
         '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JobAcceptedResponse'
+          description: Hint job accepted
   /practice/{sessionId}/error-analysis:
     get:
       tags:
@@ -666,38 +601,27 @@ paths:
             type: string
       responses:
         '200':
-          description: OK
-  /admin/seed/problems:
-    post:
+          description: Analysis
+
+  /events/stream:
+    get:
       tags:
-        - Admin
-      summary: Trigger problem seeding
+        - Realtime
+      summary: SSE stream of realtime user events (node unlocked, section unlocked, hint generated)
       responses:
         '200':
-          description: OK
-  /admin/seed/topics:
-    post:
-      tags:
-        - Admin
-      summary: Reload topics
-      responses:
-        '200':
-          description: OK
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
   /health:
     get:
       tags:
         - Health
-      summary: Liveness
+      summary: Health and database liveness check
       security: []
       responses:
         '200':
-          description: OK
-  /health/ready:
-    get:
-      tags:
-        - Health
-      summary: Readiness
-      security: []
-      responses:
-        '200':
-          description: OK
+          description: Healthy

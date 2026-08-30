@@ -10,20 +10,31 @@ import (
 
 	"transverse/internal/middleware"
 	"transverse/internal/models"
+	"transverse/internal/repository"
+	"transverse/internal/scraper"
 	"transverse/internal/services"
 )
 
 // PracticeHandler exposes HTTP endpoints for adaptive sessions, submissions, code execution, and search.
 type PracticeHandler struct {
-	practice *services.PracticeService
-	judge0   *services.Judge0Service
+	practice    *services.PracticeService
+	judge0      *services.Judge0Service
+	problemRepo *repository.ProblemRepo
+	scraper     *scraper.UnifiedScraper
 }
 
 // NewPracticeHandler constructs a new PracticeHandler instance.
-func NewPracticeHandler(practice *services.PracticeService, judge0 *services.Judge0Service) *PracticeHandler {
+func NewPracticeHandler(
+	practice *services.PracticeService,
+	judge0 *services.Judge0Service,
+	problemRepo *repository.ProblemRepo,
+	scraper *scraper.UnifiedScraper,
+) *PracticeHandler {
 	return &PracticeHandler{
-		practice: practice,
-		judge0:   judge0,
+		practice:    practice,
+		judge0:      judge0,
+		problemRepo: problemRepo,
+		scraper:     scraper,
 	}
 }
 
@@ -315,7 +326,6 @@ func (h *PracticeHandler) RequestHint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
 	writeJSON(w, http.StatusAccepted, map[string]string{
 		"job_id": jobID,
 	})
@@ -361,12 +371,8 @@ func (h *PracticeHandler) GetSimilar(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	req := models.SimilarProblemsRequest{
-		ProblemID: problemID,
-		Limit:     limit,
-	}
-
-	similar, err := h.practice.GetSimilar(r.Context(), problemID, "", req.Limit)
+	topic := r.URL.Query().Get("topic")
+	similar, err := h.practice.GetSimilar(r.Context(), problemID, topic, limit)
 	if err != nil {
 		slog.Error("failed to find similar problems", "problem_id", problemID, "error", err)
 		writeError(w, http.StatusInternalServerError, "failed to find similar problems: "+err.Error())
@@ -487,6 +493,9 @@ func (h *PracticeHandler) SearchProblems(w http.ResponseWriter, r *http.Request)
 			limit = l
 		}
 	}
+	if limit > 100 {
+		limit = 100
+	}
 	if oStr := q.Get("offset"); oStr != "" {
 		if o, err := strconv.Atoi(oStr); err == nil && o >= 0 {
 			offset = o
@@ -511,3 +520,89 @@ func (h *PracticeHandler) SearchProblems(w http.ResponseWriter, r *http.Request)
 
 	writeJSON(w, http.StatusOK, resp)
 }
+
+// ExecuteBatch runs the given source code against multiple test cases and returns comprehensive verdicts.
+// POST /api/v1/execute/batch
+func (h *PracticeHandler) ExecuteBatch(w http.ResponseWriter, r *http.Request) {
+	var req models.BatchExecuteRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	if strings.TrimSpace(req.SourceCode) == "" {
+		writeError(w, http.StatusBadRequest, "source_code cannot be empty")
+		return
+	}
+
+	if req.LanguageID <= 0 {
+		writeError(w, http.StatusBadRequest, "valid language_id is required")
+		return
+	}
+
+	// If no custom test cases were provided in request, load from problem entity
+	if len(req.TestCases) == 0 && req.ProblemID != "" && h.problemRepo != nil {
+		prob, err := h.problemRepo.GetByID(r.Context(), req.ProblemID)
+		if err == nil && prob != nil {
+			if len(prob.TestCases) > 0 {
+				req.TestCases = prob.TestCases
+			} else if prob.URL != "" && h.scraper != nil {
+				// Scrape test cases on demand if none stored yet
+				if scraped, sErr := h.scraper.Scrape(r.Context(), prob.URL); sErr == nil && len(scraped.TestCases) > 0 {
+					req.TestCases = scraped.TestCases
+					prob.TestCases = scraped.TestCases
+					if prob.Statement == "" {
+						prob.Statement = scraped.Statement
+					}
+					_ = h.problemRepo.Upsert(r.Context(), prob)
+				}
+			}
+		}
+	}
+
+	if len(req.TestCases) == 0 {
+		writeError(w, http.StatusBadRequest, "no test cases available for execution; provide test_cases in request or specify a problem_id with test cases")
+		return
+	}
+
+	resp, err := h.judge0.ExecuteMultipleTestCases(r.Context(), req)
+	if err != nil {
+		slog.Error("judge0 batch execution failed", "error", err)
+		writeError(w, http.StatusBadGateway, "batch execution failed: "+err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, resp)
+}
+
+type scrapePayload struct {
+	URL string `json:"url"`
+}
+
+// ScrapeProblem extracts problem statement, test cases, and starter templates from a CP platform URL.
+// POST /api/v1/problems/scrape
+func (h *PracticeHandler) ScrapeProblem(w http.ResponseWriter, r *http.Request) {
+	var payload scrapePayload
+	if !decodeJSON(w, r, &payload) {
+		return
+	}
+
+	if strings.TrimSpace(payload.URL) == "" {
+		writeError(w, http.StatusBadRequest, "url is required")
+		return
+	}
+
+	if h.scraper == nil {
+		writeError(w, http.StatusInternalServerError, "scraper is not configured")
+		return
+	}
+
+	scraped, err := h.scraper.Scrape(r.Context(), payload.URL)
+	if err != nil {
+		slog.Error("problem scraping failed", "url", payload.URL, "error", err)
+		writeError(w, http.StatusInternalServerError, "failed to scrape problem: "+err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, scraped)
+}
+

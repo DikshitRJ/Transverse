@@ -89,23 +89,41 @@ func glicko2G(phi float64) float64 {
 func glicko2Vol(vol, delta, phi, v, tau float64) float64 {
 	a := math.Log(vol * vol)
 	epsilon := 1e-6
-	A := a
 
-	// f(x) = (e^x·(Δ² − v − e^x)) / (2·(φ² + v + e^x)²) − (x − a) / τ²
+	// f(x) = (e^x·(Δ² - φ² - v - e^x)) / (2·(φ² + v + e^x)²) - (x - a) / τ²
 	f := func(x float64) float64 {
 		ex := math.Exp(x)
 		d := phi*phi + v + ex
-		top := ex * (delta*delta - v - ex)
-		bottom := 2.0 * d * d
-		return (top/bottom - (x-a)/(tau*tau))
+		return (ex*(delta*delta-phi*phi-v-ex))/(2.0*d*d) - (x-a)/(tau*tau)
 	}
 
-	for i := 0; i < 100; i++ {
-		B := f(A)
-		if math.Abs(B) < epsilon {
-			break
+	A := a
+	var B float64
+	if delta*delta > phi*phi+v {
+		B = math.Log(delta*delta - phi*phi - v)
+	} else {
+		k := 1.0
+		for f(a-k*tau) < 0 {
+			k++
 		}
-		A = A - B/(f(A+epsilon)-B)*epsilon
+		B = a - k*tau
+	}
+
+	fA := f(A)
+	fB := f(B)
+
+	for math.Abs(B-A) > epsilon {
+		C := A + (A-B)*fA/(fB-fA)
+		fC := f(C)
+
+		if fC*fB <= 0 {
+			A = B
+			fA = fB
+		} else {
+			fA = fA / 2.0
+		}
+		B = C
+		fB = fC
 	}
 
 	return math.Exp(A / 2.0)

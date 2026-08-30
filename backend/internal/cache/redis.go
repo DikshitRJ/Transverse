@@ -12,11 +12,7 @@ type RedisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(addr string, db int) *RedisCache {
-	client := redis.NewClient(&redis.Options{
-		Addr: addr,
-		DB:   db,
-	})
+func NewRedisCache(client *redis.Client) *RedisCache {
 	return &RedisCache{client: client}
 }
 
