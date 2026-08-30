@@ -71,6 +71,17 @@ type Config struct {
 	ZaiModel       string `json:"zai_model"`
 	ZaiTimeoutSecs int    `json:"zai_timeout_secs"`
 	ZaiMaxRetries  int    `json:"zai_max_retries"`
+
+	// FrontendOrigin is the allowed CORS origin and the base URL the OAuth callback
+	// redirects the browser back to once tokens have been minted.
+	FrontendOrigin string `json:"frontend_origin"`
+
+	// MinIO / S3-compatible object storage for the evidence upload pipeline.
+	MinIOEndpoint     string `json:"minio_endpoint"`
+	MinIORootUser     string `json:"minio_root_user"`
+	MinIORootPassword string `json:"minio_root_password"`
+	MinIOUseSSL       bool   `json:"minio_use_ssl"`
+	MinIOBucket       string `json:"minio_bucket"`
 }
 
 // Load reads all configuration from environment variables, applying defaults
@@ -113,6 +124,14 @@ func Load() *Config {
 		ZaiModel:       getEnvWithDefault("ZAI_MODEL", "glm-4.7-flash"),
 		ZaiTimeoutSecs: getEnvAsInt("ZAI_TIMEOUT_SECONDS", 30),
 		ZaiMaxRetries:  getEnvAsInt("ZAI_MAX_RETRIES", 2),
+
+		FrontendOrigin: getEnvWithDefault("FRONTEND_ORIGIN", "http://localhost:3000"),
+
+		MinIOEndpoint:     getEnvWithDefault("MINIO_ENDPOINT", "localhost:9000"),
+		MinIORootUser:     getEnvWithDefault("MINIO_ROOT_USER", "admin"),
+		MinIORootPassword: getEnvWithDefault("MINIO_ROOT_PASSWORD", "password123"),
+		MinIOUseSSL:       getEnvAsBool("MINIO_USE_SSL", false),
+		MinIOBucket:       getEnvWithDefault("MINIO_BUCKET", "evidence"),
 	}
 }
 

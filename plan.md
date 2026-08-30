@@ -23,6 +23,7 @@ Three findings materially shape the plan. Each has a decision attached at the en
 | `ProblemPayload` lacks tags/subtopic | has `tags[]`, `subtopic`, `avg_time_ms`, `contest_id` |
 | `SubmitResponse` = verdict + theta + next | also has `session_status`, `question_count`, `carelessness_penalty` |
 | walkthrough: submit takes `source_code` + `language_id` | **submit takes `judge0_token`** — you must `POST /execute` first, then submit the returned token |
+| `ErrorResponse` = `{error:{code,message}}` | **flat `{"error":"message"}`** — `handlers/helpers.go:writeError` writes `map[string]string{"error": message}`. There is no `code` field anywhere. *(Caught by FOUNDRY; this document originally repeated the spec's wrong shape in §5.2.)* |
 | spec omits them entirely | `GET /practice/similar`, `GET /practice/topics`, `GET /jobs/{id}`, `GET /user/profile`, `GET /user/history`, `POST /admin/*` all exist and are routed |
 
 → **TypeScript types will be derived from the Go structs, not from `openapi.yaml`.** A single `frontend/src/lib/api/types.ts` is hand-transcribed from `models/dto.go`, `models/roadmap.go` and `models/evidence.go`, with a checked-in note pointing at the Go file each block mirrors.
@@ -249,6 +250,8 @@ Added to `backend/docker-compose.yml` alongside the existing `db` / `redis` / `j
 
 Also delivered: `frontend/.dockerignore`, `frontend/.env.example`, a `compose.override.yml` for hot-reload dev, and a **`minio` service** plus `MINIO_*` env on `backend` (Decision A.4) — the evidence-upload flow requires it and it exists today only in `docker-compose.test.yml`.
 
+⚠️ **Pre-existing landmine for HARNESS — the backend image is already mis-pinned.** `backend/Dockerfile:2` is `FROM golang:1.23-bullseye`, but `backend/go.mod` declares `go 1.25.0` (verified untouched by KEYSTONE — this predates all of our work). A 1.23 toolchain cannot build a 1.25 module directly; it survives only by `GOTOOLCHAIN=auto` silently downloading 1.25 mid-build, which is slow and fails closed on a network-restricted builder. HARNESS should bump the builder image to `golang:1.25-bookworm` (or later) as part of the compose work and confirm the ONNX Runtime steps still apply on the newer base.
+
 ⚠️ **Docker is not installed on this machine** (`docker` is absent from PATH and Docker Desktop is not at its default location). Per **Decision D** the compose integration is written now and reviewed line-by-line, but `docker compose build` is **not run here** — live validation happens once you've installed Docker Desktop. Everything else proceeds on the mock layer, so this blocks nothing.
 
 ---
@@ -294,14 +297,23 @@ You asked for worktrees *and* no commits, which need reconciling: a fresh worktr
 2. Orchestrator creates 7 worktrees off `frontend`:
      git worktree add ../tv-wt-<agent> -b wt/<agent> frontend
 3. Copy the foundation into each worktree (excluding node_modules),
-   then junction node_modules to the main tree:
-     cmd //c mklink /J <wt>\frontend\node_modules <main>\frontend\node_modules
+   then junction node_modules back to the main tree:
+     PowerShell: New-Item -ItemType Junction `
+       -Path   <wt>\frontend\node_modules `
+       -Target <main>\frontend\node_modules
    — keeps 7 worktrees cheap instead of ~3.5GB of duplicated deps.
 4. Agents work in their worktree. File ownership is disjoint by design.
 5. Orchestrator copies each agent's owned paths back into the main tree.
    Disjoint sets ⇒ file-level merge, no git merge, no commits.
-6. git worktree remove ../tv-wt-<agent> --force  (branches left for inspection)
+6. Teardown, IN THIS ORDER:
+     [System.IO.Directory]::Delete('<wt>\frontend\node_modules', $false)
+     git worktree remove ../tv-wt-<agent> --force
 ```
+
+**Verified on this machine, not assumed** (probe worktree created, junctioned, resolved through, and torn down):
+- `cmd //c mklink /J` from Git Bash **fails** — MSYS path conversion mangles the `/J` switch into a path (`Invalid switch`). Use PowerShell `New-Item -ItemType Junction`, which works.
+- Node resolves modules through the junction correctly (`require.resolve` returns the real target path).
+- **Teardown order is load-bearing.** Removing the worktree while the junction is still present risks a recursive delete following the junction into the *shared* `node_modules`. Delete the junction first with `[System.IO.Directory]::Delete(path, false)` — the non-recursive overload removes the link itself and leaves the target intact (confirmed: target survived).
 
 **No agent runs `git commit`, `git add`, `git push`, or `git merge`.** That is in every agent brief. Everything lands as working-tree changes in `C:\Users\aksha\Transverse\frontend` for you to review and commit yourself.
 
@@ -358,6 +370,42 @@ No dev-bypass affordance in the UI. See §5.3 — **action on you:** register th
 ### 9.4 — Decision D: Docker written now, verified later ✅
 
 HARNESS writes the Dockerfile and compose wiring; LENS reviews it line-by-line; `docker compose build` is **not** run in this session. Ping me once Docker Desktop is installed and I'll do the live-flip pass (§8 phase 3).
+
+### 9.5a — The async-job chain is broken end-to-end (found during Wave 1)
+
+Three independent findings compound into one blocking defect. **Nothing asynchronous can ever complete against a live backend today**, no matter what the frontend does:
+
+1. **No worker is ever registered.** `jobs.WorkerPool.Register(...)` is never called anywhere in `cmd/server/main.go` (KEYSTONE). The pool starts, but no job *type* is bound to a handler — so every enqueued job sits unprocessed forever.
+2. **The evidence service throws away its job id.** `backend/internal/evidence/service.go` does `_, _ = s.jobQueue.EnqueueHypothesisGeneration(...)` — discarding the id (THRESHOLD). None of the five `/evidence/*` endpoints return a `job_id`.
+3. **So the documented completion pattern has nothing to key on.** `plan.md` and `FOUNDATION.md` both assumed "resolve via `job.completed` SSE + `GET /jobs/{id}` poll". For evidence sync there is no id to poll and no per-source event to correlate.
+
+Frontend mitigation shipped: `use-evidence-sync.ts` listens for a global (non-attributable) `job.completed` and falls back to a bounded timeout, while genuine request-level failures resolve immediately. It is an honest approximation, not a fix.
+
+**Backend work required for a live demo of evidence sync and async hints:** register the job handlers on the worker pool, and return the enqueued `job_id` from the evidence endpoints. Hints are less affected — `POST /practice/{id}/hint` *does* return `202 {job_id}` — but they still need a registered worker to ever produce a result.
+
+### 9.5b — Mock mode is browser-side only (resolved during Wave 1)
+
+`src/instrumentation.ts` started the Node-side MSW server and **took the dev server down entirely** in mock mode (`ERR_MODULE_NOT_FOUND` on `.next/server/mocks/server`) — independently hit by BEACON and THRESHOLD. Three fixes were attempted and all failed; the dead ends are documented in full in that file so nobody re-treads them. Resolution: the hook is now a no-op and mock mode is browser-side only via `MockProvider`, which is sufficient because all data fetching goes through client-side TanStack Query. `src/mocks/server.ts` still serves Vitest, where plain Node resolution applies.
+
+Verified after the fix: `next dev` boots and serves `/` (200); `tsc` and Vitest clean; and the **production path** — `NEXT_PUBLIC_API_MODE=live npm run build` then `node .next/standalone/server.js` — serves `/` (200).
+
+**Two things HARNESS must honour in the Dockerfile:** `NEXT_PUBLIC_*` vars are inlined at **build** time, so the image must be built with `NEXT_PUBLIC_API_MODE=live` (setting it only at runtime is a no-op); and `output: 'standalone'` requires copying `.next/static` and `public` into `.next/standalone/` and starting with `node server.js` — `next start` explicitly does not work with standalone output.
+
+### 9.5c — Merge reconciliation checklist (Wave 2)
+
+Accumulated from Wave-1 reports. All are file-level fixes in the main tree once every agent has landed.
+
+| # | Item | Action |
+|---|---|---|
+| 1 | **FOUR independent sanitizer implementations.** ATLAS `components/tutorial/safe-html.tsx`: `DOMParser` → allowlist → real React elements, **no `dangerouslySetInnerHTML`**, tested against script/`onerror`/`javascript:`. PULSE (`components/practice/`): `DOMPurify` + `dangerouslySetInnerHTML`. PRISM `app/problems/_lib/sanitize-html.ts`: `DOMParser` allowlist + `dangerouslySetInnerHTML`. FORGE `components/content/safe-html.tsx`: pending. **Root cause is this document's fault** — §4 prescribed `react-markdown` + `rehype-sanitize`, but rendering *raw HTML* through that pipeline also needs `rehype-raw`, which was never installed. Three agents hit the wall independently and solved it three ways. | Standardise on ONE, repoint all imports, delete the rest. This is the XSS boundary for scraped LeetCode/Codeforces HTML, so decide deliberately rather than by whoever merged last. |
+| 2 | **`dompurify` is an undeclared transitive dependency** — present only because `monaco-editor@0.56.0` depends on it (`npm ls dompurify` confirms). Nothing in `package.json` requires it. If Monaco is upgraded or dropped, PULSE's sanitizer breaks silently. | If DOMPurify survives item 1, `npm install dompurify` to declare it explicitly. If ATLAS's implementation wins, the problem disappears. **Do not leave a security boundary resting on a transitive dep.** |
+| 3 | `theme.css` has `glow-chip-rose` but no cyan equivalent; Figma `61:86` uses the identical recipe in cyan. BEACON had to fall back to the weaker `glow-card-cyan` (0.1 vs 0.3 alpha). | Add `--tv-glow-chip-cyan: 0 0 15px rgba(0,242,255,0.3)` and repoint. |
+| 4 | `TopNav` (FOUNDRY's) is missing the Figma icon button (`61:125`, asset `icon-nav-menu.svg` already downloaded but unused) and uses a 28px wordmark vs Figma's 32px. | Fix in `src/components/shell/top-nav.tsx`. |
+| 5 | ATLAS built a local unlock animation; BYTE shipped `UnlockTransition` as the canonical version. | Swap ATLAS's for BYTE's, per BYTE's README wiring checklist. |
+| 6 | No Google brand asset in `public/figma/`; THRESHOLD used a neutral glyph rather than fabricating one. | Source the official Google mark, or keep the neutral treatment deliberately. |
+| 7 | BYTE's library is built but wired into nothing (`ByteDock`, `PageTransition`, `SweepFrame`, `VerdictFeedback`). | Follow `src/components/byte/README.md`'s Wave-2 checklist. |
+| 8 | Fixture `mastery_score` scale — **already fixed** in the main tree; worktree copies still carry the old 0–1 values. **Exception:** PRISM legitimately extended `*/api/v1/user/history` in `src/mocks/handlers.ts` (16 deterministic sessions with real limit/offset slicing) under its granted exception — keep that. | Main tree wins for `fixtures/`; port PRISM's `handlers.ts` history change forward. |
+| 9 | `POST /problems/scrape` **does not persist and returns no id** (verified: the handler calls `scraper.Scrape` then `writeJSON` — no `Upsert`). A freshly scraped problem therefore cannot deep-link to `/solve/{id}`. PRISM ships an honest "preview only" state. | Backend fix if scrape-to-solve matters for the demo: `ExecuteBatch` already upserts scraped problems, so reuse that path and return the id. |
 
 ### 9.5 — Open items carried forward
 

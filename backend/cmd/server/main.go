@@ -13,16 +13,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
 	"transverse/internal/cache"
 	"transverse/internal/config"
+	"transverse/internal/connectors"
 	"transverse/internal/database"
+	"transverse/internal/evidence"
 	"transverse/internal/graph"
 	"transverse/internal/handlers"
 	"transverse/internal/jobs"
 	"transverse/internal/llm"
 	"transverse/internal/middleware"
+	"transverse/internal/objectstore"
 	"transverse/internal/realtime"
 	"transverse/internal/repository"
 	"transverse/internal/roadmap"
@@ -30,6 +34,25 @@ import (
 	"transverse/internal/services"
 	"transverse/internal/services/ingest"
 )
+
+// evidenceJobQueueAdapter adapts the generic Redis-backed jobs.Queue to the narrower
+// evidence.JobQueue interface that internal/evidence/service.go depends on (it only
+// needs to enqueue one job type and get an ID back).
+type evidenceJobQueueAdapter struct {
+	q jobs.Queue
+}
+
+func (a *evidenceJobQueueAdapter) EnqueueHypothesisGeneration(ctx context.Context, userID string) (string, error) {
+	job := &jobs.Job{
+		ID:      uuid.New().String(),
+		UserID:  userID,
+		JobType: "hypothesis_generation",
+	}
+	if err := a.q.Enqueue(ctx, job); err != nil {
+		return "", err
+	}
+	return job.ID, nil
+}
 
 func main() {
 	// 1. Load config
@@ -125,8 +148,35 @@ func main() {
 	jobsH := jobs.NewHandler(jobQueue)
 	realtimeH := realtime.NewHandler(rdb)
 
+	// Evidence pipeline: MinIO-backed object store + Postgres repo + connectors.
+	// The server must still boot even if MinIO isn't reachable yet (mirrors the Redis
+	// ping-and-warn pattern above) — evidence upload endpoints will simply error until
+	// it comes up.
+	minioClient := objectstore.NewMinIOClient(cfg)
+	{
+		pingCtx, pingCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := minioClient.Ping(pingCtx); err != nil {
+			slog.Warn("minio unreachable at startup; evidence upload endpoints will fail until it recovers", "endpoint", cfg.MinIOEndpoint, "error", err)
+		} else {
+			slog.Info("connected to minio", "endpoint", cfg.MinIOEndpoint)
+			if err := minioClient.EnsureBucket(pingCtx); err != nil {
+				slog.Warn("failed to ensure minio bucket exists", "bucket", cfg.MinIOBucket, "error", err)
+			}
+		}
+		pingCancel()
+	}
+
+	evidenceRepo := repository.NewEvidenceRepo(pool)
+	githubConnector := connectors.NewGithubConnector(cfg)
+	leetcodeConnector := connectors.NewLeetcodeConnector(cfg)
+	codeforcesConnector := connectors.NewCodeforcesConnector(cfg)
+	evidenceQueue := &evidenceJobQueueAdapter{q: jobQueue}
+	evidenceSvc := evidence.NewService(evidenceRepo, minioClient, evidenceQueue, githubConnector, leetcodeConnector, codeforcesConnector)
+	evidenceH := handlers.NewEvidenceHandler(evidenceSvc)
+
 	// 9. Setup router
 	r := chi.NewRouter()
+	r.Use(middleware.CORS(cfg.FrontendOrigin))
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.RealIP)
 	r.Use(chimiddleware.Logger)
@@ -164,6 +214,15 @@ func main() {
 				r.Get("/{id}/error-analysis", practiceH.GetErrorAnalysis)
 				r.Get("/similar", practiceH.GetSimilar)
 				r.Get("/topics", practiceH.GetTopics)
+			})
+
+			// Evidence intake endpoints (resume/codebase upload + connector pull)
+			r.Route("/evidence", func(r chi.Router) {
+				r.Post("/upload-url", evidenceH.HandleUploadURL)
+				r.Post("/{id}/confirm", evidenceH.HandleConfirmUpload)
+				r.Post("/github", evidenceH.HandleGithub)
+				r.Post("/leetcode", evidenceH.HandleLeetcode)
+				r.Post("/codeforces", evidenceH.HandleCodeforces)
 			})
 
 		// Dynamic Progressive Roadmap endpoints
