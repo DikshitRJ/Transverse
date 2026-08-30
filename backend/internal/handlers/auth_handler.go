@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -163,7 +164,9 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		userID = acc.UserID
 	}
 
-	h.issueTokens(w, r.Context(), userID, username)
+	// Browser-facing leg of the OAuth dance: redirect to the frontend rather than
+	// writing a raw JSON body, which the browser would otherwise land on directly.
+	h.issueTokensRedirect(w, r, userID, username)
 }
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +198,9 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.issueTokens(w, r.Context(), user.ID, user.Username)
+	// POST /auth/refresh is called programmatically by the frontend and must keep
+	// returning a JSON body (never a redirect).
+	h.issueTokensJSON(w, r.Context(), user.ID, user.Username)
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
@@ -248,7 +253,19 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, user)
 }
 
-func (h *AuthHandler) issueTokens(w http.ResponseWriter, ctx context.Context, userID, username string) {
+// tokenPair holds a freshly minted access/refresh token pair.
+type tokenPair struct {
+	AccessToken  string
+	RefreshToken string
+	ExpiresIn    int
+}
+
+// mintTokens creates a new access/refresh token pair for the given user and persists
+// the refresh token hash. It performs no HTTP writes — callers decide how to deliver
+// the tokens (JSON body vs. redirect), which is exactly why this is split out from the
+// old issueTokens: the OAuth callback needs a very different delivery mechanism than
+// POST /auth/refresh, but both need identical minting logic.
+func (h *AuthHandler) mintTokens(ctx context.Context, userID, username string) (*tokenPair, error) {
 	// Access Token
 	jti := uuid.New().String()
 	exp := time.Now().Add(time.Duration(h.cfg.JWTAccessTTLMinutes) * time.Minute)
@@ -262,8 +279,7 @@ func (h *AuthHandler) issueTokens(w http.ResponseWriter, ctx context.Context, us
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	accessToken, err := token.SignedString([]byte(h.cfg.JWTSecret))
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "Failed to sign access token")
-		return
+		return nil, fmt.Errorf("failed to sign access token: %w", err)
 	}
 
 	// Refresh Token
@@ -275,16 +291,57 @@ func (h *AuthHandler) issueTokens(w http.ResponseWriter, ctx context.Context, us
 	tokenHash := hex.EncodeToString(hash[:])
 
 	rtExp := time.Now().Add(time.Duration(h.cfg.JWTRefreshTTLDays) * 24 * time.Hour)
-	err = h.oauthRepo.CreateRefreshToken(ctx, userID, tokenHash, rtExp)
+	if err := h.oauthRepo.CreateRefreshToken(ctx, userID, tokenHash, rtExp); err != nil {
+		return nil, fmt.Errorf("failed to save refresh token: %w", err)
+	}
+
+	return &tokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    int(time.Until(exp).Seconds()),
+	}, nil
+}
+
+// issueTokensJSON mints a token pair and writes it as the JSON response body:
+// {access_token, refresh_token, expires_in}. Used by POST /auth/refresh, which is
+// called programmatically by the frontend and expects a JSON body, not a redirect.
+func (h *AuthHandler) issueTokensJSON(w http.ResponseWriter, ctx context.Context, userID, username string) {
+	tokens, err := h.mintTokens(ctx, userID, username)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "Failed to save refresh token")
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-		"expires_in":    int(time.Until(exp).Seconds()),
+		"access_token":  tokens.AccessToken,
+		"refresh_token": tokens.RefreshToken,
+		"expires_in":    tokens.ExpiresIn,
 	})
+}
+
+// issueTokensRedirect mints a token pair and 302-redirects the browser to the
+// frontend's OAuth callback route, carrying the tokens as query parameters so the SPA
+// can pick them up and store them. Used only by the OAuth provider callback: the
+// browser is sitting on this backend URL after bouncing through GitHub/Google, and a
+// raw JSON body would leave it stranded on an API response instead of back in the app.
+//
+// NOTE: passing tokens via query string is acceptable for this hackathon timeline but
+// is not hardened — a short-lived, single-use exchange code (swapped for tokens via a
+// follow-up POST from the frontend) would be the hardening step, avoiding bearer
+// tokens landing in browser history / Referer headers / server access logs.
+func (h *AuthHandler) issueTokensRedirect(w http.ResponseWriter, r *http.Request, userID, username string) {
+	tokens, err := h.mintTokens(r.Context(), userID, username)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	redirectURL := fmt.Sprintf("%s/auth/callback?access_token=%s&refresh_token=%s&expires_in=%d",
+		strings.TrimRight(h.cfg.FrontendOrigin, "/"),
+		url.QueryEscape(tokens.AccessToken),
+		url.QueryEscape(tokens.RefreshToken),
+		tokens.ExpiresIn,
+	)
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"transverse/internal/evidence"
+	"transverse/internal/middleware"
 	"transverse/internal/models"
 )
 
@@ -29,8 +30,11 @@ type connectorRequest struct {
 }
 
 func (h *EvidenceHandler) HandleUploadURL(w http.ResponseWriter, r *http.Request) {
-	// Assume user ID from auth context
-	userID := r.Context().Value("user_id").(string)
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "User ID not found in context")
+		return
+	}
 
 	var req uploadURLRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -78,8 +82,12 @@ func (h *EvidenceHandler) HandleCodeforces(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *EvidenceHandler) handleConnector(w http.ResponseWriter, r *http.Request, kind models.EvidenceKind, keyField string) {
-	userID := r.Context().Value("user_id").(string)
-	
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "User ID not found in context")
+		return
+	}
+
 	var req connectorRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")

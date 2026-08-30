@@ -1,0 +1,23 @@
+/*
+ * Pure CSS keyframe drift — deliberately not motion/react. `globals.css`
+ * already collapses `animation-duration` to ~0 under
+ * `prefers-reduced-motion: reduce` app-wide, so this needs no JS branch.
+ */
+.grid {
+  background-image:
+    linear-gradient(rgba(0, 242, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 242, 255, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: tv-scanline-drift 18s linear infinite;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 85%);
+}
+
+@keyframes tv-scanline-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 48px;
+  }
+}

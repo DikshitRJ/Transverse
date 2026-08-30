@@ -67,6 +67,24 @@ services:
       judge0-server:
         condition: service_started
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    volumes:
+      - miniodata:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   init-data:
     build:
       context: ./backend
@@ -105,6 +123,8 @@ services:
         condition: service_healthy
       judge0-server:
         condition: service_started
+      minio:
+        condition: service_healthy
     env_file:
       - path: ./backend/.env
         required: false
@@ -118,11 +138,33 @@ services:
       REDIS_ADDR: "redis:6379"
       JUDGE0_BASE_URL: "http://judge0-server:2358"
       JUDGE0_API_KEY: ""
+      FRONTEND_ORIGIN: http://localhost:3000
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+      MINIO_USE_SSL: "false"
     ports:
       - "8080:8080"
     volumes:
       - ./data:/app/data:ro
       - ./backend/models:/app/models:ro
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_MODE: live
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      BACKEND_URL: http://backend:8080
+      NODE_ENV: production
+      PORT: "3000"
+    ports: ["3000:3000"]
+
 volumes:
   pgdata:
+  miniodata:

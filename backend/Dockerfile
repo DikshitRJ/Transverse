@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.23-bullseye AS builder
+FROM golang:1.25-bookworm AS builder
 WORKDIR /app
 
 # Install ONNX Runtime shared libraries and C headers
@@ -25,7 +25,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
     ./pipeline/seed
 
 # Final minimal production image
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/lib/libonnxruntime.so* /usr/local/lib/

@@ -1,0 +1,189 @@
+/**
+ * Transverse design tokens — FROZEN.
+ *
+ * Extracted from Figma file `5FBPyLzXWSFSv9ahnzTXFs` (nodes 15:10, 61:110, 61:72).
+ * These values do not get "improved". Every color in the app must resolve to one
+ * of these CSS variables — never a raw hex in a component.
+ *
+ * Consumed by ../globals.css via `@import "./theme.css"`, which also remaps the
+ * shadcn/ui semantic tokens (--background, --primary, --border, etc.) onto these
+ * so shadcn primitives render in the Transverse palette without per-component overrides.
+ */
+
+:root {
+  /* ground */
+  --tv-bg: #0a0a12; /* landing / deep app ground */
+  --tv-bg-page: #111318; /* onboarding + inner page ground */
+  --tv-surface-deep: #0c0e12; /* mascot chip, inset wells */
+  --tv-surface: #161b22; /* cards */
+  --tv-surface-2: #282a2e; /* avatar / icon wells */
+  --tv-glass: rgba(255, 255, 255, 0.03); /* + backdrop-blur(5px) */
+  --tv-header: rgba(17, 19, 24, 0.8); /* + backdrop-blur(6px) */
+
+  /* line */
+  --tv-border: #30363d;
+  --tv-border-muted: #3a494b;
+  --tv-border-cyan: rgba(0, 242, 255, 0.3);
+  --tv-border-nav: rgba(0, 255, 255, 0.5);
+
+  /* accent */
+  --tv-cyan: #00f2ff; /* primary action */
+  --tv-cyan-pure: #00ffff; /* glow + gradient stop + logo */
+  --tv-blue: #0055ff; /* gradient end */
+  --tv-cyan-ink: #006a71; /* text ON a cyan fill */
+  --tv-btn-ink: #0a0a12; /* text ON the cyan->blue gradient */
+  --tv-rose: #ff6b6b; /* "problems" / error / regression */
+
+  /* semantic extension (net-new screens only — no new hues) */
+  --tv-warning: #ffd166; /* the one permitted addition: TLE / partial-pass verdicts */
+  --tv-success: var(--tv-cyan);
+  --tv-error: var(--tv-rose);
+  --tv-locked: color-mix(in srgb, var(--tv-text-body) 40%, transparent);
+
+  /* type */
+  --tv-text-hi: #e2e2e8;
+  --tv-text-hi-alt: #e5e7eb;
+  --tv-text-body: #b9cacb;
+  --tv-text-nav: #d1d5db;
+
+  /* radius */
+  --tv-r-chip: 4px;
+  --tv-r-btn: 8px;
+  --tv-r-card: 12px;
+  --tv-r-pill: 9999px;
+
+  /* fonts — CSS variables populated by next/font in src/app/layout.tsx */
+  --tv-font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --tv-font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+  --tv-font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tailwind v4 CSS-first theme wiring — every --tv-* token becomes a      */
+/* first-class Tailwind utility (bg-tv-surface, text-tv-cyan, etc).       */
+/* ---------------------------------------------------------------------- */
+@theme inline {
+  --color-tv-bg: var(--tv-bg);
+  --color-tv-bg-page: var(--tv-bg-page);
+  --color-tv-surface-deep: var(--tv-surface-deep);
+  --color-tv-surface: var(--tv-surface);
+  --color-tv-surface-2: var(--tv-surface-2);
+  --color-tv-glass: var(--tv-glass);
+  --color-tv-header: var(--tv-header);
+
+  --color-tv-border: var(--tv-border);
+  --color-tv-border-muted: var(--tv-border-muted);
+  --color-tv-border-cyan: var(--tv-border-cyan);
+  --color-tv-border-nav: var(--tv-border-nav);
+
+  --color-tv-cyan: var(--tv-cyan);
+  --color-tv-cyan-pure: var(--tv-cyan-pure);
+  --color-tv-blue: var(--tv-blue);
+  --color-tv-cyan-ink: var(--tv-cyan-ink);
+  --color-tv-btn-ink: var(--tv-btn-ink);
+  --color-tv-rose: var(--tv-rose);
+
+  --color-tv-warning: var(--tv-warning);
+  --color-tv-success: var(--tv-success);
+  --color-tv-error: var(--tv-error);
+  --color-tv-locked: var(--tv-locked);
+
+  --color-tv-text-hi: var(--tv-text-hi);
+  --color-tv-text-hi-alt: var(--tv-text-hi-alt);
+  --color-tv-text-body: var(--tv-text-body);
+  --color-tv-text-nav: var(--tv-text-nav);
+
+  --radius-tv-chip: var(--tv-r-chip);
+  --radius-tv-btn: var(--tv-r-btn);
+  --radius-tv-card: var(--tv-r-card);
+  --radius-tv-pill: var(--tv-r-pill);
+
+  --font-display: var(--tv-font-display);
+  --font-mono: var(--tv-font-mono);
+  --font-body: var(--tv-font-body);
+
+  /* Type scale (Figma): 69/68, 32/32, 30/36, 24/32, 20/24, 18/28, 16/24, 14/20, 12/16 */
+  --text-display-1: 69px;
+  --text-display-1--line-height: 68px;
+  --text-display-2: 32px;
+  --text-display-2--line-height: 32px;
+  --text-h1: 30px;
+  --text-h1--line-height: 36px;
+  --text-h2: 24px;
+  --text-h2--line-height: 32px;
+  --text-h3: 20px;
+  --text-h3--line-height: 24px;
+  --text-h4: 18px;
+  --text-h4--line-height: 28px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Signature effects — defined once, consumed everywhere. Never re-invent */
+/* a glow/gradient/glass treatment ad hoc in a component.                 */
+/* ---------------------------------------------------------------------- */
+
+/* Cyan text glow */
+@utility glow-text-cyan {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* Cyan card glow */
+@utility glow-card-cyan {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+}
+
+/* Rose card glow */
+@utility glow-card-rose {
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.1);
+}
+
+/* Rose chip glow */
+@utility glow-chip-rose {
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+/* Cyan chip glow — the cyan counterpart of glow-chip-rose, at the same 0.3
+   alpha. Figma `61:86` ("SOLUTION WE OFFER") uses the identical recipe to the
+   rose "PROBLEMS" chip, just in cyan; without this, the cyan chip had to fall
+   back to the much weaker glow-card-cyan (0.1) and read as flat next to its
+   rose counterpart. Added during Wave-2 merge — see plan.md §9.5c item 3. */
+@utility glow-chip-cyan {
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+/* Primary button — cyan->blue gradient, dark ink, drop-shadow */
+@utility btn-gradient-primary {
+  background-image: linear-gradient(90deg, #00ffff, #0055ff);
+  color: var(--tv-btn-ink);
+  border-radius: var(--tv-r-chip);
+  filter: drop-shadow(0 0 7.5px rgba(0, 255, 255, 0.5));
+}
+
+/* Display gradient text (hero headings) */
+@utility text-gradient-display {
+  background-image: linear-gradient(90deg, #d9e9ea 0%, #00ffff 96.635%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Glass panel — the default "elevated surface" treatment on dark grounds */
+@utility glass-panel {
+  background: var(--tv-glass);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid var(--tv-border);
+}
+
+/* Glass header — TopNav / sticky header treatment */
+@utility glass-header {
+  background: var(--tv-header);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
