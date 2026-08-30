@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"encoding/json"
 	"strings"
 	"transverse/internal/graph"
 )
@@ -53,7 +54,7 @@ func Normalize(raw RawProblem, g graph.TopicGraph) NormalizedProblem {
 	embedText := fmt.Sprintf("[PROBLEM] %s [TOPIC] %s [SUBTOPIC] %s [TAGS] %s [SOURCE] %s",
 		strings.TrimSpace(raw.Name), primaryTopic, secondaryTopic, tagsStr, source)
 
-	return NormalizedProblem{
+	ret := NormalizedProblem{
 		ID:               raw.ID,
 		Source:           source,
 		Name:             strings.TrimSpace(raw.Name),
@@ -66,9 +67,29 @@ func Normalize(raw RawProblem, g graph.TopicGraph) NormalizedProblem {
 		DifficultyLabel:  label,
 		GlickoRating:     rating,
 		GlickoRD:         350.0,
-		GlickoVolatility: 0.06,
+				GlickoVolatility: 0.06,
 		EmbedText:        embedText,
+		Statement:        raw.Statement,
 	}
+	
+	// Convert test cases to JSON
+	type tc struct {
+		Input  string `json:"input"`
+		Output string `json:"output"`
+	}
+	var tcs []tc
+	for i := range raw.InputTestcases {
+	    if i < len(raw.OutputTestcases) {
+	        tcs = append(tcs, tc{Input: raw.InputTestcases[i], Output: raw.OutputTestcases[i]})
+	    }
+	}
+	if b, err := json.Marshal(tcs); err == nil {
+	    ret.TestCases = b
+	} else {
+	    ret.TestCases = []byte("[]")
+	}
+	
+	return ret
 }
 
 // normalizeSource maps source identifiers to canonical platform names.

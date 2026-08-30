@@ -100,3 +100,23 @@ services:
 
 volumes:
   pgdata:
+
+  seeder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
+      TOPICS_GRAPH_PATH: /app/data/topics.json
+      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
+    volumes:
+      - ../data:/app/data:ro
+      - ./models:/app/models:ro
+    command: ["/app/seed_pipeline"]

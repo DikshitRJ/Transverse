@@ -1,4 +1,3 @@
-// Package main provides database seeding and upsert capabilities for normalized problem vectors.
 package main
 
 import (
@@ -15,9 +14,10 @@ import (
 const upsertProblemSQL = `
 INSERT INTO problems (
     id, source, name, url, slug, contest_id, tags, topic, subtopic,
-    difficulty_label, glicko_rating, glicko_rd, glicko_volatility, embedding, embed_text
+    difficulty_label, glicko_rating, glicko_rd, glicko_volatility, embedding, embed_text,
+    statement, test_cases
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
 )
 ON CONFLICT (id) DO UPDATE SET
     source            = EXCLUDED.source,
@@ -34,11 +34,11 @@ ON CONFLICT (id) DO UPDATE SET
     glicko_volatility = EXCLUDED.glicko_volatility,
     embedding         = COALESCE(EXCLUDED.embedding, problems.embedding),
     embed_text        = EXCLUDED.embed_text,
+    statement         = EXCLUDED.statement,
+    test_cases        = EXCLUDED.test_cases,
     updated_at        = NOW();
 `
 
-// SeedProblems upserts all normalized problems with their corresponding vector embeddings into PostgreSQL.
-// It executes in chunked transactional batches of size batchSize.
 func SeedProblems(ctx context.Context, pool *pgxpool.Pool, problems []NormalizedProblem, embeddings map[string][]float32, batchSize int) error {
 	if pool == nil {
 		return fmt.Errorf("database connection pool cannot be nil")
@@ -80,6 +80,11 @@ func SeedProblems(ctx context.Context, pool *pgxpool.Pool, problems []Normalized
 			if emb, ok := embeddings[p.ID]; ok && len(emb) > 0 {
 				embValue = pgvector.NewVector(emb)
 			}
+            
+            tc := p.TestCases
+            if tc == nil {
+                tc = []byte("[]")
+            }
 
 			batch.Queue(
 				upsertProblemSQL,
@@ -98,6 +103,8 @@ func SeedProblems(ctx context.Context, pool *pgxpool.Pool, problems []Normalized
 				p.GlickoVolatility,
 				embValue,
 				p.EmbedText,
+                p.Statement,
+                tc,
 			)
 		}
 
