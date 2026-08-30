@@ -84,13 +84,23 @@ export default function CopyrightPage() {
               </section>
             </div>
 
-            <div className="mt-10 border-t border-tv-border-muted pt-6 flex justify-between items-center">
-              <Link
-                href="/terms"
-                className="font-mono text-xs text-tv-cyan hover:underline flex items-center gap-1"
-              >
-                &larr; View Terms of Service
-              </Link>
+            <div className="mt-10 border-t border-tv-border-muted pt-6 flex flex-wrap justify-between items-center gap-4">
+              <div className="flex items-center gap-4 font-mono text-xs">
+                <Link
+                  href="/terms"
+                  className="text-tv-cyan hover:underline flex items-center gap-1"
+                >
+                  &larr; View Terms of Service
+                </Link>
+                <a
+                  href="https://github.com/dikshitrj/transverse"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-tv-text-body hover:text-tv-cyan transition-colors"
+                >
+                  GitHub: dikshitrj/transverse
+                </a>
+              </div>
               <Link
                 href="/"
                 className="font-mono text-xs text-tv-text-body hover:text-tv-text-hi"

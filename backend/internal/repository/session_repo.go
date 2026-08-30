@@ -207,3 +207,17 @@ func (r *SessionRepo) CleanupStale(ctx context.Context, maxAge time.Duration) (i
 
 	return cmdTag.RowsAffected(), nil
 }
+
+// RebindUser updates the user_id owner of a session (e.g. claiming a dev-user-001 session upon login).
+func (r *SessionRepo) RebindUser(ctx context.Context, sessionID string, newUserID string) error {
+	_, err := r.pool.Exec(ctx, `
+		UPDATE practice_sessions
+		SET user_id = $2,
+		    updated_at = NOW()
+		WHERE id = $1
+	`, sessionID, newUserID)
+	if err != nil {
+		return fmt.Errorf("session_repo: rebind user: %w", err)
+	}
+	return nil
+}

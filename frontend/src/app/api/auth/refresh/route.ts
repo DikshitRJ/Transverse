@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
   backendUrl,
+  isCookieSecure,
   isMockMode,
   mockToken,
   REFRESH_COOKIE_MAX_AGE_SECONDS,
@@ -26,9 +27,10 @@ import type { AuthTokenResponse } from "@/lib/api/types";
  * interceptor from loading via `instrumentation.ts` in this project as of
  * this writing.
  */
-export async function POST(): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get(REFRESH_COOKIE_NAME)?.value;
+  const secure = isCookieSecure(request);
 
   if (!refreshToken) {
     return NextResponse.json({ error: "no refresh session" }, { status: 401 });
@@ -42,12 +44,20 @@ export async function POST(): Promise<Response> {
   if (isMockMode()) {
     cookieStore.set(REFRESH_COOKIE_NAME, mockToken("mock-refresh"), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
     });
-    return NextResponse.json({ access_token: mockToken("mock-access"), expires_in: 3600 });
+    const resp = NextResponse.json({ access_token: mockToken("mock-access"), expires_in: 3600 });
+    resp.cookies.set(REFRESH_COOKIE_NAME, mockToken("mock-refresh"), {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+    });
+    return resp;
   }
 
   let res: Response;
@@ -66,21 +76,32 @@ export async function POST(): Promise<Response> {
     // Refresh token is dead (expired/revoked) — clear the cookie so we don't keep retrying it.
     cookieStore.delete(REFRESH_COOKIE_NAME);
     const message = await res.text().catch(() => "refresh failed");
-    return NextResponse.json({ error: message || "refresh failed" }, { status: res.status });
+    const resp = NextResponse.json({ error: message || "refresh failed" }, { status: res.status });
+    resp.cookies.delete(REFRESH_COOKIE_NAME);
+    return resp;
   }
 
   const body = (await res.json()) as AuthTokenResponse;
 
   cookieStore.set(REFRESH_COOKIE_NAME, body.refresh_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax",
     path: "/",
     maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
   });
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     access_token: body.access_token,
     expires_in: body.expires_in,
   });
+  response.cookies.set(REFRESH_COOKIE_NAME, body.refresh_token, {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+  });
+
+  return response;
 }

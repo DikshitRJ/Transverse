@@ -58,13 +58,12 @@ export function AuthForm({ className }: { className?: string }) {
       // Determine where to navigate
       if (nextParam && nextParam.startsWith("/")) {
         router.push(nextParam);
+        router.refresh();
       } else {
         const user = await getMe().catch(() => null);
-        if (user) {
-          router.push(postSignInDestination(user));
-        } else {
-          router.push("/dashboard");
-        }
+        const dest = user ? postSignInDestination(user) : (mode === "signup" ? "/onboarding" : "/dashboard");
+        router.push(dest);
+        router.refresh();
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Authentication failed. Please try again.";

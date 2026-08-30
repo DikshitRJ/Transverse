@@ -3,6 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SafeHtml } from "@/components/content/safe-html";
+import { HintPanel } from "@/components/practice/hint-panel";
+import { useHint } from "@/components/practice/use-hint";
 import type { ProblemPayload } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +18,11 @@ function difficultyVariant(label: string): "success" | "warning" | "error" | "se
 
 export interface ProblemPanelProps {
   problem: ProblemPayload;
+  sessionId?: string;
 }
 
-export function ProblemPanel({ problem }: ProblemPanelProps) {
+export function ProblemPanel({ problem, sessionId }: ProblemPanelProps) {
+  const hint = useHint(sessionId ?? null, problem.id);
   const sampleCases = (problem.test_cases ?? []).filter((tc) => !tc.is_hidden);
 
   return (
@@ -90,6 +94,8 @@ export function ProblemPanel({ problem }: ProblemPanelProps) {
           </div>
         </div>
       )}
+
+      <HintPanel hint={hint} className="mt-6" />
     </div>
   );
 }

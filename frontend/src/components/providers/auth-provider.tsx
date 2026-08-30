@@ -49,7 +49,17 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [user, setUser] = useState<User | null | undefined>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = window.localStorage.getItem("tv_user");
+        if (cached) return JSON.parse(cached) as User;
+      } catch {
+        // Ignore JSON parse errors
+      }
+    }
+    return undefined;
+  });
   const [accessToken, setAccessTokenState] = useState<string | null>(getAccessToken());
   const queryClient = useQueryClient();
 
@@ -57,9 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const me = await getMe();
       setUser(me);
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem("tv_user", JSON.stringify(me));
+        } catch {
+          // Ignore storage quota errors
+        }
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setUser(null);
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("tv_user");
+        }
       } else {
         // Network/backend error — leave `user` as-is rather than bouncing a
         // signed-in user to signed-out on a transient failure.
@@ -71,20 +91,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Subscribe to the token store so any writer (client.ts's silent refresh,
   // this provider itself) keeps `accessToken`/`isAuthenticated` in sync.
   useEffect(() => {
-    return subscribeAccessToken(setAccessTokenState);
-  }, []);
+    return subscribeAccessToken((token) => {
+      setAccessTokenState(token);
+      if (token) {
+        void loadUser();
+      }
+    });
+  }, [loadUser]);
 
   useEffect(() => {
     return subscribeAuthExpired(() => {
       setUser(null);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("tv_user");
+      }
       queryClient.clear();
     });
   }, [queryClient]);
 
-  // Attempt to restore a session from the httpOnly refresh cookie on first load.
+  // Attempt to restore/verify session on first load.
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const currentToken = getAccessToken();
+      if (currentToken) {
+        await loadUser();
+      }
+
       try {
         const res = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
         if (cancelled) return;
@@ -92,11 +125,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const body = (await res.json()) as { access_token: string };
           setAccessToken(body.access_token);
           await loadUser();
-        } else {
+        } else if (!currentToken) {
           setUser(null);
+          if (typeof window !== "undefined") {
+            window.localStorage.removeItem("tv_user");
+          }
         }
       } catch {
-        if (!cancelled) setUser(null);
+        if (!cancelled && !currentToken) {
+          setUser(null);
+        }
       }
     })();
     return () => {
@@ -166,9 +204,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await authLogout();
+    try {
+      await authLogout();
+    } catch {
+      // Ignore network errors during logout
+    }
     setAccessToken(null);
     setUser(null);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem("tv_user");
+        window.localStorage.removeItem("tv_access_token");
+      } catch {
+        // Ignore storage errors
+      }
+    }
     queryClient.clear();
   }, [queryClient]);
 

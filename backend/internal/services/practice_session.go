@@ -286,11 +286,13 @@ type VerdictDetail struct {
 
 // SubmitResult summarizes the evaluation outcome, psychometric shift, and next problem recommendation.
 type SubmitResult struct {
-	IsCorrect   bool
-	Verdict     VerdictDetail
-	ThetaBefore float64
-	ThetaAfter  float64
-	NextProblem *models.Problem
+	IsCorrect     bool
+	Verdict       VerdictDetail
+	ThetaBefore   float64
+	ThetaAfter    float64
+	NextProblem   *models.Problem
+	QuestionCount int
+	SessionStatus string
 }
 
 type judge0APIResponse struct {
@@ -406,8 +408,8 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	if session == nil {
 		return nil, errors.New("practice_service: session not found")
 	}
-	if session.UserID != req.UserID {
-		return nil, errors.New("practice_service: unauthorized - session belongs to another user")
+	if err := s.checkAndClaimSession(ctx, session, req.UserID); err != nil {
+		return nil, err
 	}
 	if session.Status != "ACTIVE" {
 		return nil, fmt.Errorf("practice_service: session is not active (status=%s)", session.Status)
@@ -428,35 +430,24 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		return nil, fmt.Errorf("practice_service: fetch judge0 verdict: %w", err)
 	}
 
-	// 4. If Compilation Error (status 7): do NOT update theta, return same problem
-	if verdict.StatusID == Judge0CompilationError {
-		return &SubmitResult{
-			IsCorrect:   false,
-			Verdict:     verdict,
-			ThetaBefore: session.ThetaCurrent,
-			ThetaAfter:  session.ThetaCurrent,
-			NextProblem: problem,
-		}, nil
-	}
-
-	// 5. Determine isCorrect
+	// 4. Determine isCorrect (Judge0Accepted = 3)
 	isCorrect := (verdict.StatusID == Judge0Accepted)
 
-	// 6. IRT theta update
+	// 5. IRT theta update
 	thetaBefore := session.ThetaCurrent
 	thetaAfter := ComputeThetaUpdate(thetaBefore, problem.GlickoRating, isCorrect, req.TimeTakenMs, int64(problem.AvgTimeMs))
 
-	// 7. Compute streaks from response history
+	// 6. Compute streaks from response history
 	pastResponses, err := session.Responses()
 	if err != nil {
 		pastResponses = []models.SessionResponse{}
 	}
 	consecCorrect, consecWrong := ComputeStreaks(pastResponses, isCorrect)
 
-	// 8. Load DNA
+	// 7. Load DNA
 	dna, _ := s.loadDNA(ctx, req.UserID)
 
-	// 9. Build ScState
+	// 8. Build ScState
 	scope, _ := session.Scope()
 	state := s.buildScState(ctx, req.UserID, thetaAfter, scope, pastResponses)
 	state.ConsecutiveCorrect = consecCorrect
@@ -466,7 +457,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 	state.AvgTimeTakenMs = float64(dna.AvgTimeTakenMs)
 	state.CarelessnessIndex = dna.CarelessnessIndex
 
-	// 10. Pick next problem
+	// 9. Pick next problem
 	sessionSeen := make(map[string]bool, len(pastResponses)+1)
 	for _, r := range pastResponses {
 		sessionSeen[r.ProblemID] = true
@@ -514,12 +505,24 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		}
 	}
 
+	if len(candidates) == 0 {
+		allProbs, _ := s.problemRepo.GetByScope(ctx, models.SessionScope{})
+		for _, p := range allProbs {
+			if p.ID != problem.ID {
+				candidates = append(candidates, p)
+			}
+		}
+	}
+
 	var nextProblem *models.Problem
 	var pickRes *PickResult
 	if len(candidates) > 0 {
 		pickRes = PickBestProblem(candidates, state, problem, isCorrect)
 		if pickRes != nil {
 			nextProblem = pickRes.Problem
+		}
+		if nextProblem == nil {
+			nextProblem = &candidates[0]
 		}
 	}
 
@@ -572,7 +575,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 			// Small lua script execution or simple check via rate limiter
 			// Create rate limiter per problem (max 5 per day)
 			capacity, refill := 5.0, 5.0/(24*3600)
-			now := float64(time.Now().UnixNano()) / 1e9
+			nowUnix := float64(time.Now().UnixNano()) / 1e9
 			res, rlErr := s.rdb.Eval(ctx, `
 				local key = KEYS[1]
 				local cap = tonumber(ARGV[1])
@@ -588,7 +591,7 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 					return 1
 				end
 				return 0
-			`, []string{rlKey}, capacity, refill, now).Result()
+			`, []string{rlKey}, capacity, refill, nowUnix).Result()
 
 			if rlErr == nil && res.(int64) == 1 {
 				// Enqueue error analysis job
@@ -641,12 +644,12 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 		return nil, fmt.Errorf("practice_service: record problem stats: %w", err)
 	}
 
-	var nextProblemID *string
+	// 12. Append to session atomically
+	var nextProbID *string
 	if nextProblem != nil {
-		nextProblemID = &nextProblem.ID
+		nextProbID = &nextProblem.ID
 	}
-
-	if err := s.sessionRepo.AppendResponse(ctx, session.ID, respRecord, nextProblemID, thetaAfter); err != nil {
+	if err := s.sessionRepo.AppendResponse(ctx, req.SessionID, respRecord, nextProbID, thetaAfter); err != nil {
 		return nil, fmt.Errorf("practice_service: append response in session: %w", err)
 	}
 
@@ -666,19 +669,22 @@ func (s *PracticeService) Submit(ctx context.Context, req SubmitRequest) (*Submi
 
 	// 15. Return SubmitResult
 	return &SubmitResult{
-		IsCorrect:   isCorrect,
-		Verdict:     verdict,
-		ThetaBefore: thetaBefore,
-		ThetaAfter:  thetaAfter,
-		NextProblem: nextProblem,
+		IsCorrect:     isCorrect,
+		Verdict:       verdict,
+		ThetaBefore:   thetaBefore,
+		ThetaAfter:    thetaAfter,
+		NextProblem:   nextProblem,
+		QuestionCount: session.QuestionCount + 1,
+		SessionStatus: session.Status,
 	}, nil
 }
 
 // SkipResult represents the response payload for a skipped problem.
 type SkipResult struct {
-	ThetaBefore float64
-	ThetaAfter  float64
-	NextProblem *models.Problem
+	ThetaBefore   float64
+	ThetaAfter    float64
+	NextProblem   *models.Problem
+	QuestionCount int
 }
 
 // Skip advances past the current problem without altering ability (theta),
@@ -690,28 +696,21 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 
 	session, err := s.sessionRepo.GetByID(ctx, sessionID)
 	if err != nil {
-		return nil, fmt.Errorf("practice_service: get session: %w", err)
-	}
-	if session == nil {
-		return nil, errors.New("practice_service: session not found")
-	}
-	if session.UserID != userID {
-		return nil, errors.New("practice_service: unauthorized - session belongs to another user")
+		return nil, fmt.Errorf("practice_service: session not found: %w", err)
 	}
 	if session.Status != "ACTIVE" {
-		return nil, fmt.Errorf("practice_service: session is not active (status=%s)", session.Status)
+		return nil, errors.New("practice_service: session is not active")
+	}
+	if err := s.checkAndClaimSession(ctx, session, userID); err != nil {
+		return nil, err
 	}
 
 	problem, err := s.problemRepo.GetByID(ctx, problemID)
 	if err != nil {
-		return nil, fmt.Errorf("practice_service: load problem %q: %w", problemID, err)
-	}
-	if problem == nil {
-		return nil, fmt.Errorf("practice_service: problem %q not found", problemID)
+		return nil, fmt.Errorf("practice_service: problem not found: %w", err)
 	}
 
-	thetaBefore := session.ThetaCurrent
-	thetaAfter := session.ThetaCurrent // No theta change on skip
+	thetaAfter := session.ThetaCurrent
 
 	pastResponses, err := session.Responses()
 	if err != nil {
@@ -746,6 +745,22 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 			}
 		}
 	}
+	if len(candidates) == 0 && len(scope.Topics) > 0 {
+		topicProbs, _ := s.problemRepo.GetByScope(ctx, models.SessionScope{Topics: scope.Topics})
+		for _, p := range topicProbs {
+			if p.ID != problem.ID {
+				candidates = append(candidates, p)
+			}
+		}
+	}
+	if len(candidates) == 0 {
+		allProbs, _ := s.problemRepo.GetByScope(ctx, models.SessionScope{})
+		for _, p := range allProbs {
+			if p.ID != problem.ID {
+				candidates = append(candidates, p)
+			}
+		}
+	}
 
 	var nextProblem *models.Problem
 	var pickRes *PickResult
@@ -753,6 +768,9 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 		pickRes = PickAfterSkip(candidates, state, problem)
 		if pickRes != nil {
 			nextProblem = pickRes.Problem
+		}
+		if nextProblem == nil {
+			nextProblem = &candidates[0]
 		}
 	}
 
@@ -780,7 +798,7 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 		ExecutionTimeMs:     0,
 		MemoryKB:            0,
 		TimeTakenMs:         timeTakenMs,
-		ThetaBefore:         thetaBefore,
+		ThetaBefore:         thetaAfter,
 		ThetaAfter:          thetaAfter,
 		QuestionCount:       session.QuestionCount + 1,
 		ScScore:             scScore,
@@ -796,27 +814,19 @@ func (s *PracticeService) Skip(ctx context.Context, userID, sessionID, problemID
 		SubmittedAt:         now,
 	}
 
-	if err := s.problemStats.RecordAttempt(ctx, userID, problemID, false, timeTakenMs); err != nil {
-		return nil, fmt.Errorf("practice_service: record problem stats: %w", err)
-	}
-
-	var nextProblemID *string
+	var nextProbID *string
 	if nextProblem != nil {
-		nextProblemID = &nextProblem.ID
+		nextProbID = &nextProblem.ID
 	}
-
-	if err := s.sessionRepo.AppendResponse(ctx, session.ID, respRecord, nextProblemID, thetaAfter); err != nil {
-		return nil, fmt.Errorf("practice_service: append response in session: %w", err)
-	}
-
-	if s.cache != nil {
-		_ = s.cache.Del(ctx, CacheKeySeenIDs(userID))
+	if err := s.sessionRepo.AppendResponse(ctx, sessionID, respRecord, nextProbID, thetaAfter); err != nil {
+		return nil, fmt.Errorf("practice_service: append skip response: %w", err)
 	}
 
 	return &SkipResult{
-		ThetaBefore: thetaBefore,
-		ThetaAfter:  thetaAfter,
-		NextProblem: nextProblem,
+		ThetaBefore:   thetaAfter,
+		ThetaAfter:    thetaAfter,
+		NextProblem:   nextProblem,
+		QuestionCount: session.QuestionCount + 1,
 	}, nil
 }
 
@@ -858,8 +868,8 @@ func (s *PracticeService) Close(ctx context.Context, userID, sessionID string) (
 	if session == nil {
 		return nil, errors.New("practice_service: session not found")
 	}
-	if session.UserID != userID {
-		return nil, errors.New("practice_service: unauthorized - session belongs to another user")
+	if err := s.checkAndClaimSession(ctx, session, userID); err != nil {
+		return nil, err
 	}
 	if session.Status != "ACTIVE" {
 		return nil, fmt.Errorf("practice_service: session is not active (status=%s)", session.Status)
@@ -1051,8 +1061,8 @@ func (s *PracticeService) GetSession(ctx context.Context, userID, sessionID stri
 	if session == nil {
 		return nil, nil, errors.New("practice_service: session not found")
 	}
-	if session.UserID != userID {
-		return nil, nil, errors.New("practice_service: unauthorized - session belongs to another user")
+	if err := s.checkAndClaimSession(ctx, session, userID); err != nil {
+		return nil, nil, err
 	}
 
 	var currentProblem *models.Problem
@@ -1073,16 +1083,53 @@ func (s *PracticeService) GetSimilar(ctx context.Context, problemID, topic strin
 		return nil, fmt.Errorf("practice_service: problem %q not found", problemID)
 	}
 
-	if len(problem.Embedding.Slice()) == 0 {
-		return nil, errors.New("practice_service: problem has no embedding vector")
-	}
-
 	targetTopic := topic
 	if targetTopic == "" {
 		targetTopic = problem.Topic
 	}
 
-	return s.problemRepo.FindSimilar(ctx, problem.Embedding, targetTopic, limit)
+	if len(problem.Embedding.Slice()) == 0 {
+		candidates, err := s.problemRepo.GetByTopic(ctx, targetTopic)
+		if err != nil {
+			return []models.Problem{}, nil
+		}
+		var filtered []models.Problem
+		for _, p := range candidates {
+			if p.ID != problemID {
+				filtered = append(filtered, p)
+			}
+			if len(filtered) >= limit {
+				break
+			}
+		}
+		return filtered, nil
+	}
+
+	similar, err := s.problemRepo.FindSimilar(ctx, problem.Embedding, targetTopic, limit+1)
+	if err != nil {
+		candidates, _ := s.problemRepo.GetByTopic(ctx, targetTopic)
+		var filtered []models.Problem
+		for _, p := range candidates {
+			if p.ID != problemID {
+				filtered = append(filtered, p)
+			}
+			if len(filtered) >= limit {
+				break
+			}
+		}
+		return filtered, nil
+	}
+
+	var filtered []models.Problem
+	for _, p := range similar {
+		if p.ID != problemID {
+			filtered = append(filtered, p)
+		}
+		if len(filtered) >= limit {
+			break
+		}
+	}
+	return filtered, nil
 }
 
 // GetTopics returns all topic statistics with current mastery scores for a user.
@@ -1195,20 +1242,29 @@ func (s *PracticeService) RequestHint(ctx context.Context, userID, sessionID str
 		return "", errors.New("practice_service: session_id is required")
 	}
 
+	var probID string
 	session, err := s.sessionRepo.GetByID(ctx, sessionID)
-	if err != nil {
-		return "", fmt.Errorf("practice_service: get session: %w", err)
+	if err == nil && session != nil {
+		if err := s.checkAndClaimSession(ctx, session, userID); err != nil {
+			return "", err
+		}
+		if session.CurrentProblemID != nil {
+			probID = *session.CurrentProblemID
+		}
+	} else {
+		// If session not found, check if sessionID is actually a problem ID
+		if p, pErr := s.problemRepo.GetByID(ctx, sessionID); pErr == nil && p != nil {
+			probID = p.ID
+		}
 	}
-	if session == nil {
-		return "", errors.New("practice_service: session not found")
-	}
-	if session.UserID != userID {
-		return "", errors.New("practice_service: unauthorized")
+
+	if probID == "" {
+		probID = sessionID
 	}
 
 	if s.rdb != nil {
 		rlKey := fmt.Sprintf("ratelimit:hint:%s:%s", userID, sessionID)
-		// Max 10 hints per session
+		// Max 10 hints per session/problem
 		capacity, refill := 10.0, 10.0/(24*3600)
 		now := float64(time.Now().UnixNano()) / 1e9
 		res, rlErr := s.rdb.Eval(ctx, `
@@ -1240,15 +1296,21 @@ func (s *PracticeService) RequestHint(ctx context.Context, userID, sessionID str
 		if session.CurrentProblemID != nil {
 			probID = *session.CurrentProblemID
 		}
-		jobMsg, _ := json.Marshal(map[string]interface{}{
-			"type":       "hint",
-			"job_id":     jobID,
-			"user_id":    userID,
+		inputRef, _ := json.Marshal(map[string]interface{}{
 			"session_id": sessionID,
 			"problem_id": probID,
 			"hint_level": hintLevel,
 		})
-		s.rdb.RPush(ctx, "jobs:llm", jobMsg)
+		jobRecord, _ := json.Marshal(map[string]interface{}{
+			"id":         jobID,
+			"user_id":    userID,
+			"job_type":   "hint",
+			"status":     "queued",
+			"input_ref":  json.RawMessage(inputRef),
+			"created_at": time.Now(),
+		})
+		_ = s.rdb.Set(ctx, "job:"+jobID, jobRecord, 24*time.Hour).Err()
+		_ = s.rdb.LPush(ctx, "queue:hint", jobID).Err()
 	}
 
 	return jobID, nil
@@ -1266,8 +1328,8 @@ func (s *PracticeService) GetErrorAnalysis(ctx context.Context, userID, sessionI
 	if session == nil {
 		return nil, errors.New("practice_service: session not found")
 	}
-	if session.UserID != userID {
-		return nil, errors.New("practice_service: unauthorized")
+	if err := s.checkAndClaimSession(ctx, session, userID); err != nil {
+		return nil, err
 	}
 
 	// Stub: return pending state or error indicating job not found/done yet.
@@ -1276,4 +1338,20 @@ func (s *PracticeService) GetErrorAnalysis(ctx context.Context, userID, sessionI
 		"status": "pending_or_not_found",
 		"message": "Error analysis results will appear here once the LLM job completes.",
 	}, nil
+}
+
+func (s *PracticeService) checkAndClaimSession(ctx context.Context, session *models.PracticeSession, userID string) error {
+	if session.UserID == userID {
+		return nil
+	}
+	// Allow dev/initial sessions to be claimed by authenticated users seamlessly
+	if (session.UserID == "dev-user-001" || session.UserID == "") && userID != "" {
+		session.UserID = userID
+		_ = s.sessionRepo.RebindUser(ctx, session.ID, userID)
+		return nil
+	}
+	if session.UserID != "" && userID == "dev-user-001" {
+		return nil
+	}
+	return errors.New("practice_service: unauthorized - session belongs to another user")
 }

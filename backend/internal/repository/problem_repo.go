@@ -30,6 +30,49 @@ func NewProblemRepo(pool *pgxpool.Pool, c cache.Cache) *ProblemRepo {
 	}
 }
 
+type rowScanner interface {
+	Scan(dest ...any) error
+}
+
+func scanProblemRow(scanner rowScanner, p *models.Problem) error {
+	var emb *pgvector.Vector
+	var tcRaw []byte
+	var statement *string
+	var solveRate *float64
+	var avgTimeMs *int
+
+	err := scanner.Scan(
+		&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
+		&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
+		&p.AttemptCount, &solveRate, &avgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
+		&p.CreatedAt, &p.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	if solveRate != nil {
+		p.SolveRate = *solveRate
+	}
+	if avgTimeMs != nil {
+		p.AvgTimeMs = *avgTimeMs
+	}
+	if emb != nil {
+		p.Embedding = *emb
+	}
+	if statement != nil {
+		p.Statement = *statement
+	}
+	if len(tcRaw) > 0 {
+		_ = json.Unmarshal(tcRaw, &p.TestCases)
+	}
+	if p.TestCases == nil {
+		p.TestCases = []models.TestCase{}
+	}
+
+	return nil
+}
+
 // GetByID retrieves a single problem by ID, checking cache first.
 func (r *ProblemRepo) GetByID(ctx context.Context, id string) (*models.Problem, error) {
 	cacheKey := fmt.Sprintf("problem:%s", id)
@@ -41,37 +84,18 @@ func (r *ProblemRepo) GetByID(ctx context.Context, id string) (*models.Problem, 
 	}
 
 	var p models.Problem
-	var emb pgvector.Vector
-	var tcRaw []byte
-	var statement *string
-	err := r.pool.QueryRow(ctx, `
+	row := r.pool.QueryRow(ctx, `
 		SELECT id, source, name, url, slug, contest_id, tags, topic, subtopic,
 		       difficulty_label, glicko_rating, glicko_rd, glicko_volatility,
 		       attempt_count, solve_rate, avg_time_ms, COALESCE(statement, ''), COALESCE(test_cases, '[]'::jsonb),
 		       embedding, embed_text, created_at, updated_at
 		FROM problems WHERE id = $1
-	`, id).Scan(
-		&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
-		&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-		&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
-		&p.CreatedAt, &p.UpdatedAt,
-	)
-	if err != nil {
+	`, id)
+	if err := scanProblemRow(row, &p); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, fmt.Errorf("problem not found: %s", id)
 		}
 		return nil, fmt.Errorf("problem_repo: get by id %q: %w", id, err)
-	}
-
-	p.Embedding = emb
-	if statement != nil {
-		p.Statement = *statement
-	}
-	if len(tcRaw) > 0 {
-		_ = json.Unmarshal(tcRaw, &p.TestCases)
-	}
-	if p.TestCases == nil {
-		p.TestCases = []models.TestCase{}
 	}
 
 	if r.cache != nil {
@@ -107,26 +131,8 @@ func (r *ProblemRepo) GetByTopic(ctx context.Context, topic string) ([]models.Pr
 	var problems []models.Problem
 	for rows.Next() {
 		var p models.Problem
-		var emb pgvector.Vector
-		var tcRaw []byte
-		var statement *string
-		if err := rows.Scan(
-			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
-			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
-			&p.CreatedAt, &p.UpdatedAt,
-		); err != nil {
+		if err := scanProblemRow(rows, &p); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan problem: %w", err)
-		}
-		p.Embedding = emb
-		if statement != nil {
-			p.Statement = *statement
-		}
-		if len(tcRaw) > 0 {
-			_ = json.Unmarshal(tcRaw, &p.TestCases)
-		}
-		if p.TestCases == nil {
-			p.TestCases = []models.TestCase{}
 		}
 		problems = append(problems, p)
 	}
@@ -199,26 +205,8 @@ func (r *ProblemRepo) GetByScope(ctx context.Context, scope models.SessionScope)
 	var problems []models.Problem
 	for rows.Next() {
 		var p models.Problem
-		var emb pgvector.Vector
-		var tcRaw []byte
-		var statement *string
-		if err := rows.Scan(
-			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
-			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
-			&p.CreatedAt, &p.UpdatedAt,
-		); err != nil {
+		if err := scanProblemRow(rows, &p); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan scope problem: %w", err)
-		}
-		p.Embedding = emb
-		if statement != nil {
-			p.Statement = *statement
-		}
-		if len(tcRaw) > 0 {
-			_ = json.Unmarshal(tcRaw, &p.TestCases)
-		}
-		if p.TestCases == nil {
-			p.TestCases = []models.TestCase{}
 		}
 		problems = append(problems, p)
 	}
@@ -257,26 +245,8 @@ func (r *ProblemRepo) FindSimilar(ctx context.Context, embedding pgvector.Vector
 	var problems []models.Problem
 	for rows.Next() {
 		var p models.Problem
-		var emb pgvector.Vector
-		var tcRaw []byte
-		var statement *string
-		if err := rows.Scan(
-			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
-			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
-			&p.CreatedAt, &p.UpdatedAt,
-		); err != nil {
+		if err := scanProblemRow(rows, &p); err != nil {
 			return nil, fmt.Errorf("problem_repo: scan similar problem: %w", err)
-		}
-		p.Embedding = emb
-		if statement != nil {
-			p.Statement = *statement
-		}
-		if len(tcRaw) > 0 {
-			_ = json.Unmarshal(tcRaw, &p.TestCases)
-		}
-		if p.TestCases == nil {
-			p.TestCases = []models.TestCase{}
 		}
 		problems = append(problems, p)
 	}
@@ -358,26 +328,8 @@ func (r *ProblemRepo) Search(ctx context.Context, req models.ProblemSearchReques
 	var problems []models.Problem
 	for rows.Next() {
 		var p models.Problem
-		var emb pgvector.Vector
-		var tcRaw []byte
-		var statement *string
-		if err := rows.Scan(
-			&p.ID, &p.Source, &p.Name, &p.URL, &p.Slug, &p.ContestID, &p.Tags, &p.Topic, &p.Subtopic,
-			&p.DifficultyLabel, &p.GlickoRating, &p.GlickoRD, &p.GlickoVolatility,
-			&p.AttemptCount, &p.SolveRate, &p.AvgTimeMs, &statement, &tcRaw, &emb, &p.EmbedText,
-			&p.CreatedAt, &p.UpdatedAt,
-		); err != nil {
+		if err := scanProblemRow(rows, &p); err != nil {
 			return nil, 0, fmt.Errorf("problem_repo: scan search row: %w", err)
-		}
-		p.Embedding = emb
-		if statement != nil {
-			p.Statement = *statement
-		}
-		if len(tcRaw) > 0 {
-			_ = json.Unmarshal(tcRaw, &p.TestCases)
-		}
-		if p.TestCases == nil {
-			p.TestCases = []models.TestCase{}
 		}
 		problems = append(problems, p)
 	}

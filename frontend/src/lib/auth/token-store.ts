@@ -18,11 +18,34 @@ let accessToken: string | null = null;
 const listeners = new Set<AccessTokenListener>();
 
 export function getAccessToken(): string | null {
-  return accessToken;
+  if (accessToken) return accessToken;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = window.localStorage.getItem("tv_access_token");
+      if (stored) {
+        accessToken = stored;
+        return stored;
+      }
+    } catch {
+      // Ignore localStorage access errors
+    }
+  }
+  return null;
 }
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
+  if (typeof window !== "undefined") {
+    try {
+      if (token) {
+        window.localStorage.setItem("tv_access_token", token);
+      } else {
+        window.localStorage.removeItem("tv_access_token");
+      }
+    } catch {
+      // Ignore localStorage access errors
+    }
+  }
   for (const listener of listeners) listener(token);
 }
 

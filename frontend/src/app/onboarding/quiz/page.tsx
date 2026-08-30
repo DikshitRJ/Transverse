@@ -15,10 +15,13 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnswerSurface } from "@/components/practice/answer-surface";
 import { Judge0Wait } from "@/components/practice/judge0-wait";
 import { ProblemStatementPanel } from "@/components/practice/problem-statement-panel";
 import { VerdictPanel } from "@/components/practice/verdict-panel";
+import { HintPanel } from "@/components/practice/hint-panel";
+import { useHint } from "@/components/practice/use-hint";
 import { LANGUAGES } from "@/mocks/fixtures/languages";
 import { HypothesisMeter } from "@/components/quiz/hypothesis-meter";
 import { QuizHeader } from "@/components/quiz/quiz-header";
@@ -36,9 +39,12 @@ export default function QuizPage() {
     submitAnswer,
     continueQuiz,
     skip,
+    skipQuiz,
     dismissError,
     cap,
   } = useQuizSession();
+
+  const hint = useHint(state.sessionId, state.problem?.id);
 
   useEffect(() => {
     void start();
@@ -55,12 +61,25 @@ export default function QuizPage() {
   return (
     <div className="min-h-full bg-tv-bg-page">
       <div className="mx-auto max-w-[1280px] px-6 py-10 md:px-12">
-        <QuizHeader
-          eyebrow="Onboarding · Step 2 of 3"
-          title="Diagnostic Quiz"
-          subtitle="A handful of rapid problems across core topics — enough for us to measure what you actually know before we build your roadmap. Skip anything that isn't a fair test."
-          className="mb-6"
-        />
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-tv-border/40 pb-4">
+          <QuizHeader
+            eyebrow="Onboarding · Step 2 of 3"
+            title="Diagnostic Quiz"
+            subtitle="A handful of rapid problems across core topics to measure your baseline. You can skip questions or skip the diagnostic entirely."
+            className="flex-1"
+          />
+          {state.phase !== "done" && state.phase !== "closing" && (
+            <Button
+              variant="outline-cyan"
+              size="sm"
+              onClick={() => void skipQuiz()}
+              disabled={isBusy}
+              className="shrink-0 font-mono font-bold tracking-wide shadow-sm"
+            >
+              Skip Quiz Entirely →
+            </Button>
+          )}
+        </div>
 
         <QuizProgress questionCount={state.questionCount} cap={cap} className="mb-6" />
 
@@ -73,9 +92,14 @@ export default function QuizPage() {
             <div className="flex-1">
               <p>{state.error}</p>
               {state.phase === "error" && (
-                <Button variant="destructive" size="sm" className="mt-2" onClick={() => void start()}>
-                  Retry
-                </Button>
+                <div className="mt-2 flex gap-2">
+                  <Button variant="destructive" size="sm" onClick={() => void start()}>
+                    Retry
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => void skipQuiz()}>
+                    Skip Quiz & View Results
+                  </Button>
+                </div>
               )}
             </div>
             <button
@@ -90,13 +114,20 @@ export default function QuizPage() {
         )}
 
         {state.phase === "starting" && !state.problem && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]" aria-busy="true">
-            <div className="space-y-3">
-              <Skeleton className="h-8 w-2/3" />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]" aria-busy="true">
+              <div className="space-y-3">
+                <Skeleton className="h-8 w-2/3" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-48 w-full" />
+              </div>
               <Skeleton className="h-64 w-full" />
-              <Skeleton className="h-48 w-full" />
             </div>
-            <Skeleton className="h-64 w-full" />
+            <div className="flex justify-end">
+              <Button variant="ghost" size="sm" onClick={() => void skipQuiz()} className="text-tv-text-muted hover:text-tv-cyan font-mono">
+                Taking too long? Skip Quiz →
+              </Button>
+            </div>
           </div>
         )}
 
@@ -105,65 +136,137 @@ export default function QuizPage() {
             <p className="mb-4 text-sm text-tv-text-body">
               We couldn&apos;t start the diagnostic quiz.
             </p>
-            <Button onClick={() => void start()}>Try again</Button>
+            <div className="flex justify-center gap-3">
+              <Button onClick={() => void start()}>Try again</Button>
+              <Button variant="outline" onClick={() => void skipQuiz()}>Skip Quiz</Button>
+            </div>
           </div>
         )}
 
         {state.problem && state.phase !== "done" && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-            <div className="space-y-6">
-              <ProblemStatementPanel problem={state.problem} />
-
-              {state.phase === "judge0" && state.judge0StartedAt !== null ? (
-                <Judge0Wait startedAt={state.judge0StartedAt} />
-              ) : state.phase === "result" && state.lastResult ? (
-                <div className="space-y-4">
-                  <VerdictPanel result={state.lastResult} />
-                  <Button onClick={continueQuiz} className="w-full sm:w-auto">
-                    {state.questionCount >= cap || !state.lastResult.next_problem
-                      ? "See my results"
-                      : "Continue"}
-                  </Button>
+          <div className="grid min-h-0 flex-1 grid-cols-1 divide-y divide-tv-border lg:grid-cols-2 lg:divide-y-0 lg:divide-x">
+            {/* Left Column: Problem Statement, Hypothesis Meter, Byte's Hints */}
+            <div className="flex h-full min-h-0 flex-col bg-tv-bg overflow-hidden">
+              <Tabs defaultValue="problem" className="flex h-full min-h-0 flex-col">
+                <div className="border-b border-tv-border bg-tv-surface px-3 py-1.5 shrink-0">
+                  <TabsList className="h-8 bg-tv-surface-deep">
+                    <TabsTrigger value="problem" className="text-xs font-mono">
+                      Problem Statement
+                    </TabsTrigger>
+                    <TabsTrigger value="hypothesis" className="text-xs font-mono">
+                      Diagnostic Radar
+                    </TabsTrigger>
+                    <TabsTrigger value="hints" className="text-xs font-mono">
+                      Byte&apos;s Hints
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
-              ) : (
-                <>
-                  <AnswerSurface
-                    languages={LANGUAGES}
-                    language={state.language}
-                    onLanguageChange={setLanguage}
-                    code={state.code}
-                    onCodeChange={setCode}
-                    disabled={isBusy}
+
+                <TabsContent value="problem" className="mt-0 min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                  <ProblemStatementPanel problem={state.problem} />
+                </TabsContent>
+
+                <TabsContent value="hypothesis" className="mt-0 min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                  <HypothesisMeter
+                    theta={state.theta}
+                    topics={QUIZ_SEED_TOPICS}
+                    tally={state.topicTally}
                   />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={() => void submitAnswer()} disabled={isBusy || !state.code.trim()}>
-                      Submit
-                    </Button>
-                    <Button variant="outline" onClick={() => void skip()} disabled={isBusy}>
-                      Skip
-                    </Button>
-                  </div>
-                </>
-              )}
+                </TabsContent>
+
+                <TabsContent value="hints" className="mt-0 min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                  <HintPanel hint={hint} />
+                </TabsContent>
+              </Tabs>
             </div>
 
-            <div className="lg:sticky lg:top-6 lg:self-start">
-              <HypothesisMeter
-                theta={state.theta}
-                topics={QUIZ_SEED_TOPICS}
-                tally={state.topicTally}
-              />
+            {/* Right Column: Code Editor & Submission Console */}
+            <div className="flex h-full min-h-0 flex-col bg-tv-surface-deep overflow-hidden">
+              {/* Upper: Monaco Code Editor */}
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <AnswerSurface
+                  languages={LANGUAGES}
+                  language={state.language}
+                  onLanguageChange={setLanguage}
+                  code={state.code}
+                  onCodeChange={setCode}
+                  problem={state.problem}
+                  disabled={isBusy}
+                  className="h-full rounded-none border-0 border-b border-tv-border shadow-none"
+                />
+              </div>
+
+              {/* Lower: Verdict / Submission Console */}
+              <div className="shrink-0 bg-tv-surface p-3 border-t border-tv-border">
+                {state.phase === "judge0" && state.judge0StartedAt !== null ? (
+                  <div className="p-3">
+                    <Judge0Wait startedAt={state.judge0StartedAt} />
+                  </div>
+                ) : state.phase === "result" && state.lastResult ? (
+                  <div className="space-y-3">
+                    <VerdictPanel result={state.lastResult} />
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Button onClick={continueQuiz} className="w-full sm:w-auto">
+                        {state.questionCount >= cap || !state.lastResult.next_problem
+                          ? "See Diagnostic Results →"
+                          : "Continue to Next Question →"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => void skipQuiz()}
+                        disabled={isBusy}
+                        className="text-tv-text-muted hover:text-tv-text-hi font-mono text-xs"
+                      >
+                        Finish Diagnostic Now
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void skip()}
+                        disabled={isBusy}
+                        className="font-mono text-xs text-tv-text-muted hover:text-tv-text-hi"
+                      >
+                        Skip Question
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void skipQuiz()}
+                        disabled={isBusy}
+                        className="border border-dashed border-tv-border text-tv-text-muted hover:border-tv-cyan hover:text-tv-cyan font-mono text-xs"
+                      >
+                        Skip Quiz
+                      </Button>
+                    </div>
+                    <Button
+                      onClick={() => void submitAnswer()}
+                      disabled={isBusy || !state.code.trim()}
+                      size="sm"
+                      className="font-mono text-xs"
+                    >
+                      Submit Solution
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {state.phase === "closing" && (
-          <div className="glass-panel mt-6 flex items-center gap-3 rounded-tv-card p-6" role="status" aria-live="polite">
-            <span
-              aria-hidden
-              className="size-5 animate-spin rounded-full border-2 border-tv-cyan/25 border-t-tv-cyan motion-reduce:animate-none"
-            />
-            <p className="font-mono text-sm text-tv-text-hi">Scoring your results…</p>
+          <div className="flex h-full items-center justify-center p-6" role="status" aria-live="polite">
+            <div className="glass-panel flex items-center gap-3 rounded-tv-card p-6">
+              <span
+                aria-hidden
+                className="size-5 animate-spin rounded-full border-2 border-tv-cyan/25 border-t-tv-cyan motion-reduce:animate-none"
+              />
+              <p className="font-mono text-sm text-tv-text-hi">Scoring your diagnostic results…</p>
+            </div>
           </div>
         )}
       </div>

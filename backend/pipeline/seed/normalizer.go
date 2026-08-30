@@ -25,6 +25,8 @@ type NormalizedProblem struct {
 	GlickoRD         float64  `json:"glicko_rd"`
 	GlickoVolatility float64  `json:"glicko_volatility"`
 	EmbedText        string   `json:"embed_text"`
+	Statement        string   `json:"statement"`
+	TestCases        []byte   `json:"test_cases"`
 }
 
 var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9]+`)

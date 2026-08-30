@@ -32,7 +32,7 @@ CREATE TABLE roadmap_nodes (
 
 CREATE TABLE user_roadmaps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     roadmap_template_id UUID NOT NULL REFERENCES roadmap_templates(id) ON DELETE CASCADE,
     status roadmap_status_enum NOT NULL DEFAULT 'active',
     current_phase_id UUID REFERENCES roadmap_phases(id) ON DELETE SET NULL,

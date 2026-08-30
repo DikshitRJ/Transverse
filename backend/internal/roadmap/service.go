@@ -28,6 +28,48 @@ type Service struct {
 	tmpl        *template.Template
 }
 
+const DefaultRoadmapTemplate = `You are an expert curriculum designer. Generate a personalized learning roadmap.
+
+Target Role:
+{{.TargetRole}}
+
+Per-Topic Mastery:
+{{.MasteryJSON}}
+
+Confirmed Topic IDs:
+{{.ConfirmedTopicIDs}}
+
+Debunked Topic IDs:
+{{.DebunkedTopicIDs}}
+
+Topic DAG (Allowed Topics & Dependencies):
+{{.TopicDAG}}
+
+Create a learning roadmap using ONLY the topics and dependencies provided in the Topic DAG. Do not invent new topics.
+
+Prioritize weak or unmastered topics, respect prerequisite dependencies, and avoid topics that are already confirmed as mastered unless needed as a prerequisite.
+
+Sequence topics into logical learning phases.
+
+Respond with ONLY a JSON object matching this schema, no prose, no markdown fences:
+
+{
+  "phases": [
+    {
+      "title": "...",
+      "nodes": [
+        {
+          "topic_id": "...",
+          "unlock_rule": {
+            "type": "no_prerequisite"
+          }
+        }
+      ]
+    }
+  ]
+}
+`
+
 func NewService(
 	rr *repository.RoadmapRepo,
 	ur *repository.UserRepo,
@@ -45,8 +87,11 @@ func NewService(
 	var err error
 	if templatePath != "" {
 		tmpl, err = template.ParseFiles(templatePath)
+	}
+	if tmpl == nil {
+		tmpl, err = template.New("roadmap").Parse(DefaultRoadmapTemplate)
 		if err != nil {
-			slog.Warn("roadmap template not found, LLM roadmap generation will be unavailable", "path", templatePath, "error", err)
+			slog.Error("failed to parse fallback roadmap template", "error", err)
 		}
 	}
 

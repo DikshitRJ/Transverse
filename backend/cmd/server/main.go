@@ -3,6 +3,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -143,7 +145,81 @@ func main() {
 	// Jobs & Realtime
 	jobQueue := jobs.NewQueue(rdb)
 	workerPool := jobs.NewWorkerPool(jobQueue, rdb)
-	workerPool.Start(context.Background()) // Note: context should be proper in real prod
+
+	// Register "hint" job processor
+	workerPool.Register("hint", func(ctx context.Context, job *jobs.Job) error {
+		var input struct {
+			SessionID string `json:"session_id"`
+			ProblemID string `json:"problem_id"`
+			HintLevel int    `json:"hint_level"`
+		}
+		_ = json.Unmarshal(job.InputRef, &input)
+		if input.HintLevel <= 0 {
+			input.HintLevel = 1
+		}
+
+		var probName, probTopic, probStmt string
+		if input.ProblemID != "" {
+			if p, err := problemRepo.GetByID(ctx, input.ProblemID); err == nil && p != nil {
+				probName = p.Name
+				probTopic = p.Topic
+				probStmt = p.Statement
+			}
+		}
+
+		hintText := ""
+		if llmClient != nil && probStmt != "" {
+			prompt, err := llm.RenderPrompt("hint.tmpl", map[string]interface{}{
+				"ProblemSummary": fmt.Sprintf("%s (%s)\n%s", probName, probTopic, probStmt),
+				"SubmittedCode":  "",
+				"Verdict":        "Pending assistance",
+				"HintLevel":      input.HintLevel,
+			})
+			if err == nil {
+				res, compErr := llmClient.Complete(ctx, llm.CompletionRequest{
+					Messages: []llm.Message{
+						{Role: "user", Content: prompt},
+					},
+					Temperature: 0.3,
+				}, true)
+				if compErr == nil && res != "" {
+					var parsed struct {
+						Hint string `json:"hint"`
+					}
+					if json.Unmarshal([]byte(res), &parsed) == nil && parsed.Hint != "" {
+						hintText = parsed.Hint
+					} else {
+						hintText = strings.TrimSpace(res)
+					}
+				}
+			}
+		}
+
+		if hintText == "" {
+			switch input.HintLevel {
+			case 1:
+				hintText = fmt.Sprintf("Think about the constraints for %s and any boundary conditions or edge cases.", probName)
+			case 2:
+				hintText = fmt.Sprintf("For %s problems, consider if a standard pattern (e.g. hash map, two-pointers, or DP) reduces the search space.", probTopic)
+			default:
+				hintText = "Decompose the problem: identify the base case and how each subsequent step builds on previously computed state."
+			}
+		}
+
+		outputMap := map[string]interface{}{
+			"hint_level": input.HintLevel,
+			"hint_text":  hintText,
+			"problem_id": input.ProblemID,
+			"session_id": input.SessionID,
+		}
+		outBytes, _ := json.Marshal(outputMap)
+		job.Output = json.RawMessage(outBytes)
+
+		_ = jobQueue.PublishEvent(ctx, job.UserID, "hint.ready", job.ID, outputMap)
+		return nil
+	})
+
+	workerPool.Start(context.Background())
 
 	jobsH := jobs.NewHandler(jobQueue)
 	realtimeH := realtime.NewHandler(rdb)

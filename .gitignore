@@ -19,3 +19,4 @@ __pycache__/
 # OS
 .DS_Store
 /node_modules/
+/judge0-runtimes/

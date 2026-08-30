@@ -41,7 +41,7 @@ export interface UseHintResult {
   requestHint: (hintLevel: number) => void;
 }
 
-export function useHint(sessionId: string | null): UseHintResult {
+export function useHint(sessionId: string | null, problemId?: string | null): UseHintResult {
   const { subscribe } = useTransverseEvents();
   const [status, setStatus] = useState<HintStatus>("idle");
   const [hints, setHints] = useState<Record<number, string>>({});
@@ -50,6 +50,14 @@ export function useHint(sessionId: string | null): UseHintResult {
   const mountedRef = useRef(true);
   const abortRef = useRef<AbortController | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
+
+  // Reset hints when problem changes
+  useEffect(() => {
+    setHints({});
+    setStatus("idle");
+    setPendingLevel(null);
+    setError(null);
+  }, [problemId, sessionId]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -62,7 +70,8 @@ export function useHint(sessionId: string | null): UseHintResult {
 
   const requestHint = useCallback(
     (hintLevel: number) => {
-      if (!sessionId) return;
+      const targetId = sessionId || problemId;
+      if (!targetId) return;
       // Tear down any still-in-flight previous race before starting a new one.
       abortRef.current?.abort();
       unsubRef.current?.();
@@ -73,7 +82,7 @@ export function useHint(sessionId: string | null): UseHintResult {
 
       void (async () => {
         try {
-          const { job_id } = await requestHintApi(sessionId, { hint_level: hintLevel });
+          const { job_id } = await requestHintApi(targetId, { hint_level: hintLevel });
           if (!mountedRef.current) return;
 
           const controller = new AbortController();
@@ -103,7 +112,24 @@ export function useHint(sessionId: string | null): UseHintResult {
           controller.abort();
 
           if (!mountedRef.current) return;
-          setHints((prev) => ({ ...prev, [data.hint_level]: data.hint_text }));
+
+          let parsedData: Record<string, unknown> | null = (data && typeof data === "object") ? (data as unknown as Record<string, unknown>) : null;
+          if (typeof data === "string") {
+            try {
+              parsedData = JSON.parse(data) as Record<string, unknown>;
+            } catch {
+              parsedData = { hint_level: hintLevel, hint_text: data };
+            }
+          }
+
+          const finalLevel = (parsedData && typeof parsedData.hint_level === "number")
+            ? parsedData.hint_level
+            : hintLevel;
+          const finalText = (parsedData && typeof parsedData.hint_text === "string")
+            ? parsedData.hint_text
+            : (typeof data === "string" ? data : "Hint ready.");
+
+          setHints((prev) => ({ ...prev, [finalLevel]: finalText }));
           setStatus("ready");
           setPendingLevel(null);
         } catch (err) {
@@ -119,7 +145,7 @@ export function useHint(sessionId: string | null): UseHintResult {
         }
       })();
     },
-    [sessionId, subscribe],
+    [sessionId, problemId, subscribe],
   );
 
   const maxLevelReady = Object.keys(hints).reduce((max, k) => Math.max(max, Number(k)), 0);

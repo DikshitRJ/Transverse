@@ -6,7 +6,7 @@ CREATE TABLE tutorials (
     source TEXT NOT NULL,
     source_url TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
-    topic_id UUID REFERENCES topics(id) ON DELETE SET NULL,
+    topic_id TEXT,
     topic_tags TEXT[],
     type tutorial_type_enum NOT NULL,
     difficulty tutorial_difficulty_enum NOT NULL,

@@ -1,8 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/providers/auth-provider";
+import { AUTHED_NAV_LINKS, AppNavActions } from "@/components/dashboard/app-nav";
 
 export interface TopNavLink {
   label: string;
@@ -16,18 +21,23 @@ const DEFAULT_LINKS: TopNavLink[] = [
 
 export interface TopNavProps {
   links?: TopNavLink[];
-  /** Right-side slot. Defaults to a primary "Get Started" CTA — pass your own for authenticated chrome (avatar menu, etc). */
+  /** Right-side slot. Defaults to avatar/profile/logout when authenticated or "Get Started" when signed out. */
   actions?: ReactNode;
   className?: string;
 }
 
 /**
  * App shell top nav — matches Figma `61:110`: glass panel, `rgba(0,255,255,0.5)`
- * border + glow, Space Grotesk logo with cyan text-glow, gradient
- * "GET STARTED" CTA. Reused across every route (not just landing) — pass
- * `links`/`actions` to adapt it to signed-in chrome.
+ * border + glow, Space Grotesk logo with cyan text-glow.
+ * Automatically adapts between signed-in and guest chrome based on authentication state.
  */
-export function TopNav({ links = DEFAULT_LINKS, actions, className }: TopNavProps) {
+export function TopNav({ links, actions, className }: TopNavProps) {
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const pathname = usePathname();
+
+  const signedIn = isAuthenticated || Boolean(user);
+  const effectiveLinks = links ?? (signedIn ? AUTHED_NAV_LINKS : DEFAULT_LINKS);
+
   return (
     <header
       className={cn(
@@ -35,7 +45,7 @@ export function TopNav({ links = DEFAULT_LINKS, actions, className }: TopNavProp
         className,
       )}
     >
-      <Link href="/" className="flex shrink-0 items-center gap-3">
+      <Link href={signedIn ? "/dashboard" : "/"} className="flex shrink-0 items-center gap-3">
         <Image
           src="/figma/byte-mascot-nav.png"
           alt="Byte the Beaver"
@@ -50,20 +60,42 @@ export function TopNav({ links = DEFAULT_LINKS, actions, className }: TopNavProp
       </Link>
 
       <nav className="hidden items-center gap-8 md:flex">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="font-body px-2 py-1 text-sm font-semibold text-tv-text-nav uppercase transition-colors hover:text-tv-text-hi"
-          >
-            {link.label}
-          </Link>
-        ))}
+        {effectiveLinks.map((link) => {
+          const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "font-body px-2 py-1 text-sm font-semibold uppercase transition-colors hover:text-tv-text-hi",
+                isActive ? "text-tv-cyan glow-text-cyan border-b-2 border-tv-cyan" : "text-tv-text-nav",
+              )}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="flex shrink-0 items-center gap-4">
         {actions ?? (
-          <Button render={<Link href="/onboarding" />}>Get Started</Button>
+          signedIn ? (
+            <AppNavActions />
+          ) : !isLoading ? (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                render={<Link href="/signin" />}
+                className="font-mono text-xs text-tv-text-body hover:text-tv-text-hi"
+              >
+                Sign In
+              </Button>
+              <Button size="sm" render={<Link href="/onboarding" />}>
+                Get Started
+              </Button>
+            </div>
+          ) : null
         )}
       </div>
     </header>

@@ -143,9 +143,11 @@ func (h *PracticeHandler) SubmitAnswer(w http.ResponseWriter, r *http.Request) {
 			Stderr:        resp.Verdict.Stderr,
 			CompileOutput: resp.Verdict.CompileOut,
 		},
-		ThetaBefore: resp.ThetaBefore,
-		ThetaAfter:  resp.ThetaAfter,
-		NextProblem: np,
+		ThetaBefore:   resp.ThetaBefore,
+		ThetaAfter:    resp.ThetaAfter,
+		NextProblem:   np,
+		QuestionCount: resp.QuestionCount,
+		SessionStatus: resp.SessionStatus,
 	})
 }
 
@@ -191,6 +193,7 @@ func (h *PracticeHandler) SkipProblem(w http.ResponseWriter, r *http.Request) {
 		ThetaBefore:   resp.ThetaBefore,
 		ThetaAfter:    resp.ThetaAfter,
 		NextProblem:   np,
+		QuestionCount: resp.QuestionCount,
 	})
 }
 
@@ -424,20 +427,23 @@ func (h *PracticeHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.SourceCode == "" {
-		writeError(w, http.StatusBadRequest, "source_code cannot be empty")
-		return
-	}
+	stdin := req.CustomStdin
+	expectedOutput := ""
 
-	if req.LanguageID <= 0 {
-		writeError(w, http.StatusBadRequest, "valid language_id is required")
-		return
+	if req.ProblemID != "" && stdin == "" {
+		if problem, err := h.problemRepo.GetByID(r.Context(), req.ProblemID); err == nil && problem != nil {
+			if len(problem.TestCases) > 0 {
+				stdin = problem.TestCases[0].Input
+				expectedOutput = problem.TestCases[0].Output
+			}
+		}
 	}
 
 	token, err := h.judge0.SubmitCode(r.Context(), services.SubmitCodeRequest{
-		SourceCode: req.SourceCode,
-		LanguageID: req.LanguageID,
-		Stdin:      req.CustomStdin,
+		SourceCode:     req.SourceCode,
+		LanguageID:     req.LanguageID,
+		Stdin:          stdin,
+		ExpectedOutput: expectedOutput,
 	})
 	if err != nil {
 		slog.Error("judge0 code submission failed", "error", err)

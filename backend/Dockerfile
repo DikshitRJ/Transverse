@@ -37,6 +37,7 @@ COPY --from=builder /usr/local/lib/libonnxruntime.so* /usr/local/lib/
 COPY --from=builder /app/transverse /app/transverse
 COPY --from=builder /app/seed_pipeline /app/seed_pipeline
 COPY --from=builder /app/ingest_pipeline /app/ingest_pipeline
+COPY --from=builder /app/internal/llm/prompts /app/internal/llm/prompts
 
 RUN ldconfig
 

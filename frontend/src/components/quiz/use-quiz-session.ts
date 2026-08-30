@@ -170,12 +170,13 @@ export function useQuizSession() {
       });
       setState((s) => {
         const prevTally = s.topicTally[problem.topic] ?? { attempts: 0, correct: 0 };
+        const newCount = result.question_count > 0 ? result.question_count : s.questionCount + 1;
         return {
           ...s,
           phase: "result",
           lastResult: result,
           theta: result.theta_after,
-          questionCount: result.question_count,
+          questionCount: newCount,
           judge0StartedAt: null,
           topicTally: {
             ...s.topicTally,
@@ -252,6 +253,21 @@ export function useQuizSession() {
     }
   }, [finish]);
 
+  const skipQuiz = useCallback(async () => {
+    const { sessionId } = stateRef.current;
+    if (sessionId) {
+      try {
+        await finish(sessionId);
+      } catch {
+        if (typeof window !== "undefined") {
+          window.location.href = `/onboarding/results?session=${sessionId}`;
+        }
+      }
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/onboarding/results";
+    }
+  }, [finish]);
+
   const dismissError = useCallback(() => {
     setState((s) => ({ ...s, error: null }));
   }, []);
@@ -264,6 +280,7 @@ export function useQuizSession() {
     submitAnswer,
     continueQuiz,
     skip,
+    skipQuiz,
     dismissError,
     cap: QUIZ_QUESTION_CAP,
   };

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
   backendUrl,
+  isCookieSecure,
   isMockMode,
   mockToken,
   REFRESH_COOKIE_MAX_AGE_SECONDS,
@@ -23,20 +24,29 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const cookieStore = await cookies();
+  const secure = isCookieSecure(request);
 
   if (isMockMode()) {
     cookieStore.set(REFRESH_COOKIE_NAME, mockToken("mock-refresh"), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
     });
-    return NextResponse.json({
+    const resp = NextResponse.json({
       access_token: mockToken("mock-access"),
       expires_in: 3600,
       user: { ...rawUser, email: body.email },
     });
+    resp.cookies.set(REFRESH_COOKIE_NAME, mockToken("mock-refresh"), {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+    });
+    return resp;
   }
 
   let res: Response;
@@ -64,16 +74,28 @@ export async function POST(request: Request): Promise<Response> {
   if (data.refresh_token) {
     cookieStore.set(REFRESH_COOKIE_NAME, data.refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
     });
   }
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     access_token: data.access_token,
     expires_in: data.expires_in,
     user: data.user,
   });
+
+  if (data.refresh_token) {
+    response.cookies.set(REFRESH_COOKIE_NAME, data.refresh_token, {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+    });
+  }
+
+  return response;
 }

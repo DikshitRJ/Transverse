@@ -29,6 +29,15 @@ export function isMockMode(): boolean {
   return process.env.NEXT_PUBLIC_API_MODE === "mock";
 }
 
+export function isCookieSecure(request?: Request): boolean {
+  if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
+  if (!request) return false;
+  const proto = request.headers.get("x-forwarded-proto");
+  if (proto) return proto === "https";
+  return request.url.startsWith("https://");
+}
+
 export function mockToken(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }

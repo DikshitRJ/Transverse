@@ -88,7 +88,7 @@ export function SolveWorkspace({ problemId, sessionId }: SolveWorkspaceProps) {
         {!isLoading && !isError && problem
           ? (isDesktop ? (
               <div className="grid h-full min-h-0 grid-cols-2 divide-x divide-tv-border">
-                <ProblemPanel problem={problem} />
+                <ProblemPanel problem={problem} sessionId={sessionId} />
                 <EditorPanel problem={problem} sessionId={sessionId} />
               </div>
             ) : (
@@ -102,7 +102,7 @@ export function SolveWorkspace({ problemId, sessionId }: SolveWorkspaceProps) {
                   <TabsTrigger value="editor">Editor</TabsTrigger>
                 </TabsList>
                 <TabsContent value="problem" className="min-h-0 flex-1 overflow-y-auto">
-                  <ProblemPanel problem={problem} />
+                  <ProblemPanel problem={problem} sessionId={sessionId} />
                 </TabsContent>
                 <TabsContent value="editor" className="min-h-0 flex-1 overflow-hidden">
                   <EditorPanel problem={problem} sessionId={sessionId} />

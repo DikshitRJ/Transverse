@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: transverse
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/sql:/docker-entrypoint-initdb.d:ro
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro,z
     ports:
       - "5432:5432"
     healthcheck:
@@ -42,7 +42,14 @@ services:
       - POSTGRES_PASSWORD=transverse
       - POSTGRES_DB=transverse
     volumes:
-      - ./backend/judge0.conf:/judge0.conf:ro
+      - ./backend/judge0.conf:/judge0.conf:ro,z
+      - ./backend/isolate_job.rb:/api/app/jobs/isolate_job.rb:ro,z
+      - ./judge0-runtimes/python-3.10:/usr/local/python-3.10:ro,z
+      - ./judge0-runtimes/node-20:/usr/local/node-20:ro,z
+      - ./judge0-runtimes/python-3.10/bin/python3:/usr/local/python-3.8.1/bin/python3:ro,z
+      - ./judge0-runtimes/python-3.10/bin/python3:/usr/bin/python3:ro,z
+      - ./judge0-runtimes/node-20/bin/node:/usr/local/node-12.14.0/bin/node:ro,z
+      - ./judge0-runtimes/node-20/bin/node:/usr/bin/node:ro,z
     depends_on:
       db:
         condition: service_healthy
@@ -62,7 +69,14 @@ services:
       - POSTGRES_PASSWORD=transverse
       - POSTGRES_DB=transverse
     volumes:
-      - ./backend/judge0.conf:/judge0.conf:ro
+      - ./backend/judge0.conf:/judge0.conf:ro,z
+      - ./backend/isolate_job.rb:/api/app/jobs/isolate_job.rb:ro,z
+      - ./judge0-runtimes/python-3.10:/usr/local/python-3.10:ro,z
+      - ./judge0-runtimes/node-20:/usr/local/node-20:ro,z
+      - ./judge0-runtimes/python-3.10/bin/python3:/usr/local/python-3.8.1/bin/python3:ro,z
+      - ./judge0-runtimes/python-3.10/bin/python3:/usr/bin/python3:ro,z
+      - ./judge0-runtimes/node-20/bin/node:/usr/local/node-12.14.0/bin/node:ro,z
+      - ./judge0-runtimes/node-20/bin/node:/usr/bin/node:ro,z
     depends_on:
       judge0-server:
         condition: service_started
@@ -96,11 +110,11 @@ services:
       DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
       TOPICS_GRAPH_PATH: /app/data/topics.json
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data:ro,z
     command: >
       sh -c "
       echo 'Starting Problem Seeding...' &&
-      /app/seed_pipeline --skip-embed &&
+      /app/seed_pipeline --skip-embed --topics /app/data/topics.json --data-dir /app/data &&
       echo 'Starting Tutorial Ingestion...' &&
       /app/ingest_pipeline -mode tutorial -file /app/data/tutorial.json &&
       echo 'Initialization complete!'
@@ -125,7 +139,7 @@ services:
       PORT: "8080"
       TOPICS_GRAPH_PATH: /app/data/topics.json
       CACHE_ENABLED: "true"
-      BYPASS_AUTH: "true"
+      BYPASS_AUTH: "false"
       REDIS_ADDR: "redis:6379"
       JUDGE0_BASE_URL: "http://judge0-server:2358"
       JUDGE0_API_KEY: ""
@@ -142,7 +156,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data:ro,z
+      - ./backend/internal/llm/prompts:/app/internal/llm/prompts:ro,z
 
   frontend:
     build:

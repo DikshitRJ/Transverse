@@ -26,14 +26,15 @@ type RawProblem struct {
 	MemoryLimit      interface{} `json:"memory_limit"`
 
 	// Leetcode specific
-	QID               interface{} `json:"QID"`
-	Title             string      `json:"title"`
-	TitleSlug         string      `json:"titleSlug"`
-	Difficulty        string      `json:"difficulty"`
-	Topics            []string    `json:"topics"`
-	Body              string      `json:"body"`
-	InputTestcasesLC  []string    `json:"input_test_cases"`
-	OutputTestcasesLC []string    `json:"output_test_cases"`
+	QID               interface{}   `json:"QID"`
+	Title             string        `json:"title"`
+	TitleSlug         string        `json:"titleSlug"`
+	Difficulty        string        `json:"difficulty"`
+	RawTopics         []interface{} `json:"topics"`
+	Topics            []string      `json:"-"`
+	Body              string        `json:"body"`
+	InputTestcasesLC  []string      `json:"input_test_cases"`
+	OutputTestcasesLC []string      `json:"output_test_cases"`
 }
 
 func LoadProblems(dataDir string) ([]RawProblem, error) {
@@ -43,7 +44,6 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 
 	priorityFiles := []string{
 		"codeforces.json",
-		"atcoder.json",
 		"cses.json",
 		"leetcode_problems.json",
 		"leetcode_index.json",
@@ -74,6 +74,26 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 		skippedDupes := 0
 
 		for _, p := range items {
+			if len(p.RawTopics) > 0 {
+				p.Topics = make([]string, 0, len(p.RawTopics))
+				for _, rt := range p.RawTopics {
+					switch v := rt.(type) {
+					case string:
+						if s := strings.TrimSpace(v); s != "" {
+							p.Topics = append(p.Topics, s)
+						}
+					case map[string]interface{}:
+						if name, ok := v["name"].(string); ok && strings.TrimSpace(name) != "" {
+							p.Topics = append(p.Topics, strings.TrimSpace(name))
+						} else if id, ok := v["id"].(string); ok && strings.TrimSpace(id) != "" {
+							p.Topics = append(p.Topics, strings.TrimSpace(id))
+						} else if slug, ok := v["slug"].(string); ok && strings.TrimSpace(slug) != "" {
+							p.Topics = append(p.Topics, strings.TrimSpace(slug))
+						}
+					}
+				}
+			}
+
 			if p.ID == "" && p.TitleSlug != "" {
 				p.ID = "lc-" + p.TitleSlug
 				p.Source = "leetcode"
@@ -86,7 +106,7 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 			}
 
 			p.ID = strings.TrimSpace(p.ID)
-			if p.ID == "" {
+			if p.ID == "" || strings.EqualFold(p.Source, "atcoder") || strings.HasPrefix(strings.ToLower(p.ID), "atcoder-") {
 				continue
 			}
 

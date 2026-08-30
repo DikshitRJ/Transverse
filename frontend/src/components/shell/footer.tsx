@@ -7,7 +7,7 @@ const FOOTER_LINKS = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },
   { label: "Copyright", href: "/copyright" },
-  { label: "GitHub", href: "https://github.com" },
+  { label: "GitHub", href: "https://github.com/dikshitrj/transverse" },
 ];
 
 export interface FooterProps {

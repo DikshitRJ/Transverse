@@ -129,6 +129,15 @@ export default function OnboardingChooserPage() {
           quote={'"Not sure? The quiz is a fun way to warm up!"'}
           className="mt-10 md:mt-12"
         />
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/dashboard"
+            className="text-sm font-mono text-tv-text-muted hover:text-tv-cyan transition-colors underline underline-offset-4"
+          >
+            Skip calibration and jump straight to Dashboard →
+          </Link>
+        </div>
       </div>
     </main>
   );

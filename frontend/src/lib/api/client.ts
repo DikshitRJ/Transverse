@@ -128,7 +128,10 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   const url = buildUrl(path, query, skipPrefix);
 
   const finalHeaders = new Headers(headers);
-  const token = getAccessToken();
+  let token = getAccessToken();
+  if (!token && !skipAuthRefresh && !_isRetry && typeof window !== "undefined") {
+    token = await refreshAccessToken();
+  }
   if (token && !finalHeaders.has("Authorization")) {
     finalHeaders.set("Authorization", `Bearer ${token}`);
   }

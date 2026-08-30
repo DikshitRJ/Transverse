@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { REFRESH_COOKIE_MAX_AGE_SECONDS, REFRESH_COOKIE_NAME } from "@/lib/auth/cookie";
+import { isCookieSecure, REFRESH_COOKIE_MAX_AGE_SECONDS, REFRESH_COOKIE_NAME } from "@/lib/auth/cookie";
 
 /**
  * Called once by `/auth/callback` (the page THRESHOLD builds) right after
@@ -26,13 +26,24 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const cookieStore = await cookies();
+  const secure = isCookieSecure(request);
+
   cookieStore.set(REFRESH_COOKIE_NAME, body.refresh_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax",
     path: "/",
     maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
   });
 
-  return new NextResponse(null, { status: 204 });
+  const response = new NextResponse(null, { status: 204 });
+  response.cookies.set(REFRESH_COOKIE_NAME, body.refresh_token, {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+  });
+
+  return response;
 }
