@@ -19,12 +19,19 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
     -o transverse \
     ./cmd/server
 
+RUN CGO_ENABLED=1 GOOS=linux go build \
+    -ldflags="-w -s" \
+    -o seed_pipeline \
+    ./pipeline/seed
+
 # Final minimal production image
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/lib/libonnxruntime.so* /usr/local/lib/
 COPY --from=builder /app/transverse /app/transverse
+COPY --from=builder /app/seed_pipeline /app/seed_pipeline
+COPY --from=builder /app/ingest_pipeline /app/ingest_pipeline
 
 RUN ldconfig
 

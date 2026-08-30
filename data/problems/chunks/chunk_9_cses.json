@@ -1,0 +1,4802 @@
+[
+  {
+    "id": "cses-1068",
+    "source": "cses",
+    "name": "Weird Algorithm",
+    "url": "https://cses.fi/problemset/task/1068",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1068",
+    "notes": null
+  },
+  {
+    "id": "cses-1069",
+    "source": "cses",
+    "name": "Repetitions",
+    "url": "https://cses.fi/problemset/task/1069",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1069",
+    "notes": null
+  },
+  {
+    "id": "cses-1070",
+    "source": "cses",
+    "name": "Permutations",
+    "url": "https://cses.fi/problemset/task/1070",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1070",
+    "notes": null
+  },
+  {
+    "id": "cses-1071",
+    "source": "cses",
+    "name": "Number Spiral",
+    "url": "https://cses.fi/problemset/task/1071",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1071",
+    "notes": null
+  },
+  {
+    "id": "cses-1072",
+    "source": "cses",
+    "name": "Two Knights",
+    "url": "https://cses.fi/problemset/task/1072",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1072",
+    "notes": null
+  },
+  {
+    "id": "cses-1073",
+    "source": "cses",
+    "name": "Towers",
+    "url": "https://cses.fi/problemset/task/1073",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1073",
+    "notes": null
+  },
+  {
+    "id": "cses-1074",
+    "source": "cses",
+    "name": "Stick Lengths",
+    "url": "https://cses.fi/problemset/task/1074",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1074",
+    "notes": null
+  },
+  {
+    "id": "cses-1075",
+    "source": "cses",
+    "name": "Counting Permutations",
+    "url": "https://cses.fi/problemset/task/1075",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "1075",
+    "notes": null
+  },
+  {
+    "id": "cses-1076",
+    "source": "cses",
+    "name": "Sliding Window Median",
+    "url": "https://cses.fi/problemset/task/1076",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "1076",
+    "notes": null
+  },
+  {
+    "id": "cses-1077",
+    "source": "cses",
+    "name": "Sliding Window Cost",
+    "url": "https://cses.fi/problemset/task/1077",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "1077",
+    "notes": null
+  },
+  {
+    "id": "cses-1078",
+    "source": "cses",
+    "name": "Grid Paths II",
+    "url": "https://cses.fi/problemset/task/1078",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "1078",
+    "notes": null
+  },
+  {
+    "id": "cses-1079",
+    "source": "cses",
+    "name": "Binomial Coefficients",
+    "url": "https://cses.fi/problemset/task/1079",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1079",
+    "notes": null
+  },
+  {
+    "id": "cses-1080",
+    "source": "cses",
+    "name": "Empty String",
+    "url": "https://cses.fi/problemset/task/1080",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "1080",
+    "notes": null
+  },
+  {
+    "id": "cses-1081",
+    "source": "cses",
+    "name": "Common Divisors",
+    "url": "https://cses.fi/problemset/task/1081",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1081",
+    "notes": null
+  },
+  {
+    "id": "cses-1082",
+    "source": "cses",
+    "name": "Sum of Divisors",
+    "url": "https://cses.fi/problemset/task/1082",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1082",
+    "notes": null
+  },
+  {
+    "id": "cses-1083",
+    "source": "cses",
+    "name": "Missing Number",
+    "url": "https://cses.fi/problemset/task/1083",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1083",
+    "notes": null
+  },
+  {
+    "id": "cses-1084",
+    "source": "cses",
+    "name": "Apartments",
+    "url": "https://cses.fi/problemset/task/1084",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1084",
+    "notes": null
+  },
+  {
+    "id": "cses-1085",
+    "source": "cses",
+    "name": "Array Division",
+    "url": "https://cses.fi/problemset/task/1085",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1085",
+    "notes": null
+  },
+  {
+    "id": "cses-1086",
+    "source": "cses",
+    "name": "Writing Numbers",
+    "url": "https://cses.fi/problemset/task/1086",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1086",
+    "notes": null
+  },
+  {
+    "id": "cses-1087",
+    "source": "cses",
+    "name": "Shortest Subsequence",
+    "url": "https://cses.fi/problemset/task/1087",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1087",
+    "notes": null
+  },
+  {
+    "id": "cses-1090",
+    "source": "cses",
+    "name": "Ferris Wheel",
+    "url": "https://cses.fi/problemset/task/1090",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1090",
+    "notes": null
+  },
+  {
+    "id": "cses-1091",
+    "source": "cses",
+    "name": "Concert Tickets",
+    "url": "https://cses.fi/problemset/task/1091",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1091",
+    "notes": null
+  },
+  {
+    "id": "cses-1092",
+    "source": "cses",
+    "name": "Two Sets",
+    "url": "https://cses.fi/problemset/task/1092",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1092",
+    "notes": null
+  },
+  {
+    "id": "cses-1093",
+    "source": "cses",
+    "name": "Two Sets II",
+    "url": "https://cses.fi/problemset/task/1093",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1093",
+    "notes": null
+  },
+  {
+    "id": "cses-1094",
+    "source": "cses",
+    "name": "Increasing Array",
+    "url": "https://cses.fi/problemset/task/1094",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1094",
+    "notes": null
+  },
+  {
+    "id": "cses-1095",
+    "source": "cses",
+    "name": "Exponentiation",
+    "url": "https://cses.fi/problemset/task/1095",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1095",
+    "notes": null
+  },
+  {
+    "id": "cses-1096",
+    "source": "cses",
+    "name": "Throwing Dice",
+    "url": "https://cses.fi/problemset/task/1096",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1096",
+    "notes": null
+  },
+  {
+    "id": "cses-1097",
+    "source": "cses",
+    "name": "Removal Game",
+    "url": "https://cses.fi/problemset/task/1097",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1097",
+    "notes": null
+  },
+  {
+    "id": "cses-1098",
+    "source": "cses",
+    "name": "Nim Game II",
+    "url": "https://cses.fi/problemset/task/1098",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1098",
+    "notes": null
+  },
+  {
+    "id": "cses-1099",
+    "source": "cses",
+    "name": "Stair Game",
+    "url": "https://cses.fi/problemset/task/1099",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1099",
+    "notes": null
+  },
+  {
+    "id": "cses-1110",
+    "source": "cses",
+    "name": "Minimal Rotation",
+    "url": "https://cses.fi/problemset/task/1110",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1110",
+    "notes": null
+  },
+  {
+    "id": "cses-1111",
+    "source": "cses",
+    "name": "Longest Palindrome",
+    "url": "https://cses.fi/problemset/task/1111",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1111",
+    "notes": null
+  },
+  {
+    "id": "cses-1112",
+    "source": "cses",
+    "name": "Required Substring",
+    "url": "https://cses.fi/problemset/task/1112",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1112",
+    "notes": null
+  },
+  {
+    "id": "cses-1113",
+    "source": "cses",
+    "name": "String Transform",
+    "url": "https://cses.fi/problemset/task/1113",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1113",
+    "notes": null
+  },
+  {
+    "id": "cses-1130",
+    "source": "cses",
+    "name": "Tree Matching",
+    "url": "https://cses.fi/problemset/task/1130",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1130",
+    "notes": null
+  },
+  {
+    "id": "cses-1131",
+    "source": "cses",
+    "name": "Tree Diameter",
+    "url": "https://cses.fi/problemset/task/1131",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1131",
+    "notes": null
+  },
+  {
+    "id": "cses-1132",
+    "source": "cses",
+    "name": "Tree Distances I",
+    "url": "https://cses.fi/problemset/task/1132",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1132",
+    "notes": null
+  },
+  {
+    "id": "cses-1133",
+    "source": "cses",
+    "name": "Tree Distances II",
+    "url": "https://cses.fi/problemset/task/1133",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1133",
+    "notes": null
+  },
+  {
+    "id": "cses-1134",
+    "source": "cses",
+    "name": "Pr\u00fcfer Code",
+    "url": "https://cses.fi/problemset/task/1134",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1134",
+    "notes": null
+  },
+  {
+    "id": "cses-1135",
+    "source": "cses",
+    "name": "Distance Queries",
+    "url": "https://cses.fi/problemset/task/1135",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1135",
+    "notes": null
+  },
+  {
+    "id": "cses-1136",
+    "source": "cses",
+    "name": "Counting Paths",
+    "url": "https://cses.fi/problemset/task/1136",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1136",
+    "notes": null
+  },
+  {
+    "id": "cses-1137",
+    "source": "cses",
+    "name": "Subtree Queries",
+    "url": "https://cses.fi/problemset/task/1137",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1137",
+    "notes": null
+  },
+  {
+    "id": "cses-1138",
+    "source": "cses",
+    "name": "Path Queries",
+    "url": "https://cses.fi/problemset/task/1138",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1138",
+    "notes": null
+  },
+  {
+    "id": "cses-1139",
+    "source": "cses",
+    "name": "Distinct Colors",
+    "url": "https://cses.fi/problemset/task/1139",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1139",
+    "notes": null
+  },
+  {
+    "id": "cses-1140",
+    "source": "cses",
+    "name": "Projects",
+    "url": "https://cses.fi/problemset/task/1140",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1140",
+    "notes": null
+  },
+  {
+    "id": "cses-1141",
+    "source": "cses",
+    "name": "Playlist",
+    "url": "https://cses.fi/problemset/task/1141",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1141",
+    "notes": null
+  },
+  {
+    "id": "cses-1142",
+    "source": "cses",
+    "name": "Advertisement",
+    "url": "https://cses.fi/problemset/task/1142",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1142",
+    "notes": null
+  },
+  {
+    "id": "cses-1143",
+    "source": "cses",
+    "name": "Hotel Queries",
+    "url": "https://cses.fi/problemset/task/1143",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1143",
+    "notes": null
+  },
+  {
+    "id": "cses-1144",
+    "source": "cses",
+    "name": "Salary Queries",
+    "url": "https://cses.fi/problemset/task/1144",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1144",
+    "notes": null
+  },
+  {
+    "id": "cses-1145",
+    "source": "cses",
+    "name": "Increasing Subsequence",
+    "url": "https://cses.fi/problemset/task/1145",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1145",
+    "notes": null
+  },
+  {
+    "id": "cses-1146",
+    "source": "cses",
+    "name": "Counting Bits",
+    "url": "https://cses.fi/problemset/task/1146",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "1146",
+    "notes": null
+  },
+  {
+    "id": "cses-1147",
+    "source": "cses",
+    "name": "Maximum Building I",
+    "url": "https://cses.fi/problemset/task/1147",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1147",
+    "notes": null
+  },
+  {
+    "id": "cses-1148",
+    "source": "cses",
+    "name": "Maximum Building II",
+    "url": "https://cses.fi/problemset/task/1148",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1148",
+    "notes": null
+  },
+  {
+    "id": "cses-1149",
+    "source": "cses",
+    "name": "Distinct Subsequences",
+    "url": "https://cses.fi/problemset/task/1149",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1149",
+    "notes": null
+  },
+  {
+    "id": "cses-1157",
+    "source": "cses",
+    "name": "Mex Grid Queries",
+    "url": "https://cses.fi/problemset/task/1157",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1157",
+    "notes": null
+  },
+  {
+    "id": "cses-1158",
+    "source": "cses",
+    "name": "Book Shop",
+    "url": "https://cses.fi/problemset/task/1158",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1158",
+    "notes": null
+  },
+  {
+    "id": "cses-1159",
+    "source": "cses",
+    "name": "Book Shop II",
+    "url": "https://cses.fi/problemset/task/1159",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1159",
+    "notes": null
+  },
+  {
+    "id": "cses-1160",
+    "source": "cses",
+    "name": "Planets Queries II",
+    "url": "https://cses.fi/problemset/task/1160",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1160",
+    "notes": null
+  },
+  {
+    "id": "cses-1161",
+    "source": "cses",
+    "name": "Stick Divisions",
+    "url": "https://cses.fi/problemset/task/1161",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1161",
+    "notes": null
+  },
+  {
+    "id": "cses-1162",
+    "source": "cses",
+    "name": "Sorting Methods",
+    "url": "https://cses.fi/problemset/task/1162",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1162",
+    "notes": null
+  },
+  {
+    "id": "cses-1163",
+    "source": "cses",
+    "name": "Traffic Lights",
+    "url": "https://cses.fi/problemset/task/1163",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1163",
+    "notes": null
+  },
+  {
+    "id": "cses-1164",
+    "source": "cses",
+    "name": "Room Allocation",
+    "url": "https://cses.fi/problemset/task/1164",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1164",
+    "notes": null
+  },
+  {
+    "id": "cses-1188",
+    "source": "cses",
+    "name": "Bit Inversions",
+    "url": "https://cses.fi/problemset/task/1188",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1188",
+    "notes": null
+  },
+  {
+    "id": "cses-1189",
+    "source": "cses",
+    "name": "Food Division",
+    "url": "https://cses.fi/problemset/task/1189",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1189",
+    "notes": null
+  },
+  {
+    "id": "cses-1190",
+    "source": "cses",
+    "name": "Subarray Sum Queries",
+    "url": "https://cses.fi/problemset/task/1190",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1190",
+    "notes": null
+  },
+  {
+    "id": "cses-1191",
+    "source": "cses",
+    "name": "Cyclic Array",
+    "url": "https://cses.fi/problemset/task/1191",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1191",
+    "notes": null
+  },
+  {
+    "id": "cses-1192",
+    "source": "cses",
+    "name": "Counting Rooms",
+    "url": "https://cses.fi/problemset/task/1192",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1192",
+    "notes": null
+  },
+  {
+    "id": "cses-1193",
+    "source": "cses",
+    "name": "Labyrinth",
+    "url": "https://cses.fi/problemset/task/1193",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1193",
+    "notes": null
+  },
+  {
+    "id": "cses-1194",
+    "source": "cses",
+    "name": "Monsters",
+    "url": "https://cses.fi/problemset/task/1194",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1194",
+    "notes": null
+  },
+  {
+    "id": "cses-1195",
+    "source": "cses",
+    "name": "Flight Discount",
+    "url": "https://cses.fi/problemset/task/1195",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1195",
+    "notes": null
+  },
+  {
+    "id": "cses-1196",
+    "source": "cses",
+    "name": "Flight Routes",
+    "url": "https://cses.fi/problemset/task/1196",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1196",
+    "notes": null
+  },
+  {
+    "id": "cses-1197",
+    "source": "cses",
+    "name": "Cycle Finding",
+    "url": "https://cses.fi/problemset/task/1197",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1197",
+    "notes": null
+  },
+  {
+    "id": "cses-1202",
+    "source": "cses",
+    "name": "Investigation",
+    "url": "https://cses.fi/problemset/task/1202",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1202",
+    "notes": null
+  },
+  {
+    "id": "cses-1203",
+    "source": "cses",
+    "name": "Visiting Cities",
+    "url": "https://cses.fi/problemset/task/1203",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1203",
+    "notes": null
+  },
+  {
+    "id": "cses-1617",
+    "source": "cses",
+    "name": "Bit Strings",
+    "url": "https://cses.fi/problemset/task/1617",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1617",
+    "notes": null
+  },
+  {
+    "id": "cses-1618",
+    "source": "cses",
+    "name": "Trailing Zeros",
+    "url": "https://cses.fi/problemset/task/1618",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1618",
+    "notes": null
+  },
+  {
+    "id": "cses-1619",
+    "source": "cses",
+    "name": "Restaurant Customers",
+    "url": "https://cses.fi/problemset/task/1619",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1619",
+    "notes": null
+  },
+  {
+    "id": "cses-1620",
+    "source": "cses",
+    "name": "Factory Machines",
+    "url": "https://cses.fi/problemset/task/1620",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1620",
+    "notes": null
+  },
+  {
+    "id": "cses-1621",
+    "source": "cses",
+    "name": "Distinct Numbers",
+    "url": "https://cses.fi/problemset/task/1621",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1621",
+    "notes": null
+  },
+  {
+    "id": "cses-1622",
+    "source": "cses",
+    "name": "Creating Strings",
+    "url": "https://cses.fi/problemset/task/1622",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1622",
+    "notes": null
+  },
+  {
+    "id": "cses-1623",
+    "source": "cses",
+    "name": "Apple Division",
+    "url": "https://cses.fi/problemset/task/1623",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1623",
+    "notes": null
+  },
+  {
+    "id": "cses-1624",
+    "source": "cses",
+    "name": "Chessboard and Queens",
+    "url": "https://cses.fi/problemset/task/1624",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1624",
+    "notes": null
+  },
+  {
+    "id": "cses-1625",
+    "source": "cses",
+    "name": "Grid Path Description",
+    "url": "https://cses.fi/problemset/task/1625",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1625",
+    "notes": null
+  },
+  {
+    "id": "cses-1628",
+    "source": "cses",
+    "name": "Meet in the Middle",
+    "url": "https://cses.fi/problemset/task/1628",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "1628",
+    "notes": null
+  },
+  {
+    "id": "cses-1629",
+    "source": "cses",
+    "name": "Movie Festival",
+    "url": "https://cses.fi/problemset/task/1629",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1629",
+    "notes": null
+  },
+  {
+    "id": "cses-1630",
+    "source": "cses",
+    "name": "Tasks and Deadlines",
+    "url": "https://cses.fi/problemset/task/1630",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1630",
+    "notes": null
+  },
+  {
+    "id": "cses-1631",
+    "source": "cses",
+    "name": "Reading Books",
+    "url": "https://cses.fi/problemset/task/1631",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1631",
+    "notes": null
+  },
+  {
+    "id": "cses-1632",
+    "source": "cses",
+    "name": "Movie Festival II",
+    "url": "https://cses.fi/problemset/task/1632",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1632",
+    "notes": null
+  },
+  {
+    "id": "cses-1633",
+    "source": "cses",
+    "name": "Dice Combinations",
+    "url": "https://cses.fi/problemset/task/1633",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1633",
+    "notes": null
+  },
+  {
+    "id": "cses-1634",
+    "source": "cses",
+    "name": "Minimizing Coins",
+    "url": "https://cses.fi/problemset/task/1634",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1634",
+    "notes": null
+  },
+  {
+    "id": "cses-1635",
+    "source": "cses",
+    "name": "Coin Combinations I",
+    "url": "https://cses.fi/problemset/task/1635",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1635",
+    "notes": null
+  },
+  {
+    "id": "cses-1636",
+    "source": "cses",
+    "name": "Coin Combinations II",
+    "url": "https://cses.fi/problemset/task/1636",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1636",
+    "notes": null
+  },
+  {
+    "id": "cses-1637",
+    "source": "cses",
+    "name": "Removing Digits",
+    "url": "https://cses.fi/problemset/task/1637",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1637",
+    "notes": null
+  },
+  {
+    "id": "cses-1638",
+    "source": "cses",
+    "name": "Grid Paths I",
+    "url": "https://cses.fi/problemset/task/1638",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1638",
+    "notes": null
+  },
+  {
+    "id": "cses-1639",
+    "source": "cses",
+    "name": "Edit Distance",
+    "url": "https://cses.fi/problemset/task/1639",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1639",
+    "notes": null
+  },
+  {
+    "id": "cses-1640",
+    "source": "cses",
+    "name": "Sum of Two Values",
+    "url": "https://cses.fi/problemset/task/1640",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1640",
+    "notes": null
+  },
+  {
+    "id": "cses-1641",
+    "source": "cses",
+    "name": "Sum of Three Values",
+    "url": "https://cses.fi/problemset/task/1641",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1641",
+    "notes": null
+  },
+  {
+    "id": "cses-1642",
+    "source": "cses",
+    "name": "Sum of Four Values",
+    "url": "https://cses.fi/problemset/task/1642",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1642",
+    "notes": null
+  },
+  {
+    "id": "cses-1643",
+    "source": "cses",
+    "name": "Maximum Subarray Sum",
+    "url": "https://cses.fi/problemset/task/1643",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1643",
+    "notes": null
+  },
+  {
+    "id": "cses-1644",
+    "source": "cses",
+    "name": "Maximum Subarray Sum II",
+    "url": "https://cses.fi/problemset/task/1644",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1644",
+    "notes": null
+  },
+  {
+    "id": "cses-1645",
+    "source": "cses",
+    "name": "Nearest Smaller Values",
+    "url": "https://cses.fi/problemset/task/1645",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1645",
+    "notes": null
+  },
+  {
+    "id": "cses-1646",
+    "source": "cses",
+    "name": "Static Range Sum Queries",
+    "url": "https://cses.fi/problemset/task/1646",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1646",
+    "notes": null
+  },
+  {
+    "id": "cses-1647",
+    "source": "cses",
+    "name": "Static Range Minimum Queries",
+    "url": "https://cses.fi/problemset/task/1647",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1647",
+    "notes": null
+  },
+  {
+    "id": "cses-1648",
+    "source": "cses",
+    "name": "Dynamic Range Sum Queries",
+    "url": "https://cses.fi/problemset/task/1648",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1648",
+    "notes": null
+  },
+  {
+    "id": "cses-1649",
+    "source": "cses",
+    "name": "Dynamic Range Minimum Queries",
+    "url": "https://cses.fi/problemset/task/1649",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1649",
+    "notes": null
+  },
+  {
+    "id": "cses-1650",
+    "source": "cses",
+    "name": "Range Xor Queries",
+    "url": "https://cses.fi/problemset/task/1650",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1650",
+    "notes": null
+  },
+  {
+    "id": "cses-1651",
+    "source": "cses",
+    "name": "Range Update Queries",
+    "url": "https://cses.fi/problemset/task/1651",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1651",
+    "notes": null
+  },
+  {
+    "id": "cses-1652",
+    "source": "cses",
+    "name": "Forest Queries",
+    "url": "https://cses.fi/problemset/task/1652",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1652",
+    "notes": null
+  },
+  {
+    "id": "cses-1653",
+    "source": "cses",
+    "name": "Elevator Rides",
+    "url": "https://cses.fi/problemset/task/1653",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1653",
+    "notes": null
+  },
+  {
+    "id": "cses-1654",
+    "source": "cses",
+    "name": "SOS Bit Problem",
+    "url": "https://cses.fi/problemset/task/1654",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "1654",
+    "notes": null
+  },
+  {
+    "id": "cses-1655",
+    "source": "cses",
+    "name": "Maximum Xor Subarray",
+    "url": "https://cses.fi/problemset/task/1655",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "1655",
+    "notes": null
+  },
+  {
+    "id": "cses-1660",
+    "source": "cses",
+    "name": "Subarray Sums I",
+    "url": "https://cses.fi/problemset/task/1660",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1660",
+    "notes": null
+  },
+  {
+    "id": "cses-1661",
+    "source": "cses",
+    "name": "Subarray Sums II",
+    "url": "https://cses.fi/problemset/task/1661",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1661",
+    "notes": null
+  },
+  {
+    "id": "cses-1662",
+    "source": "cses",
+    "name": "Subarray Divisibility",
+    "url": "https://cses.fi/problemset/task/1662",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "1662",
+    "notes": null
+  },
+  {
+    "id": "cses-1664",
+    "source": "cses",
+    "name": "Movie Festival Queries",
+    "url": "https://cses.fi/problemset/task/1664",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1664",
+    "notes": null
+  },
+  {
+    "id": "cses-1665",
+    "source": "cses",
+    "name": "Coding Company",
+    "url": "https://cses.fi/problemset/task/1665",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1665",
+    "notes": null
+  },
+  {
+    "id": "cses-1666",
+    "source": "cses",
+    "name": "Building Roads",
+    "url": "https://cses.fi/problemset/task/1666",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1666",
+    "notes": null
+  },
+  {
+    "id": "cses-1667",
+    "source": "cses",
+    "name": "Message Route",
+    "url": "https://cses.fi/problemset/task/1667",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1667",
+    "notes": null
+  },
+  {
+    "id": "cses-1668",
+    "source": "cses",
+    "name": "Building Teams",
+    "url": "https://cses.fi/problemset/task/1668",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1668",
+    "notes": null
+  },
+  {
+    "id": "cses-1669",
+    "source": "cses",
+    "name": "Round Trip",
+    "url": "https://cses.fi/problemset/task/1669",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1669",
+    "notes": null
+  },
+  {
+    "id": "cses-1670",
+    "source": "cses",
+    "name": "Swap Game",
+    "url": "https://cses.fi/problemset/task/1670",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1670",
+    "notes": null
+  },
+  {
+    "id": "cses-1671",
+    "source": "cses",
+    "name": "Shortest Routes I",
+    "url": "https://cses.fi/problemset/task/1671",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1671",
+    "notes": null
+  },
+  {
+    "id": "cses-1672",
+    "source": "cses",
+    "name": "Shortest Routes II",
+    "url": "https://cses.fi/problemset/task/1672",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1672",
+    "notes": null
+  },
+  {
+    "id": "cses-1673",
+    "source": "cses",
+    "name": "High Score",
+    "url": "https://cses.fi/problemset/task/1673",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1673",
+    "notes": null
+  },
+  {
+    "id": "cses-1674",
+    "source": "cses",
+    "name": "Subordinates",
+    "url": "https://cses.fi/problemset/task/1674",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1674",
+    "notes": null
+  },
+  {
+    "id": "cses-1675",
+    "source": "cses",
+    "name": "Road Reparation",
+    "url": "https://cses.fi/problemset/task/1675",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1675",
+    "notes": null
+  },
+  {
+    "id": "cses-1676",
+    "source": "cses",
+    "name": "Road Construction",
+    "url": "https://cses.fi/problemset/task/1676",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1676",
+    "notes": null
+  },
+  {
+    "id": "cses-1677",
+    "source": "cses",
+    "name": "Network Breakdown",
+    "url": "https://cses.fi/problemset/task/1677",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1677",
+    "notes": null
+  },
+  {
+    "id": "cses-1678",
+    "source": "cses",
+    "name": "Round Trip II",
+    "url": "https://cses.fi/problemset/task/1678",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1678",
+    "notes": null
+  },
+  {
+    "id": "cses-1679",
+    "source": "cses",
+    "name": "Course Schedule",
+    "url": "https://cses.fi/problemset/task/1679",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1679",
+    "notes": null
+  },
+  {
+    "id": "cses-1680",
+    "source": "cses",
+    "name": "Longest Flight Route",
+    "url": "https://cses.fi/problemset/task/1680",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1680",
+    "notes": null
+  },
+  {
+    "id": "cses-1681",
+    "source": "cses",
+    "name": "Game Routes",
+    "url": "https://cses.fi/problemset/task/1681",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1681",
+    "notes": null
+  },
+  {
+    "id": "cses-1682",
+    "source": "cses",
+    "name": "Flight Routes Check",
+    "url": "https://cses.fi/problemset/task/1682",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1682",
+    "notes": null
+  },
+  {
+    "id": "cses-1683",
+    "source": "cses",
+    "name": "Planets and Kingdoms",
+    "url": "https://cses.fi/problemset/task/1683",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1683",
+    "notes": null
+  },
+  {
+    "id": "cses-1684",
+    "source": "cses",
+    "name": "Giant Pizza",
+    "url": "https://cses.fi/problemset/task/1684",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1684",
+    "notes": null
+  },
+  {
+    "id": "cses-1685",
+    "source": "cses",
+    "name": "New Flight Routes",
+    "url": "https://cses.fi/problemset/task/1685",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1685",
+    "notes": null
+  },
+  {
+    "id": "cses-1686",
+    "source": "cses",
+    "name": "Coin Collector",
+    "url": "https://cses.fi/problemset/task/1686",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1686",
+    "notes": null
+  },
+  {
+    "id": "cses-1687",
+    "source": "cses",
+    "name": "Company Queries I",
+    "url": "https://cses.fi/problemset/task/1687",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1687",
+    "notes": null
+  },
+  {
+    "id": "cses-1688",
+    "source": "cses",
+    "name": "Company Queries II",
+    "url": "https://cses.fi/problemset/task/1688",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "1688",
+    "notes": null
+  },
+  {
+    "id": "cses-1689",
+    "source": "cses",
+    "name": "Knight's Tour",
+    "url": "https://cses.fi/problemset/task/1689",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1689",
+    "notes": null
+  },
+  {
+    "id": "cses-1690",
+    "source": "cses",
+    "name": "Hamiltonian Flights",
+    "url": "https://cses.fi/problemset/task/1690",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1690",
+    "notes": null
+  },
+  {
+    "id": "cses-1691",
+    "source": "cses",
+    "name": "Mail Delivery",
+    "url": "https://cses.fi/problemset/task/1691",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1691",
+    "notes": null
+  },
+  {
+    "id": "cses-1692",
+    "source": "cses",
+    "name": "De Bruijn Sequence",
+    "url": "https://cses.fi/problemset/task/1692",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1692",
+    "notes": null
+  },
+  {
+    "id": "cses-1693",
+    "source": "cses",
+    "name": "Teleporters Path",
+    "url": "https://cses.fi/problemset/task/1693",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1693",
+    "notes": null
+  },
+  {
+    "id": "cses-1694",
+    "source": "cses",
+    "name": "Download Speed",
+    "url": "https://cses.fi/problemset/task/1694",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1694",
+    "notes": null
+  },
+  {
+    "id": "cses-1695",
+    "source": "cses",
+    "name": "Police Chase",
+    "url": "https://cses.fi/problemset/task/1695",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1695",
+    "notes": null
+  },
+  {
+    "id": "cses-1696",
+    "source": "cses",
+    "name": "School Dance",
+    "url": "https://cses.fi/problemset/task/1696",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1696",
+    "notes": null
+  },
+  {
+    "id": "cses-1697",
+    "source": "cses",
+    "name": "Chess Tournament",
+    "url": "https://cses.fi/problemset/task/1697",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "1697",
+    "notes": null
+  },
+  {
+    "id": "cses-1698",
+    "source": "cses",
+    "name": "Swap Round Sorting",
+    "url": "https://cses.fi/problemset/task/1698",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1698",
+    "notes": null
+  },
+  {
+    "id": "cses-1699",
+    "source": "cses",
+    "name": "Flight Route Requests",
+    "url": "https://cses.fi/problemset/task/1699",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1699",
+    "notes": null
+  },
+  {
+    "id": "cses-1700",
+    "source": "cses",
+    "name": "Tree Isomorphism I",
+    "url": "https://cses.fi/problemset/task/1700",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1700",
+    "notes": null
+  },
+  {
+    "id": "cses-1701",
+    "source": "cses",
+    "name": "Tree Isomorphism II",
+    "url": "https://cses.fi/problemset/task/1701",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1701",
+    "notes": null
+  },
+  {
+    "id": "cses-1702",
+    "source": "cses",
+    "name": "Tree Traversals",
+    "url": "https://cses.fi/problemset/task/1702",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1702",
+    "notes": null
+  },
+  {
+    "id": "cses-1703",
+    "source": "cses",
+    "name": "Critical Cities",
+    "url": "https://cses.fi/problemset/task/1703",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1703",
+    "notes": null
+  },
+  {
+    "id": "cses-1704",
+    "source": "cses",
+    "name": "Network Renovation",
+    "url": "https://cses.fi/problemset/task/1704",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1704",
+    "notes": null
+  },
+  {
+    "id": "cses-1705",
+    "source": "cses",
+    "name": "Forbidden Cities",
+    "url": "https://cses.fi/problemset/task/1705",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1705",
+    "notes": null
+  },
+  {
+    "id": "cses-1706",
+    "source": "cses",
+    "name": "School Excursion",
+    "url": "https://cses.fi/problemset/task/1706",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1706",
+    "notes": null
+  },
+  {
+    "id": "cses-1707",
+    "source": "cses",
+    "name": "Graph Girth",
+    "url": "https://cses.fi/problemset/task/1707",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1707",
+    "notes": null
+  },
+  {
+    "id": "cses-1709",
+    "source": "cses",
+    "name": "Coin Grid",
+    "url": "https://cses.fi/problemset/task/1709",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "1709",
+    "notes": null
+  },
+  {
+    "id": "cses-1711",
+    "source": "cses",
+    "name": "Distinct Routes",
+    "url": "https://cses.fi/problemset/task/1711",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1711",
+    "notes": null
+  },
+  {
+    "id": "cses-1712",
+    "source": "cses",
+    "name": "Exponentiation II",
+    "url": "https://cses.fi/problemset/task/1712",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1712",
+    "notes": null
+  },
+  {
+    "id": "cses-1713",
+    "source": "cses",
+    "name": "Counting Divisors",
+    "url": "https://cses.fi/problemset/task/1713",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1713",
+    "notes": null
+  },
+  {
+    "id": "cses-1715",
+    "source": "cses",
+    "name": "Creating Strings II",
+    "url": "https://cses.fi/problemset/task/1715",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1715",
+    "notes": null
+  },
+  {
+    "id": "cses-1716",
+    "source": "cses",
+    "name": "Distributing Apples",
+    "url": "https://cses.fi/problemset/task/1716",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1716",
+    "notes": null
+  },
+  {
+    "id": "cses-1717",
+    "source": "cses",
+    "name": "Christmas Party",
+    "url": "https://cses.fi/problemset/task/1717",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1717",
+    "notes": null
+  },
+  {
+    "id": "cses-1722",
+    "source": "cses",
+    "name": "Fibonacci Numbers",
+    "url": "https://cses.fi/problemset/task/1722",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1722",
+    "notes": null
+  },
+  {
+    "id": "cses-1723",
+    "source": "cses",
+    "name": "Graph Paths I",
+    "url": "https://cses.fi/problemset/task/1723",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1723",
+    "notes": null
+  },
+  {
+    "id": "cses-1724",
+    "source": "cses",
+    "name": "Graph Paths II",
+    "url": "https://cses.fi/problemset/task/1724",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1724",
+    "notes": null
+  },
+  {
+    "id": "cses-1725",
+    "source": "cses",
+    "name": "Dice Probability",
+    "url": "https://cses.fi/problemset/task/1725",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1725",
+    "notes": null
+  },
+  {
+    "id": "cses-1726",
+    "source": "cses",
+    "name": "Moving Robots",
+    "url": "https://cses.fi/problemset/task/1726",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1726",
+    "notes": null
+  },
+  {
+    "id": "cses-1727",
+    "source": "cses",
+    "name": "Candy Lottery",
+    "url": "https://cses.fi/problemset/task/1727",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1727",
+    "notes": null
+  },
+  {
+    "id": "cses-1728",
+    "source": "cses",
+    "name": "Inversion Probability",
+    "url": "https://cses.fi/problemset/task/1728",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1728",
+    "notes": null
+  },
+  {
+    "id": "cses-1729",
+    "source": "cses",
+    "name": "Stick Game",
+    "url": "https://cses.fi/problemset/task/1729",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1729",
+    "notes": null
+  },
+  {
+    "id": "cses-1730",
+    "source": "cses",
+    "name": "Nim Game I",
+    "url": "https://cses.fi/problemset/task/1730",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "1730",
+    "notes": null
+  },
+  {
+    "id": "cses-1731",
+    "source": "cses",
+    "name": "Word Combinations",
+    "url": "https://cses.fi/problemset/task/1731",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1731",
+    "notes": null
+  },
+  {
+    "id": "cses-1732",
+    "source": "cses",
+    "name": "Finding Borders",
+    "url": "https://cses.fi/problemset/task/1732",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1732",
+    "notes": null
+  },
+  {
+    "id": "cses-1733",
+    "source": "cses",
+    "name": "Finding Periods",
+    "url": "https://cses.fi/problemset/task/1733",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1733",
+    "notes": null
+  },
+  {
+    "id": "cses-1734",
+    "source": "cses",
+    "name": "Distinct Values Queries",
+    "url": "https://cses.fi/problemset/task/1734",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1734",
+    "notes": null
+  },
+  {
+    "id": "cses-1735",
+    "source": "cses",
+    "name": "Range Updates and Sums",
+    "url": "https://cses.fi/problemset/task/1735",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1735",
+    "notes": null
+  },
+  {
+    "id": "cses-1736",
+    "source": "cses",
+    "name": "Polynomial Queries",
+    "url": "https://cses.fi/problemset/task/1736",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1736",
+    "notes": null
+  },
+  {
+    "id": "cses-1737",
+    "source": "cses",
+    "name": "Range Queries and Copies",
+    "url": "https://cses.fi/problemset/task/1737",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1737",
+    "notes": null
+  },
+  {
+    "id": "cses-1739",
+    "source": "cses",
+    "name": "Forest Queries II",
+    "url": "https://cses.fi/problemset/task/1739",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1739",
+    "notes": null
+  },
+  {
+    "id": "cses-1740",
+    "source": "cses",
+    "name": "Intersection Points",
+    "url": "https://cses.fi/problemset/task/1740",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "1740",
+    "notes": null
+  },
+  {
+    "id": "cses-1741",
+    "source": "cses",
+    "name": "Area of Rectangles",
+    "url": "https://cses.fi/problemset/task/1741",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "1741",
+    "notes": null
+  },
+  {
+    "id": "cses-1742",
+    "source": "cses",
+    "name": "Robot Path",
+    "url": "https://cses.fi/problemset/task/1742",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "1742",
+    "notes": null
+  },
+  {
+    "id": "cses-1743",
+    "source": "cses",
+    "name": "String Reorder",
+    "url": "https://cses.fi/problemset/task/1743",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1743",
+    "notes": null
+  },
+  {
+    "id": "cses-1744",
+    "source": "cses",
+    "name": "Rectangle Cutting",
+    "url": "https://cses.fi/problemset/task/1744",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1744",
+    "notes": null
+  },
+  {
+    "id": "cses-1745",
+    "source": "cses",
+    "name": "Money Sums",
+    "url": "https://cses.fi/problemset/task/1745",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1745",
+    "notes": null
+  },
+  {
+    "id": "cses-1746",
+    "source": "cses",
+    "name": "Array Description",
+    "url": "https://cses.fi/problemset/task/1746",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1746",
+    "notes": null
+  },
+  {
+    "id": "cses-1747",
+    "source": "cses",
+    "name": "Pyramid Array",
+    "url": "https://cses.fi/problemset/task/1747",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "1747",
+    "notes": null
+  },
+  {
+    "id": "cses-1748",
+    "source": "cses",
+    "name": "Increasing Subsequence II",
+    "url": "https://cses.fi/problemset/task/1748",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "1748",
+    "notes": null
+  },
+  {
+    "id": "cses-1749",
+    "source": "cses",
+    "name": "List Removals",
+    "url": "https://cses.fi/problemset/task/1749",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "1749",
+    "notes": null
+  },
+  {
+    "id": "cses-1750",
+    "source": "cses",
+    "name": "Planets Queries I",
+    "url": "https://cses.fi/problemset/task/1750",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1750",
+    "notes": null
+  },
+  {
+    "id": "cses-1751",
+    "source": "cses",
+    "name": "Planets Cycles",
+    "url": "https://cses.fi/problemset/task/1751",
+    "difficulty_rating": null,
+    "tags": [
+      "Graph Algorithms"
+    ],
+    "contest_id": "1751",
+    "notes": null
+  },
+  {
+    "id": "cses-1752",
+    "source": "cses",
+    "name": "Creating Offices",
+    "url": "https://cses.fi/problemset/task/1752",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1752",
+    "notes": null
+  },
+  {
+    "id": "cses-1753",
+    "source": "cses",
+    "name": "String Matching",
+    "url": "https://cses.fi/problemset/task/1753",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "1753",
+    "notes": null
+  },
+  {
+    "id": "cses-1754",
+    "source": "cses",
+    "name": "Coin Piles",
+    "url": "https://cses.fi/problemset/task/1754",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1754",
+    "notes": null
+  },
+  {
+    "id": "cses-1755",
+    "source": "cses",
+    "name": "Palindrome Reorder",
+    "url": "https://cses.fi/problemset/task/1755",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "1755",
+    "notes": null
+  },
+  {
+    "id": "cses-1756",
+    "source": "cses",
+    "name": "Acyclic Graph Edges",
+    "url": "https://cses.fi/problemset/task/1756",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1756",
+    "notes": null
+  },
+  {
+    "id": "cses-1757",
+    "source": "cses",
+    "name": "Course Schedule II",
+    "url": "https://cses.fi/problemset/task/1757",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "1757",
+    "notes": null
+  },
+  {
+    "id": "cses-2064",
+    "source": "cses",
+    "name": "Bracket Sequences I",
+    "url": "https://cses.fi/problemset/task/2064",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2064",
+    "notes": null
+  },
+  {
+    "id": "cses-2072",
+    "source": "cses",
+    "name": "Cut and Paste",
+    "url": "https://cses.fi/problemset/task/2072",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2072",
+    "notes": null
+  },
+  {
+    "id": "cses-2073",
+    "source": "cses",
+    "name": "Substring Reversals",
+    "url": "https://cses.fi/problemset/task/2073",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2073",
+    "notes": null
+  },
+  {
+    "id": "cses-2074",
+    "source": "cses",
+    "name": "Reversals and Sums",
+    "url": "https://cses.fi/problemset/task/2074",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2074",
+    "notes": null
+  },
+  {
+    "id": "cses-2075",
+    "source": "cses",
+    "name": "Reversal Sorting",
+    "url": "https://cses.fi/problemset/task/2075",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2075",
+    "notes": null
+  },
+  {
+    "id": "cses-2076",
+    "source": "cses",
+    "name": "Necessary Roads",
+    "url": "https://cses.fi/problemset/task/2076",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2076",
+    "notes": null
+  },
+  {
+    "id": "cses-2077",
+    "source": "cses",
+    "name": "Necessary Cities",
+    "url": "https://cses.fi/problemset/task/2077",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2077",
+    "notes": null
+  },
+  {
+    "id": "cses-2078",
+    "source": "cses",
+    "name": "Eulerian Subgraphs",
+    "url": "https://cses.fi/problemset/task/2078",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2078",
+    "notes": null
+  },
+  {
+    "id": "cses-2079",
+    "source": "cses",
+    "name": "Finding a Centroid",
+    "url": "https://cses.fi/problemset/task/2079",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "2079",
+    "notes": null
+  },
+  {
+    "id": "cses-2080",
+    "source": "cses",
+    "name": "Fixed-Length Paths I",
+    "url": "https://cses.fi/problemset/task/2080",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "2080",
+    "notes": null
+  },
+  {
+    "id": "cses-2081",
+    "source": "cses",
+    "name": "Fixed-Length Paths II",
+    "url": "https://cses.fi/problemset/task/2081",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "2081",
+    "notes": null
+  },
+  {
+    "id": "cses-2084",
+    "source": "cses",
+    "name": "Monster Game I",
+    "url": "https://cses.fi/problemset/task/2084",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2084",
+    "notes": null
+  },
+  {
+    "id": "cses-2085",
+    "source": "cses",
+    "name": "Monster Game II",
+    "url": "https://cses.fi/problemset/task/2085",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2085",
+    "notes": null
+  },
+  {
+    "id": "cses-2086",
+    "source": "cses",
+    "name": "Subarray Squares",
+    "url": "https://cses.fi/problemset/task/2086",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2086",
+    "notes": null
+  },
+  {
+    "id": "cses-2087",
+    "source": "cses",
+    "name": "Houses and Schools",
+    "url": "https://cses.fi/problemset/task/2087",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2087",
+    "notes": null
+  },
+  {
+    "id": "cses-2088",
+    "source": "cses",
+    "name": "Knuth Division",
+    "url": "https://cses.fi/problemset/task/2088",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2088",
+    "notes": null
+  },
+  {
+    "id": "cses-2101",
+    "source": "cses",
+    "name": "New Roads Queries",
+    "url": "https://cses.fi/problemset/task/2101",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2101",
+    "notes": null
+  },
+  {
+    "id": "cses-2102",
+    "source": "cses",
+    "name": "Finding Patterns",
+    "url": "https://cses.fi/problemset/task/2102",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2102",
+    "notes": null
+  },
+  {
+    "id": "cses-2103",
+    "source": "cses",
+    "name": "Counting Patterns",
+    "url": "https://cses.fi/problemset/task/2103",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2103",
+    "notes": null
+  },
+  {
+    "id": "cses-2104",
+    "source": "cses",
+    "name": "Pattern Positions",
+    "url": "https://cses.fi/problemset/task/2104",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2104",
+    "notes": null
+  },
+  {
+    "id": "cses-2105",
+    "source": "cses",
+    "name": "Distinct Substrings",
+    "url": "https://cses.fi/problemset/task/2105",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2105",
+    "notes": null
+  },
+  {
+    "id": "cses-2106",
+    "source": "cses",
+    "name": "Repeating Substring",
+    "url": "https://cses.fi/problemset/task/2106",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2106",
+    "notes": null
+  },
+  {
+    "id": "cses-2107",
+    "source": "cses",
+    "name": "String Functions",
+    "url": "https://cses.fi/problemset/task/2107",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2107",
+    "notes": null
+  },
+  {
+    "id": "cses-2108",
+    "source": "cses",
+    "name": "Substring Order I",
+    "url": "https://cses.fi/problemset/task/2108",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2108",
+    "notes": null
+  },
+  {
+    "id": "cses-2109",
+    "source": "cses",
+    "name": "Substring Order II",
+    "url": "https://cses.fi/problemset/task/2109",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2109",
+    "notes": null
+  },
+  {
+    "id": "cses-2110",
+    "source": "cses",
+    "name": "Substring Distribution",
+    "url": "https://cses.fi/problemset/task/2110",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2110",
+    "notes": null
+  },
+  {
+    "id": "cses-2111",
+    "source": "cses",
+    "name": "Apples and Bananas",
+    "url": "https://cses.fi/problemset/task/2111",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2111",
+    "notes": null
+  },
+  {
+    "id": "cses-2112",
+    "source": "cses",
+    "name": "One Bit Positions",
+    "url": "https://cses.fi/problemset/task/2112",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2112",
+    "notes": null
+  },
+  {
+    "id": "cses-2113",
+    "source": "cses",
+    "name": "Signal Processing",
+    "url": "https://cses.fi/problemset/task/2113",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2113",
+    "notes": null
+  },
+  {
+    "id": "cses-2115",
+    "source": "cses",
+    "name": "Bit Substrings",
+    "url": "https://cses.fi/problemset/task/2115",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2115",
+    "notes": null
+  },
+  {
+    "id": "cses-2121",
+    "source": "cses",
+    "name": "Parcel Delivery",
+    "url": "https://cses.fi/problemset/task/2121",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2121",
+    "notes": null
+  },
+  {
+    "id": "cses-2129",
+    "source": "cses",
+    "name": "Task Assignment",
+    "url": "https://cses.fi/problemset/task/2129",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2129",
+    "notes": null
+  },
+  {
+    "id": "cses-2130",
+    "source": "cses",
+    "name": "Distinct Routes II",
+    "url": "https://cses.fi/problemset/task/2130",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2130",
+    "notes": null
+  },
+  {
+    "id": "cses-2131",
+    "source": "cses",
+    "name": "Grid Puzzle II",
+    "url": "https://cses.fi/problemset/task/2131",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2131",
+    "notes": null
+  },
+  {
+    "id": "cses-2132",
+    "source": "cses",
+    "name": "Increasing Array II",
+    "url": "https://cses.fi/problemset/task/2132",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2132",
+    "notes": null
+  },
+  {
+    "id": "cses-2133",
+    "source": "cses",
+    "name": "Dynamic Connectivity",
+    "url": "https://cses.fi/problemset/task/2133",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2133",
+    "notes": null
+  },
+  {
+    "id": "cses-2134",
+    "source": "cses",
+    "name": "Path Queries II",
+    "url": "https://cses.fi/problemset/task/2134",
+    "difficulty_rating": null,
+    "tags": [
+      "Tree Algorithms"
+    ],
+    "contest_id": "2134",
+    "notes": null
+  },
+  {
+    "id": "cses-2136",
+    "source": "cses",
+    "name": "Hamming Distance",
+    "url": "https://cses.fi/problemset/task/2136",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2136",
+    "notes": null
+  },
+  {
+    "id": "cses-2137",
+    "source": "cses",
+    "name": "Corner Subgrid Count",
+    "url": "https://cses.fi/problemset/task/2137",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2137",
+    "notes": null
+  },
+  {
+    "id": "cses-2138",
+    "source": "cses",
+    "name": "Reachable Nodes",
+    "url": "https://cses.fi/problemset/task/2138",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2138",
+    "notes": null
+  },
+  {
+    "id": "cses-2143",
+    "source": "cses",
+    "name": "Reachability Queries",
+    "url": "https://cses.fi/problemset/task/2143",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "2143",
+    "notes": null
+  },
+  {
+    "id": "cses-2162",
+    "source": "cses",
+    "name": "Josephus Problem I",
+    "url": "https://cses.fi/problemset/task/2162",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2162",
+    "notes": null
+  },
+  {
+    "id": "cses-2163",
+    "source": "cses",
+    "name": "Josephus Problem II",
+    "url": "https://cses.fi/problemset/task/2163",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2163",
+    "notes": null
+  },
+  {
+    "id": "cses-2164",
+    "source": "cses",
+    "name": "Josephus Queries",
+    "url": "https://cses.fi/problemset/task/2164",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2164",
+    "notes": null
+  },
+  {
+    "id": "cses-2165",
+    "source": "cses",
+    "name": "Tower of Hanoi",
+    "url": "https://cses.fi/problemset/task/2165",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "2165",
+    "notes": null
+  },
+  {
+    "id": "cses-2166",
+    "source": "cses",
+    "name": "Prefix Sum Queries",
+    "url": "https://cses.fi/problemset/task/2166",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "2166",
+    "notes": null
+  },
+  {
+    "id": "cses-2168",
+    "source": "cses",
+    "name": "Nested Ranges Check",
+    "url": "https://cses.fi/problemset/task/2168",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2168",
+    "notes": null
+  },
+  {
+    "id": "cses-2169",
+    "source": "cses",
+    "name": "Nested Ranges Count",
+    "url": "https://cses.fi/problemset/task/2169",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2169",
+    "notes": null
+  },
+  {
+    "id": "cses-2174",
+    "source": "cses",
+    "name": "Removing Digits II",
+    "url": "https://cses.fi/problemset/task/2174",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2174",
+    "notes": null
+  },
+  {
+    "id": "cses-2176",
+    "source": "cses",
+    "name": "Counting Bishops",
+    "url": "https://cses.fi/problemset/task/2176",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2176",
+    "notes": null
+  },
+  {
+    "id": "cses-2177",
+    "source": "cses",
+    "name": "Strongly Connected Edges",
+    "url": "https://cses.fi/problemset/task/2177",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "2177",
+    "notes": null
+  },
+  {
+    "id": "cses-2179",
+    "source": "cses",
+    "name": "Even Outdegree Edges",
+    "url": "https://cses.fi/problemset/task/2179",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "2179",
+    "notes": null
+  },
+  {
+    "id": "cses-2180",
+    "source": "cses",
+    "name": "Coin Arrangement",
+    "url": "https://cses.fi/problemset/task/2180",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2180",
+    "notes": null
+  },
+  {
+    "id": "cses-2181",
+    "source": "cses",
+    "name": "Counting Tilings",
+    "url": "https://cses.fi/problemset/task/2181",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "2181",
+    "notes": null
+  },
+  {
+    "id": "cses-2182",
+    "source": "cses",
+    "name": "Divisor Analysis",
+    "url": "https://cses.fi/problemset/task/2182",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2182",
+    "notes": null
+  },
+  {
+    "id": "cses-2183",
+    "source": "cses",
+    "name": "Missing Coin Sum",
+    "url": "https://cses.fi/problemset/task/2183",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2183",
+    "notes": null
+  },
+  {
+    "id": "cses-2184",
+    "source": "cses",
+    "name": "Missing Coin Sum Queries",
+    "url": "https://cses.fi/problemset/task/2184",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "2184",
+    "notes": null
+  },
+  {
+    "id": "cses-2185",
+    "source": "cses",
+    "name": "Prime Multiples",
+    "url": "https://cses.fi/problemset/task/2185",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2185",
+    "notes": null
+  },
+  {
+    "id": "cses-2186",
+    "source": "cses",
+    "name": "Special Substrings",
+    "url": "https://cses.fi/problemset/task/2186",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "2186",
+    "notes": null
+  },
+  {
+    "id": "cses-2187",
+    "source": "cses",
+    "name": "Bracket Sequences II",
+    "url": "https://cses.fi/problemset/task/2187",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2187",
+    "notes": null
+  },
+  {
+    "id": "cses-2189",
+    "source": "cses",
+    "name": "Point Location Test",
+    "url": "https://cses.fi/problemset/task/2189",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2189",
+    "notes": null
+  },
+  {
+    "id": "cses-2190",
+    "source": "cses",
+    "name": "Line Segment Intersection",
+    "url": "https://cses.fi/problemset/task/2190",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2190",
+    "notes": null
+  },
+  {
+    "id": "cses-2191",
+    "source": "cses",
+    "name": "Polygon Area",
+    "url": "https://cses.fi/problemset/task/2191",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2191",
+    "notes": null
+  },
+  {
+    "id": "cses-2192",
+    "source": "cses",
+    "name": "Point in Polygon",
+    "url": "https://cses.fi/problemset/task/2192",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2192",
+    "notes": null
+  },
+  {
+    "id": "cses-2193",
+    "source": "cses",
+    "name": "Polygon Lattice Points",
+    "url": "https://cses.fi/problemset/task/2193",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2193",
+    "notes": null
+  },
+  {
+    "id": "cses-2194",
+    "source": "cses",
+    "name": "Minimum Euclidean Distance",
+    "url": "https://cses.fi/problemset/task/2194",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2194",
+    "notes": null
+  },
+  {
+    "id": "cses-2195",
+    "source": "cses",
+    "name": "Convex Hull",
+    "url": "https://cses.fi/problemset/task/2195",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "2195",
+    "notes": null
+  },
+  {
+    "id": "cses-2205",
+    "source": "cses",
+    "name": "Gray Code",
+    "url": "https://cses.fi/problemset/task/2205",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "2205",
+    "notes": null
+  },
+  {
+    "id": "cses-2206",
+    "source": "cses",
+    "name": "Pizzeria Queries",
+    "url": "https://cses.fi/problemset/task/2206",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "2206",
+    "notes": null
+  },
+  {
+    "id": "cses-2207",
+    "source": "cses",
+    "name": "Grundy's Game",
+    "url": "https://cses.fi/problemset/task/2207",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2207",
+    "notes": null
+  },
+  {
+    "id": "cses-2208",
+    "source": "cses",
+    "name": "Another Game",
+    "url": "https://cses.fi/problemset/task/2208",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2208",
+    "notes": null
+  },
+  {
+    "id": "cses-2209",
+    "source": "cses",
+    "name": "Counting Necklaces",
+    "url": "https://cses.fi/problemset/task/2209",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2209",
+    "notes": null
+  },
+  {
+    "id": "cses-2210",
+    "source": "cses",
+    "name": "Counting Grids",
+    "url": "https://cses.fi/problemset/task/2210",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2210",
+    "notes": null
+  },
+  {
+    "id": "cses-2214",
+    "source": "cses",
+    "name": "Inverse Inversions",
+    "url": "https://cses.fi/problemset/task/2214",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "2214",
+    "notes": null
+  },
+  {
+    "id": "cses-2215",
+    "source": "cses",
+    "name": "Monotone Subsequences",
+    "url": "https://cses.fi/problemset/task/2215",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "2215",
+    "notes": null
+  },
+  {
+    "id": "cses-2216",
+    "source": "cses",
+    "name": "Collecting Numbers",
+    "url": "https://cses.fi/problemset/task/2216",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2216",
+    "notes": null
+  },
+  {
+    "id": "cses-2217",
+    "source": "cses",
+    "name": "Collecting Numbers II",
+    "url": "https://cses.fi/problemset/task/2217",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2217",
+    "notes": null
+  },
+  {
+    "id": "cses-2220",
+    "source": "cses",
+    "name": "Counting Numbers",
+    "url": "https://cses.fi/problemset/task/2220",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "2220",
+    "notes": null
+  },
+  {
+    "id": "cses-2228",
+    "source": "cses",
+    "name": "Counting Sequences",
+    "url": "https://cses.fi/problemset/task/2228",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2228",
+    "notes": null
+  },
+  {
+    "id": "cses-2229",
+    "source": "cses",
+    "name": "Permutation Inversions",
+    "url": "https://cses.fi/problemset/task/2229",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2229",
+    "notes": null
+  },
+  {
+    "id": "cses-2402",
+    "source": "cses",
+    "name": "Two Stacks Sorting",
+    "url": "https://cses.fi/problemset/task/2402",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2402",
+    "notes": null
+  },
+  {
+    "id": "cses-2413",
+    "source": "cses",
+    "name": "Counting Towers",
+    "url": "https://cses.fi/problemset/task/2413",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "2413",
+    "notes": null
+  },
+  {
+    "id": "cses-2414",
+    "source": "cses",
+    "name": "List of Sums",
+    "url": "https://cses.fi/problemset/task/2414",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "2414",
+    "notes": null
+  },
+  {
+    "id": "cses-2415",
+    "source": "cses",
+    "name": "Functional Graph Distribution",
+    "url": "https://cses.fi/problemset/task/2415",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2415",
+    "notes": null
+  },
+  {
+    "id": "cses-2416",
+    "source": "cses",
+    "name": "Increasing Array Queries",
+    "url": "https://cses.fi/problemset/task/2416",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "2416",
+    "notes": null
+  },
+  {
+    "id": "cses-2417",
+    "source": "cses",
+    "name": "Counting Coprime Pairs",
+    "url": "https://cses.fi/problemset/task/2417",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "2417",
+    "notes": null
+  },
+  {
+    "id": "cses-2418",
+    "source": "cses",
+    "name": "Grid Path Construction",
+    "url": "https://cses.fi/problemset/task/2418",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "2418",
+    "notes": null
+  },
+  {
+    "id": "cses-2419",
+    "source": "cses",
+    "name": "Xor Pyramid Peak",
+    "url": "https://cses.fi/problemset/task/2419",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "2419",
+    "notes": null
+  },
+  {
+    "id": "cses-2420",
+    "source": "cses",
+    "name": "Palindrome Queries",
+    "url": "https://cses.fi/problemset/task/2420",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "2420",
+    "notes": null
+  },
+  {
+    "id": "cses-2421",
+    "source": "cses",
+    "name": "Counting Reorders",
+    "url": "https://cses.fi/problemset/task/2421",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2421",
+    "notes": null
+  },
+  {
+    "id": "cses-2422",
+    "source": "cses",
+    "name": "Multiplication Table",
+    "url": "https://cses.fi/problemset/task/2422",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "2422",
+    "notes": null
+  },
+  {
+    "id": "cses-2423",
+    "source": "cses",
+    "name": "Filling Trominos",
+    "url": "https://cses.fi/problemset/task/2423",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "2423",
+    "notes": null
+  },
+  {
+    "id": "cses-2425",
+    "source": "cses",
+    "name": "Stack Weights",
+    "url": "https://cses.fi/problemset/task/2425",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "2425",
+    "notes": null
+  },
+  {
+    "id": "cses-2426",
+    "source": "cses",
+    "name": "Programmers and Artists",
+    "url": "https://cses.fi/problemset/task/2426",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2426",
+    "notes": null
+  },
+  {
+    "id": "cses-2427",
+    "source": "cses",
+    "name": "Letter Pair Move Game",
+    "url": "https://cses.fi/problemset/task/2427",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "2427",
+    "notes": null
+  },
+  {
+    "id": "cses-2428",
+    "source": "cses",
+    "name": "Distinct Values Subarrays II",
+    "url": "https://cses.fi/problemset/task/2428",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "2428",
+    "notes": null
+  },
+  {
+    "id": "cses-2429",
+    "source": "cses",
+    "name": "Grid Completion",
+    "url": "https://cses.fi/problemset/task/2429",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "2429",
+    "notes": null
+  },
+  {
+    "id": "cses-2430",
+    "source": "cses",
+    "name": "Binary Subsequences",
+    "url": "https://cses.fi/problemset/task/2430",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2430",
+    "notes": null
+  },
+  {
+    "id": "cses-2431",
+    "source": "cses",
+    "name": "Digit Queries",
+    "url": "https://cses.fi/problemset/task/2431",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "2431",
+    "notes": null
+  },
+  {
+    "id": "cses-2432",
+    "source": "cses",
+    "name": "Grid Puzzle I",
+    "url": "https://cses.fi/problemset/task/2432",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "2432",
+    "notes": null
+  },
+  {
+    "id": "cses-3108",
+    "source": "cses",
+    "name": "K Subset Sums I",
+    "url": "https://cses.fi/problemset/task/3108",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3108",
+    "notes": null
+  },
+  {
+    "id": "cses-3109",
+    "source": "cses",
+    "name": "K Subset Sums II",
+    "url": "https://cses.fi/problemset/task/3109",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3109",
+    "notes": null
+  },
+  {
+    "id": "cses-3111",
+    "source": "cses",
+    "name": "Transfer Speeds Sum",
+    "url": "https://cses.fi/problemset/task/3111",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3111",
+    "notes": null
+  },
+  {
+    "id": "cses-3112",
+    "source": "cses",
+    "name": "Hidden Integer",
+    "url": "https://cses.fi/problemset/task/3112",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3112",
+    "notes": null
+  },
+  {
+    "id": "cses-3114",
+    "source": "cses",
+    "name": "Tree Coin Collecting I",
+    "url": "https://cses.fi/problemset/task/3114",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3114",
+    "notes": null
+  },
+  {
+    "id": "cses-3138",
+    "source": "cses",
+    "name": "All Palindromes",
+    "url": "https://cses.fi/problemset/task/3138",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "3138",
+    "notes": null
+  },
+  {
+    "id": "cses-3139",
+    "source": "cses",
+    "name": "Hidden Permutation",
+    "url": "https://cses.fi/problemset/task/3139",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3139",
+    "notes": null
+  },
+  {
+    "id": "cses-3140",
+    "source": "cses",
+    "name": "Inversion Sorting",
+    "url": "https://cses.fi/problemset/task/3140",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3140",
+    "notes": null
+  },
+  {
+    "id": "cses-3141",
+    "source": "cses",
+    "name": "And Subset Count",
+    "url": "https://cses.fi/problemset/task/3141",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3141",
+    "notes": null
+  },
+  {
+    "id": "cses-3149",
+    "source": "cses",
+    "name": "Tree Coin Collecting II",
+    "url": "https://cses.fi/problemset/task/3149",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3149",
+    "notes": null
+  },
+  {
+    "id": "cses-3150",
+    "source": "cses",
+    "name": "Distinct Values Sum",
+    "url": "https://cses.fi/problemset/task/3150",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3150",
+    "notes": null
+  },
+  {
+    "id": "cses-3151",
+    "source": "cses",
+    "name": "Bubble Sort Rounds I",
+    "url": "https://cses.fi/problemset/task/3151",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3151",
+    "notes": null
+  },
+  {
+    "id": "cses-3152",
+    "source": "cses",
+    "name": "Bubble Sort Rounds II",
+    "url": "https://cses.fi/problemset/task/3152",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3152",
+    "notes": null
+  },
+  {
+    "id": "cses-3154",
+    "source": "cses",
+    "name": "System of Linear Equations",
+    "url": "https://cses.fi/problemset/task/3154",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3154",
+    "notes": null
+  },
+  {
+    "id": "cses-3157",
+    "source": "cses",
+    "name": "Collecting Numbers Distribution",
+    "url": "https://cses.fi/problemset/task/3157",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3157",
+    "notes": null
+  },
+  {
+    "id": "cses-3158",
+    "source": "cses",
+    "name": "Bus Companies",
+    "url": "https://cses.fi/problemset/task/3158",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3158",
+    "notes": null
+  },
+  {
+    "id": "cses-3159",
+    "source": "cses",
+    "name": "Replace with Difference",
+    "url": "https://cses.fi/problemset/task/3159",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3159",
+    "notes": null
+  },
+  {
+    "id": "cses-3161",
+    "source": "cses",
+    "name": "GCD Subsets",
+    "url": "https://cses.fi/problemset/task/3161",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3161",
+    "notes": null
+  },
+  {
+    "id": "cses-3163",
+    "source": "cses",
+    "name": "Range Interval Queries",
+    "url": "https://cses.fi/problemset/task/3163",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "3163",
+    "notes": null
+  },
+  {
+    "id": "cses-3169",
+    "source": "cses",
+    "name": "Counting LCM Arrays",
+    "url": "https://cses.fi/problemset/task/3169",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3169",
+    "notes": null
+  },
+  {
+    "id": "cses-3175",
+    "source": "cses",
+    "name": "Beautiful Permutation II",
+    "url": "https://cses.fi/problemset/task/3175",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3175",
+    "notes": null
+  },
+  {
+    "id": "cses-3190",
+    "source": "cses",
+    "name": "Distinct Values Splits",
+    "url": "https://cses.fi/problemset/task/3190",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3190",
+    "notes": null
+  },
+  {
+    "id": "cses-3191",
+    "source": "cses",
+    "name": "Maximum Xor Subset",
+    "url": "https://cses.fi/problemset/task/3191",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3191",
+    "notes": null
+  },
+  {
+    "id": "cses-3192",
+    "source": "cses",
+    "name": "K Subset Xors",
+    "url": "https://cses.fi/problemset/task/3192",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3192",
+    "notes": null
+  },
+  {
+    "id": "cses-3193",
+    "source": "cses",
+    "name": "Square Subsets",
+    "url": "https://cses.fi/problemset/task/3193",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3193",
+    "notes": null
+  },
+  {
+    "id": "cses-3194",
+    "source": "cses",
+    "name": "Xor Pyramid Diagonal",
+    "url": "https://cses.fi/problemset/task/3194",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3194",
+    "notes": null
+  },
+  {
+    "id": "cses-3195",
+    "source": "cses",
+    "name": "Xor Pyramid Row",
+    "url": "https://cses.fi/problemset/task/3195",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3195",
+    "notes": null
+  },
+  {
+    "id": "cses-3211",
+    "source": "cses",
+    "name": "Number of Subset Xors",
+    "url": "https://cses.fi/problemset/task/3211",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3211",
+    "notes": null
+  },
+  {
+    "id": "cses-3213",
+    "source": "cses",
+    "name": "Water Containers Moves",
+    "url": "https://cses.fi/problemset/task/3213",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3213",
+    "notes": null
+  },
+  {
+    "id": "cses-3214",
+    "source": "cses",
+    "name": "Water Containers Queries",
+    "url": "https://cses.fi/problemset/task/3214",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3214",
+    "notes": null
+  },
+  {
+    "id": "cses-3215",
+    "source": "cses",
+    "name": "Bouncing Ball Steps",
+    "url": "https://cses.fi/problemset/task/3215",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3215",
+    "notes": null
+  },
+  {
+    "id": "cses-3216",
+    "source": "cses",
+    "name": "Bouncing Ball Cycle",
+    "url": "https://cses.fi/problemset/task/3216",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3216",
+    "notes": null
+  },
+  {
+    "id": "cses-3217",
+    "source": "cses",
+    "name": "Knight Moves Grid",
+    "url": "https://cses.fi/problemset/task/3217",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "3217",
+    "notes": null
+  },
+  {
+    "id": "cses-3218",
+    "source": "cses",
+    "name": "Knight Moves Queries",
+    "url": "https://cses.fi/problemset/task/3218",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3218",
+    "notes": null
+  },
+  {
+    "id": "cses-3219",
+    "source": "cses",
+    "name": "Sliding Window Mex",
+    "url": "https://cses.fi/problemset/task/3219",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3219",
+    "notes": null
+  },
+  {
+    "id": "cses-3220",
+    "source": "cses",
+    "name": "Sliding Window Sum",
+    "url": "https://cses.fi/problemset/task/3220",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3220",
+    "notes": null
+  },
+  {
+    "id": "cses-3221",
+    "source": "cses",
+    "name": "Sliding Window Minimum",
+    "url": "https://cses.fi/problemset/task/3221",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3221",
+    "notes": null
+  },
+  {
+    "id": "cses-3222",
+    "source": "cses",
+    "name": "Sliding Window Distinct Values",
+    "url": "https://cses.fi/problemset/task/3222",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3222",
+    "notes": null
+  },
+  {
+    "id": "cses-3223",
+    "source": "cses",
+    "name": "Sliding Window Inversions",
+    "url": "https://cses.fi/problemset/task/3223",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3223",
+    "notes": null
+  },
+  {
+    "id": "cses-3224",
+    "source": "cses",
+    "name": "Sliding Window Mode",
+    "url": "https://cses.fi/problemset/task/3224",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3224",
+    "notes": null
+  },
+  {
+    "id": "cses-3225",
+    "source": "cses",
+    "name": "Inverse Suffix Array",
+    "url": "https://cses.fi/problemset/task/3225",
+    "difficulty_rating": null,
+    "tags": [
+      "String Algorithms"
+    ],
+    "contest_id": "3225",
+    "notes": null
+  },
+  {
+    "id": "cses-3226",
+    "source": "cses",
+    "name": "Subarray Sum Queries II",
+    "url": "https://cses.fi/problemset/task/3226",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "3226",
+    "notes": null
+  },
+  {
+    "id": "cses-3227",
+    "source": "cses",
+    "name": "Sliding Window Advertisement",
+    "url": "https://cses.fi/problemset/task/3227",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3227",
+    "notes": null
+  },
+  {
+    "id": "cses-3228",
+    "source": "cses",
+    "name": "Permuted Binary Strings",
+    "url": "https://cses.fi/problemset/task/3228",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3228",
+    "notes": null
+  },
+  {
+    "id": "cses-3232",
+    "source": "cses",
+    "name": "Tournament Graph Distribution",
+    "url": "https://cses.fi/problemset/task/3232",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3232",
+    "notes": null
+  },
+  {
+    "id": "cses-3233",
+    "source": "cses",
+    "name": "All Subarray Xors",
+    "url": "https://cses.fi/problemset/task/3233",
+    "difficulty_rating": null,
+    "tags": [
+      "Bitwise Operations"
+    ],
+    "contest_id": "3233",
+    "notes": null
+  },
+  {
+    "id": "cses-3273",
+    "source": "cses",
+    "name": "Colored Chairs",
+    "url": "https://cses.fi/problemset/task/3273",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3273",
+    "notes": null
+  },
+  {
+    "id": "cses-3294",
+    "source": "cses",
+    "name": "Subarray Sum Constraints",
+    "url": "https://cses.fi/problemset/task/3294",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3294",
+    "notes": null
+  },
+  {
+    "id": "cses-3301",
+    "source": "cses",
+    "name": "Maximum Average Subarrays",
+    "url": "https://cses.fi/problemset/task/3301",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3301",
+    "notes": null
+  },
+  {
+    "id": "cses-3302",
+    "source": "cses",
+    "name": "Subsets with Fixed Average",
+    "url": "https://cses.fi/problemset/task/3302",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3302",
+    "notes": null
+  },
+  {
+    "id": "cses-3303",
+    "source": "cses",
+    "name": "Nearest Shops",
+    "url": "https://cses.fi/problemset/task/3303",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3303",
+    "notes": null
+  },
+  {
+    "id": "cses-3304",
+    "source": "cses",
+    "name": "Visible Buildings Queries",
+    "url": "https://cses.fi/problemset/task/3304",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "3304",
+    "notes": null
+  },
+  {
+    "id": "cses-3305",
+    "source": "cses",
+    "name": "K-th Highest Score",
+    "url": "https://cses.fi/problemset/task/3305",
+    "difficulty_rating": null,
+    "tags": [
+      "Interactive Problems"
+    ],
+    "contest_id": "3305",
+    "notes": null
+  },
+  {
+    "id": "cses-3306",
+    "source": "cses",
+    "name": "Nearest Campsites I",
+    "url": "https://cses.fi/problemset/task/3306",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3306",
+    "notes": null
+  },
+  {
+    "id": "cses-3307",
+    "source": "cses",
+    "name": "Nearest Campsites II",
+    "url": "https://cses.fi/problemset/task/3307",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3307",
+    "notes": null
+  },
+  {
+    "id": "cses-3308",
+    "source": "cses",
+    "name": "Graph Coloring",
+    "url": "https://cses.fi/problemset/task/3308",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3308",
+    "notes": null
+  },
+  {
+    "id": "cses-3311",
+    "source": "cses",
+    "name": "Grid Coloring I",
+    "url": "https://cses.fi/problemset/task/3311",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "3311",
+    "notes": null
+  },
+  {
+    "id": "cses-3312",
+    "source": "cses",
+    "name": "Grid Coloring II",
+    "url": "https://cses.fi/problemset/task/3312",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3312",
+    "notes": null
+  },
+  {
+    "id": "cses-3314",
+    "source": "cses",
+    "name": "Mountain Range",
+    "url": "https://cses.fi/problemset/task/3314",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "3314",
+    "notes": null
+  },
+  {
+    "id": "cses-3355",
+    "source": "cses",
+    "name": "Sum of Four Squares",
+    "url": "https://cses.fi/problemset/task/3355",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3355",
+    "notes": null
+  },
+  {
+    "id": "cses-3356",
+    "source": "cses",
+    "name": "Distinct Values Queries II",
+    "url": "https://cses.fi/problemset/task/3356",
+    "difficulty_rating": null,
+    "tags": [
+      "Range Queries"
+    ],
+    "contest_id": "3356",
+    "notes": null
+  },
+  {
+    "id": "cses-3357",
+    "source": "cses",
+    "name": "Fixed Length Walk Queries",
+    "url": "https://cses.fi/problemset/task/3357",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3357",
+    "notes": null
+  },
+  {
+    "id": "cses-3358",
+    "source": "cses",
+    "name": "Split into Two Paths",
+    "url": "https://cses.fi/problemset/task/3358",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3358",
+    "notes": null
+  },
+  {
+    "id": "cses-3359",
+    "source": "cses",
+    "name": "Minimal Grid Path",
+    "url": "https://cses.fi/problemset/task/3359",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "3359",
+    "notes": null
+  },
+  {
+    "id": "cses-3360",
+    "source": "cses",
+    "name": "Corner Subgrid Check",
+    "url": "https://cses.fi/problemset/task/3360",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Techniques"
+    ],
+    "contest_id": "3360",
+    "notes": null
+  },
+  {
+    "id": "cses-3361",
+    "source": "cses",
+    "name": "Two Array Average",
+    "url": "https://cses.fi/problemset/task/3361",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3361",
+    "notes": null
+  },
+  {
+    "id": "cses-3396",
+    "source": "cses",
+    "name": "Next Prime",
+    "url": "https://cses.fi/problemset/task/3396",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3396",
+    "notes": null
+  },
+  {
+    "id": "cses-3397",
+    "source": "cses",
+    "name": "Permutation Order",
+    "url": "https://cses.fi/problemset/task/3397",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3397",
+    "notes": null
+  },
+  {
+    "id": "cses-3398",
+    "source": "cses",
+    "name": "Permutation Rounds",
+    "url": "https://cses.fi/problemset/task/3398",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3398",
+    "notes": null
+  },
+  {
+    "id": "cses-3399",
+    "source": "cses",
+    "name": "Raab Game I",
+    "url": "https://cses.fi/problemset/task/3399",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "3399",
+    "notes": null
+  },
+  {
+    "id": "cses-3400",
+    "source": "cses",
+    "name": "Raab Game II",
+    "url": "https://cses.fi/problemset/task/3400",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3400",
+    "notes": null
+  },
+  {
+    "id": "cses-3401",
+    "source": "cses",
+    "name": "Stick Difference",
+    "url": "https://cses.fi/problemset/task/3401",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3401",
+    "notes": null
+  },
+  {
+    "id": "cses-3402",
+    "source": "cses",
+    "name": "Minimum Cost Pairs",
+    "url": "https://cses.fi/problemset/task/3402",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3402",
+    "notes": null
+  },
+  {
+    "id": "cses-3403",
+    "source": "cses",
+    "name": "Longest Common Subsequence",
+    "url": "https://cses.fi/problemset/task/3403",
+    "difficulty_rating": null,
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "contest_id": "3403",
+    "notes": null
+  },
+  {
+    "id": "cses-3404",
+    "source": "cses",
+    "name": "Permutation Subsequence",
+    "url": "https://cses.fi/problemset/task/3404",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems I"
+    ],
+    "contest_id": "3404",
+    "notes": null
+  },
+  {
+    "id": "cses-3405",
+    "source": "cses",
+    "name": "Sliding Window Or",
+    "url": "https://cses.fi/problemset/task/3405",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3405",
+    "notes": null
+  },
+  {
+    "id": "cses-3406",
+    "source": "cses",
+    "name": "Triangle Number Sums",
+    "url": "https://cses.fi/problemset/task/3406",
+    "difficulty_rating": null,
+    "tags": [
+      "Mathematics"
+    ],
+    "contest_id": "3406",
+    "notes": null
+  },
+  {
+    "id": "cses-3407",
+    "source": "cses",
+    "name": "MST Edge Check",
+    "url": "https://cses.fi/problemset/task/3407",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3407",
+    "notes": null
+  },
+  {
+    "id": "cses-3408",
+    "source": "cses",
+    "name": "MST Edge Set Check",
+    "url": "https://cses.fi/problemset/task/3408",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3408",
+    "notes": null
+  },
+  {
+    "id": "cses-3409",
+    "source": "cses",
+    "name": "MST Edge Cost",
+    "url": "https://cses.fi/problemset/task/3409",
+    "difficulty_rating": null,
+    "tags": [
+      "Advanced Graph Problems"
+    ],
+    "contest_id": "3409",
+    "notes": null
+  },
+  {
+    "id": "cses-3410",
+    "source": "cses",
+    "name": "Maximum Manhattan Distances",
+    "url": "https://cses.fi/problemset/task/3410",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3410",
+    "notes": null
+  },
+  {
+    "id": "cses-3411",
+    "source": "cses",
+    "name": "All Manhattan Distances",
+    "url": "https://cses.fi/problemset/task/3411",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3411",
+    "notes": null
+  },
+  {
+    "id": "cses-3413",
+    "source": "cses",
+    "name": "Filled Subgrid Count I",
+    "url": "https://cses.fi/problemset/task/3413",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3413",
+    "notes": null
+  },
+  {
+    "id": "cses-3414",
+    "source": "cses",
+    "name": "Filled Subgrid Count II",
+    "url": "https://cses.fi/problemset/task/3414",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3414",
+    "notes": null
+  },
+  {
+    "id": "cses-3415",
+    "source": "cses",
+    "name": "All Letter Subgrid Count I",
+    "url": "https://cses.fi/problemset/task/3415",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3415",
+    "notes": null
+  },
+  {
+    "id": "cses-3416",
+    "source": "cses",
+    "name": "All Letter Subgrid Count II",
+    "url": "https://cses.fi/problemset/task/3416",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3416",
+    "notes": null
+  },
+  {
+    "id": "cses-3417",
+    "source": "cses",
+    "name": "Border Subgrid Count I",
+    "url": "https://cses.fi/problemset/task/3417",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3417",
+    "notes": null
+  },
+  {
+    "id": "cses-3418",
+    "source": "cses",
+    "name": "Border Subgrid Count II",
+    "url": "https://cses.fi/problemset/task/3418",
+    "difficulty_rating": null,
+    "tags": [
+      "Counting Problems"
+    ],
+    "contest_id": "3418",
+    "notes": null
+  },
+  {
+    "id": "cses-3419",
+    "source": "cses",
+    "name": "Mex Grid Construction",
+    "url": "https://cses.fi/problemset/task/3419",
+    "difficulty_rating": null,
+    "tags": [
+      "Introductory Problems"
+    ],
+    "contest_id": "3419",
+    "notes": null
+  },
+  {
+    "id": "cses-3420",
+    "source": "cses",
+    "name": "Distinct Values Subarrays",
+    "url": "https://cses.fi/problemset/task/3420",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "3420",
+    "notes": null
+  },
+  {
+    "id": "cses-3421",
+    "source": "cses",
+    "name": "Distinct Values Subsequences",
+    "url": "https://cses.fi/problemset/task/3421",
+    "difficulty_rating": null,
+    "tags": [
+      "Sorting and Searching"
+    ],
+    "contest_id": "3421",
+    "notes": null
+  },
+  {
+    "id": "cses-3422",
+    "source": "cses",
+    "name": "Third Permutation",
+    "url": "https://cses.fi/problemset/task/3422",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "3422",
+    "notes": null
+  },
+  {
+    "id": "cses-3423",
+    "source": "cses",
+    "name": "Permutation Prime Sums",
+    "url": "https://cses.fi/problemset/task/3423",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "3423",
+    "notes": null
+  },
+  {
+    "id": "cses-3424",
+    "source": "cses",
+    "name": "Distinct Sums Grid",
+    "url": "https://cses.fi/problemset/task/3424",
+    "difficulty_rating": null,
+    "tags": [
+      "Construction Problems"
+    ],
+    "contest_id": "3424",
+    "notes": null
+  },
+  {
+    "id": "cses-3425",
+    "source": "cses",
+    "name": "Same Sum Subsets",
+    "url": "https://cses.fi/problemset/task/3425",
+    "difficulty_rating": null,
+    "tags": [
+      "Additional Problems II"
+    ],
+    "contest_id": "3425",
+    "notes": null
+  },
+  {
+    "id": "cses-3426",
+    "source": "cses",
+    "name": "Sliding Window Xor",
+    "url": "https://cses.fi/problemset/task/3426",
+    "difficulty_rating": null,
+    "tags": [
+      "Sliding Window Problems"
+    ],
+    "contest_id": "3426",
+    "notes": null
+  },
+  {
+    "id": "cses-3427",
+    "source": "cses",
+    "name": "Line Segments Trace I",
+    "url": "https://cses.fi/problemset/task/3427",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3427",
+    "notes": null
+  },
+  {
+    "id": "cses-3428",
+    "source": "cses",
+    "name": "Line Segments Trace II",
+    "url": "https://cses.fi/problemset/task/3428",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3428",
+    "notes": null
+  },
+  {
+    "id": "cses-3429",
+    "source": "cses",
+    "name": "Lines and Queries I",
+    "url": "https://cses.fi/problemset/task/3429",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3429",
+    "notes": null
+  },
+  {
+    "id": "cses-3430",
+    "source": "cses",
+    "name": "Lines and Queries II",
+    "url": "https://cses.fi/problemset/task/3430",
+    "difficulty_rating": null,
+    "tags": [
+      "Geometry"
+    ],
+    "contest_id": "3430",
+    "notes": null
+  }
+]

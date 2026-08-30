@@ -1,4 +1,3 @@
-// Package main provides the offline database seeding and embedding pipeline for Transverse problem repositories.
 package main
 
 import (
@@ -12,34 +11,41 @@ import (
 
 // RawProblem represents an unnormalized problem record parsed from raw JSON dump files.
 type RawProblem struct {
-	ID               string   `json:"id"`
-	Source           string   `json:"source"`
-	Name             string   `json:"name"`
-	URL              string   `json:"url"`
-	DifficultyRating *int     `json:"difficulty_rating"` // nullable integer
-	Tags             []string `json:"tags"`
-	ContestID        string   `json:"contest_id"`
-	Notes            *string  `json:"notes"`
+	ID               string      `json:"id"`
+	Source           string      `json:"source"`
+	Name             string      `json:"name"`
+	URL              string      `json:"url"`
+	DifficultyRating *int        `json:"difficulty_rating"` // nullable integer
+	Tags             []string    `json:"tags"`
+	ContestID        string      `json:"contest_id"`
+	Notes            *string     `json:"notes"`
+	Statement        string      `json:"problem_statement"`
+	InputTestcases   []string    `json:"input_testcases"`
+	OutputTestcases  []string    `json:"output_testcases"`
+	TimeLimit        interface{} `json:"time_limit"`
+	MemoryLimit      interface{} `json:"memory_limit"`
+
+	// Leetcode specific
+	QID               interface{} `json:"QID"`
+	Title             string      `json:"title"`
+	TitleSlug         string      `json:"titleSlug"`
+	Difficulty        string      `json:"difficulty"`
+	Topics            []string    `json:"topics"`
+	Body              string      `json:"body"`
+	InputTestcasesLC  []string    `json:"input_test_cases"`
+	OutputTestcasesLC []string    `json:"output_test_cases"`
 }
 
-// LoadProblems loads all problem JSON files from dataDir and deduplicates by ID.
-// Priority order for deduplication: codeforces > atcoder > cses > leetcode > all_problems > other json files.
 func LoadProblems(dataDir string) ([]RawProblem, error) {
 	if _, err := os.Stat(dataDir); err != nil {
 		return nil, fmt.Errorf("specified data directory %q does not exist: %w", dataDir, err)
-	}
-
-	// Check if dataDir points to parent data folder containing a 'generated' subfolder
-	targetDir := dataDir
-	generatedSubdir := filepath.Join(dataDir, "generated")
-	if fi, err := os.Stat(generatedSubdir); err == nil && fi.IsDir() {
-		targetDir = generatedSubdir
 	}
 
 	priorityFiles := []string{
 		"codeforces.json",
 		"atcoder.json",
 		"cses.json",
+		"leetcode_problems.json",
 		"leetcode_index.json",
 		"all_problems.json",
 	}
@@ -48,7 +54,6 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 	processedFiles := make(map[string]bool)
 	var dedupedProblems []RawProblem
 
-	// Helper to load and append problems from a specific JSON file path
 	loadFile := func(filePath string) error {
 		fileName := filepath.Base(filePath)
 		if strings.EqualFold(fileName, "topics.json") {
@@ -69,6 +74,17 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 		skippedDupes := 0
 
 		for _, p := range items {
+			if p.ID == "" && p.TitleSlug != "" {
+				p.ID = "lc-" + p.TitleSlug
+				p.Source = "leetcode"
+				p.Name = p.Title
+				p.URL = "https://leetcode.com/problems/" + p.TitleSlug
+				p.Tags = p.Topics
+				p.Statement = p.Body
+				p.InputTestcases = p.InputTestcasesLC
+				p.OutputTestcases = p.OutputTestcasesLC
+			}
+
 			p.ID = strings.TrimSpace(p.ID)
 			if p.ID == "" {
 				continue
@@ -92,34 +108,32 @@ func LoadProblems(dataDir string) ([]RawProblem, error) {
 		return nil
 	}
 
-	// 1. Process priority files first in strict precedence order
-	for _, pFileName := range priorityFiles {
-		candidatePath := filepath.Join(targetDir, pFileName)
-		if _, err := os.Stat(candidatePath); err == nil {
-			if err := loadFile(candidatePath); err != nil {
-				return nil, err
+	// Also check generated/ subdirectory
+	dirsToCheck := []string{dataDir, filepath.Join(dataDir, "problems"), filepath.Join(dataDir, "generated")}
+
+	for _, dir := range dirsToCheck {
+		if _, err := os.Stat(dir); err == nil {
+			for _, pFileName := range priorityFiles {
+				candidatePath := filepath.Join(dir, pFileName)
+				if _, err := os.Stat(candidatePath); err == nil && !processedFiles[candidatePath] {
+					if err := loadFile(candidatePath); err != nil {
+						return nil, err
+					}
+					processedFiles[candidatePath] = true
+				}
 			}
-			processedFiles[candidatePath] = true
-		}
-	}
-
-	// 2. Discover any additional JSON files in targetDir not already processed
-	entries, err := os.ReadDir(targetDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read entries from directory %q: %w", targetDir, err)
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(strings.ToLower(entry.Name()), ".json") {
-			continue
-		}
-
-		filePath := filepath.Join(targetDir, entry.Name())
-		if !processedFiles[filePath] {
-			if err := loadFile(filePath); err != nil {
-				return nil, err
+			entries, _ := os.ReadDir(dir)
+			for _, entry := range entries {
+				if !entry.IsDir() && strings.HasSuffix(strings.ToLower(entry.Name()), ".json") {
+					filePath := filepath.Join(dir, entry.Name())
+					if !processedFiles[filePath] {
+						if err := loadFile(filePath); err != nil {
+							return nil, err
+						}
+						processedFiles[filePath] = true
+					}
+				}
 			}
-			processedFiles[filePath] = true
 		}
 	}
 

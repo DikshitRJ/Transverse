@@ -1,0 +1,128 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: transverse
+      POSTGRES_USER: transverse
+      POSTGRES_PASSWORD: transverse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  judge0-server:
+    image: judge0/judge0:1.13.1
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "2358:2358"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=transverse
+      - POSTGRES_PASSWORD=transverse
+      - POSTGRES_DB=transverse
+    volumes:
+      - ./backend/judge0.conf:/judge0.conf:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  judge0-workers:
+    image: judge0/judge0:1.13.1
+    restart: unless-stopped
+    privileged: true
+    command: ["./scripts/workers"]
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=transverse
+      - POSTGRES_PASSWORD=transverse
+      - POSTGRES_DB=transverse
+    volumes:
+      - ./backend/judge0.conf:/judge0.conf:ro
+    depends_on:
+      judge0-server:
+        condition: service_started
+
+  init-data:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
+      TOPICS_GRAPH_PATH: /app/data/topics.json
+      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
+    volumes:
+      - ./data:/app/data:ro
+      - ./backend/models:/app/models:ro
+    command: >
+      sh -c "
+      echo 'Starting Problem Seeding...' &&
+      /app/seed_pipeline &&
+      echo 'Starting Tutorial Ingestion...' &&
+      /app/ingest_pipeline -mode tutorial -file /app/data/tutorial.json &&
+      echo 'Initialization complete!'
+      "
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      judge0-server:
+        condition: service_started
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
+      PORT: "8080"
+      TOPICS_GRAPH_PATH: /app/data/topics.json
+      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
+      CACHE_ENABLED: "true"
+      BYPASS_AUTH: "true"
+      REDIS_ADDR: "redis:6379"
+      JUDGE0_BASE_URL: "http://judge0-server:2358"
+      JUDGE0_API_KEY: ""
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data:ro
+      - ./backend/models:/app/models:ro
+
+volumes:
+  pgdata:
