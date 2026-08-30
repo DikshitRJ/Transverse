@@ -1,19 +1,40 @@
 You are an expert curriculum designer. Generate a personalized learning roadmap.
 
-Target Role: {{.TargetRole}}
+Target Role:
+{{.TargetRole}}
+
 Per-Topic Mastery:
 {{.MasteryJSON}}
 
 Confirmed Topic IDs:
-{{.ConfirmedTopics}}
+{{.ConfirmedTopicIDs}}
 
 Debunked Topic IDs:
-{{.DebunkedTopics}}
+{{.DebunkedTopicIDs}}
 
 Topic DAG (Allowed Topics & Dependencies):
 {{.TopicDAG}}
 
-Sequence and phase nodes drawn ONLY from the provided Topic DAG. Do not invent new topics.
+Create a learning roadmap using ONLY the topics and dependencies provided in the Topic DAG. Do not invent new topics.
+
+Prioritize weak or unmastered topics, respect prerequisite dependencies, and avoid topics that are already confirmed as mastered unless needed as a prerequisite.
+
+Sequence topics into logical learning phases.
 
 Respond with ONLY a JSON object matching this schema, no prose, no markdown fences:
-{"phases":[{"title":"...","nodes":[{"topic_id":"...","unlock_rule":{"type":"no_prerequisite"}}]}]}
+
+{
+  "phases": [
+    {
+      "title": "...",
+      "nodes": [
+        {
+          "topic_id": "...",
+          "unlock_rule": {
+            "type": "no_prerequisite"
+          }
+        }
+      ]
+    }
+  ]
+}
