@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=builder /usr/local/lib/libonnxruntime.so* /usr/local/lib/
 COPY --from=builder /app/transverse /app/transverse
 COPY --from=builder /app/seed_pipeline /app/seed_pipeline
+COPY --from=builder /app/ingest_pipeline /app/ingest_pipeline
 
 RUN ldconfig
 

@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: transverse
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./sql:/docker-entrypoint-initdb.d:ro  # auto-run migrations on first start
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -42,7 +42,7 @@ services:
       - POSTGRES_PASSWORD=transverse
       - POSTGRES_DB=transverse
     volumes:
-      - ./judge0.conf:/judge0.conf:ro
+      - ./backend/judge0.conf:/judge0.conf:ro
     depends_on:
       db:
         condition: service_healthy
@@ -62,25 +62,51 @@ services:
       - POSTGRES_PASSWORD=transverse
       - POSTGRES_DB=transverse
     volumes:
-      - ./judge0.conf:/judge0.conf:ro
+      - ./backend/judge0.conf:/judge0.conf:ro
     depends_on:
       judge0-server:
         condition: service_started
 
-  backend:
+  init-data:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
-    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
+      TOPICS_GRAPH_PATH: /app/data/topics.json
+      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
+    volumes:
+      - ./data:/app/data:ro
+      - ./backend/models:/app/models:ro
+    command: >
+      sh -c "
+      echo 'Starting Problem Seeding...' &&
+      /app/seed_pipeline &&
+      echo 'Starting Tutorial Ingestion...' &&
+      /app/ingest_pipeline -mode tutorial -file /app/data/tutorial.json &&
+      echo 'Initialization complete!'
+      "
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
       judge0-server:
         condition: service_started
     env_file:
-      - path: .env
+      - path: ./backend/.env
         required: false
     environment:
       DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
@@ -95,28 +121,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../data:/app/data:ro
-      - ./models:/app/models:ro
+      - ./data:/app/data:ro
+      - ./backend/models:/app/models:ro
 
 volumes:
   pgdata:
-
-  seeder:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    profiles: ["seed"]
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - path: .env
-        required: false
-    environment:
-      DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
-      TOPICS_GRAPH_PATH: /app/data/topics.json
-      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
-    volumes:
-      - ../data:/app/data:ro
-      - ./models:/app/models:ro
-    command: ["/app/seed_pipeline"]
