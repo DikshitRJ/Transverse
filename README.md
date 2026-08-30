@@ -1,47 +1,97 @@
 # Transverse
 
-Transverse is a skill verification and adaptive learning platform. This repository contains the Go backend, which provides an asynchronous, LLM-orchestrated, and highly private learning pipeline. The Next.js frontend is built against this backend's formal API contract.
+Transverse is an adaptive learning platform for data structures and competitive programming. It combines a Go API, a Next.js frontend, a PostgreSQL/pgvector data store, Redis, Judge0, and MinIO to guide practice, verify skills, and generate topic roadmaps.
 
-## Features
+The project can run in two useful modes:
 
-- **Deep Skill Verification**: Uploads public profiles (GitHub, LeetCode, Codeforces) or private documents (resumes, codebase zips). Evidence is extracted into JSON hypotheses and the raw files are immediately deleted (zero-cloud privacy).
-- **Adaptive Quiz Engine**: Hypotheses are tested via a deterministic Glicko-2 scoring engine. Correct answers confirm hypotheses and raise topic ratings; failures debunk them.
-- **Dynamic Roadmaps**: An LLM orchestrates a DAG-based learning progression. Nodes are gated by mastery thresholds. Users can "test out" of nodes they already know.
-- **Closed-Loop Remediation**: If a user fails 3 times on the same practice topic, the engine automatically drops the difficulty threshold, triggers an LLM error analysis, and regenerates upcoming roadmap phases.
+- **Frontend mock mode** is the quickest way to explore the UI. It requires only Node.js and uses local MSW fixtures instead of the API.
+- **Full Docker stack** runs the frontend, API, database, cache, code runner, object storage, and seed pipeline together.
 
-## Repository Structure
+## Prerequisites
 
-- `backend/cmd/server/`: The main entry point and Chi router wiring.
-- `backend/internal/`: The core domain logic (Clean Architecture):
-  - `evidence/`, `connectors/`: Ingests and scrubs user signals.
-  - `llm/`, `jobs/`, `realtime/`: Async LLM orchestration and SSE streaming.
-  - `hypothesis/`, `quiz/`: The adaptive assessment loop.
-  - `roadmap/`: Progression and gating engine.
-  - `oauth/`, `middleware/`: Identity and access management.
-- `backend/sql/`: Postgres schema migrations.
-- `backend/pipeline/seed/`: Offline CLI tool for seeding problems and tutorials.
-- `frontend/`: Next.js 15 (App Router) frontend application.
-- `Documentation/`: Contains the formal `openapi.yaml`, architecture diagrams, and end-to-end integration walkthroughs.
-- `data/`: Contains `topics.json`, the canonical topic DAG, generated seed data, and `tutorial.json`.
+- Node.js 22+ and npm for frontend mock mode.
+- Docker Desktop with Docker Compose for the complete local stack.
 
-## Status
+## Quick start: frontend mock mode
 
-**Completed:**
-- Full infrastructure configuration (Postgres/pgvector, Redis, MinIO, Judge0).
-- All 11 milestones of the backend architecture (Evidence, Connectors, OAuth, LLM, Quiz, Roadmap, Practice Loop, Remediation, Content Ingestion).
-- Formal API contracts (OpenAPI 3.1) and testing suites.
-- Next.js Frontend implementation (UI and Server Actions).
-- Content ingestion for problems and tutorials.
+This mode needs no database, Go installation, Docker, or API key.
 
-**Left to do:**
-- Ongoing improvements and bug fixes.
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
 
-## Getting Started
+Open <http://localhost:3000>. `frontend/.env.local` defaults to `NEXT_PUBLIC_API_MODE=mock`, so MSW supplies the API responses.
 
-1. Set up your `.env` files (use `backend/.env.example` and `frontend/.env.example` as templates).
-2. Start the entire infrastructure and applications (Backend + Frontend + DB + Redis + Judge0 + MinIO):
-   ```bash
-   docker-compose up --build -d
-   ```
-3. The frontend is accessible at `http://localhost:3000` and the backend at `http://localhost:8080`.
-4. Refer to `Documentation/end-to-end-walkthrough.md` to simulate a user journey.
+## Quick start: complete local stack
+
+Run these commands from the repository root after Docker Desktop is running:
+
+```bash
+docker compose up --build -d --scale tunnel=0
+docker compose ps
+docker compose logs -f init-data backend frontend
+```
+
+The first run downloads images, builds the Go and Next.js applications, and seeds the local database. `init-data` should finish with exit code `0` before the backend starts. Press `Ctrl+C` to stop following logs; the containers continue running in the background.
+
+Open these local services once startup is complete:
+
+| Service | Address |
+| --- | --- |
+| Frontend | <http://localhost:3000> |
+| Backend health check | <http://localhost:8080/health> |
+| MinIO console | <http://localhost:9001> |
+| Judge0 API | <http://localhost:2358> |
+
+`--scale tunnel=0` intentionally disables the Cloudflare tunnel service. Do not start that service unless you have reviewed its configuration and supplied your own tunnel credentials.
+
+To stop the stack while retaining local database and MinIO volumes:
+
+```bash
+docker compose down
+```
+
+`docker compose down -v` additionally deletes all local database and object storage data, so use it only when you intend to reset the environment.
+
+## Configuration
+
+Docker Compose supplies development-safe container settings for the local stack, including a local database, Redis, MinIO, and a development auth bypass. Do not use those defaults in a deployed environment.
+
+The LLM-assisted features are optional for startup. To enable them, export a valid Z.ai key before bringing up (or recreating) the backend:
+
+```bash
+export ZAI_API_KEY="your-key"
+docker compose up -d --force-recreate backend
+```
+
+For non-Docker backend development, begin with `backend/.env.example`. For a locally run frontend that talks to a local backend, set the following in `frontend/.env.local` and restart `npm run dev`:
+
+```dotenv
+NEXT_PUBLIC_API_MODE=live
+BACKEND_URL=http://localhost:8080
+```
+
+## Repository layout
+
+```text
+backend/           Go API, migrations, pipelines, and container build
+frontend/          Next.js application
+data/              Topic graph plus problem and tutorial seed data
+Documentation/     OpenAPI contract, architecture notes, and walkthroughs
+extras/            Reference material and one-off development utilities
+docker-compose.yml Local service orchestration
+```
+
+## Verification
+
+Run checks from the relevant directory:
+
+```bash
+cd backend && go test ./...
+cd frontend && npm run lint && npm run typecheck && npm test
+```
+
+See [CODEBASE.md](CODEBASE.md) for the architecture map and [AGENTS.md](AGENTS.md) for contribution constraints.
