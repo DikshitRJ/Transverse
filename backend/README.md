@@ -73,11 +73,7 @@ $$\theta_{\text{eff}} = \theta_{\text{current}} + (\text{TopicBias} \times 200) 
 
 ## ⚡ Quick Start with Docker Compose
 
-1. Clone the repository and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
+1. Clone the repository and ensure you are in the root directory of the project.
 2. Start the PostgreSQL + pgvector database and backend server:
    ```bash
    docker-compose up --build -d

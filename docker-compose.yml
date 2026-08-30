@@ -92,20 +92,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - path: ./backend/.env
-        required: false
     environment:
       DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
       TOPICS_GRAPH_PATH: /app/data/topics.json
-      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
     volumes:
       - ./data:/app/data:ro
-      - ./backend/models:/app/models:ro
     command: >
       sh -c "
       echo 'Starting Problem Seeding...' &&
-      /app/seed_pipeline &&
+      /app/seed_pipeline --skip-embed &&
       echo 'Starting Tutorial Ingestion...' &&
       /app/ingest_pipeline -mode tutorial -file /app/data/tutorial.json &&
       echo 'Initialization complete!'
@@ -125,29 +120,29 @@ services:
         condition: service_started
       minio:
         condition: service_healthy
-    env_file:
-      - path: ./backend/.env
-        required: false
     environment:
       DATABASE_URL: postgres://transverse:transverse@db:5432/transverse
       PORT: "8080"
       TOPICS_GRAPH_PATH: /app/data/topics.json
-      ONNX_MODEL_PATH: /app/models/bge-small-en-v1.5.onnx
       CACHE_ENABLED: "true"
       BYPASS_AUTH: "true"
       REDIS_ADDR: "redis:6379"
       JUDGE0_BASE_URL: "http://judge0-server:2358"
       JUDGE0_API_KEY: ""
-      FRONTEND_ORIGIN: http://localhost:3000
+      FRONTEND_ORIGIN: "http://localhost:3000"
       MINIO_ENDPOINT: "minio:9000"
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: password123
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "password123"
       MINIO_USE_SSL: "false"
+      MINIO_BUCKET: "evidence"
+      JWT_SECRET: "transverse-deterministic-secret-key-32-chars"
+      ZAI_API_KEY: ${ZAI_API_KEY:-}
+      ZAI_BASE_URL: "https://api.z.ai/api/paas/v4"
+      ZAI_MODEL: "glm-4.7-flash"
     ports:
       - "8080:8080"
     volumes:
       - ./data:/app/data:ro
-      - ./backend/models:/app/models:ro
 
   frontend:
     build:
@@ -164,6 +159,16 @@ services:
       NODE_ENV: production
       PORT: "3000"
     ports: ["3000:3000"]
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-eyJhIjoiMDU0MGY3OWU4MmVmMWQxMDU5M2I1MmZjMDVkOGExZDEiLCJ0IjoiNDNiYzY4MDEtZjJlNi00MjAwLThlYTctMTdjZGY2NmU1NmUyIiwicyI6Ik1EY3dZVGsxTmpBdE1qVTVPQzAwTnpaaExUZzJaV0V0WVdFNVlUZzRZell3WWpReSJ9}
+    depends_on:
+      frontend:
+        condition: service_started
 
 volumes:
   pgdata:

@@ -16,20 +16,21 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
 
 	"transverse/internal/cache"
 	"transverse/internal/config"
-	"transverse/internal/repository"
 	"transverse/internal/middleware"
 	"transverse/internal/oauth"
+	"transverse/internal/repository"
 )
 
 type AuthHandler struct {
-	cfg        *config.Config
-	oauthRepo  *repository.OAuthRepo
-	userRepo   *repository.UserRepo
-	cache      cache.Cache
+	cfg       *config.Config
+	oauthRepo *repository.OAuthRepo
+	userRepo  *repository.UserRepo
+	cache     cache.Cache
 }
 
 func NewAuthHandler(cfg *config.Config, oauthRepo *repository.OAuthRepo, userRepo *repository.UserRepo, cache cache.Cache) *AuthHandler {
@@ -41,12 +42,126 @@ func NewAuthHandler(cfg *config.Config, oauthRepo *repository.OAuthRepo, userRep
 	}
 }
 
+type RegisterRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Username string `json:"username,omitempty"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// Register creates a new user account with email and password (no email verification needed).
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	var req RegisterRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid JSON payload")
+		return
+	}
+
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+	req.Username = strings.TrimSpace(req.Username)
+
+	if req.Email == "" || !strings.Contains(req.Email, "@") {
+		writeError(w, http.StatusBadRequest, "A valid email address is required")
+		return
+	}
+	if len(req.Password) < 6 {
+		writeError(w, http.StatusBadRequest, "Password must be at least 6 characters long")
+		return
+	}
+
+	if req.Username == "" {
+		parts := strings.Split(req.Email, "@")
+		req.Username = parts[0]
+	}
+
+	existing, _ := h.userRepo.GetByEmailOrUsername(r.Context(), req.Email)
+	if existing != nil {
+		writeError(w, http.StatusConflict, "An account with this email or username already exists")
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to hash password")
+		return
+	}
+
+	userID := uuid.New().String()
+	user, err := h.userRepo.CreateWithPassword(r.Context(), userID, req.Username, req.Email, string(hash))
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to create user account")
+		return
+	}
+
+	tokens, err := h.mintTokens(r.Context(), user.ID, user.Username)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to generate tokens")
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, map[string]interface{}{
+		"access_token":  tokens.AccessToken,
+		"refresh_token": tokens.RefreshToken,
+		"expires_in":    tokens.ExpiresIn,
+		"user":          user,
+	})
+}
+
+// Login authenticates a user with email and password.
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var req LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid JSON payload")
+		return
+	}
+
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+
+	if req.Email == "" || req.Password == "" {
+		writeError(w, http.StatusBadRequest, "Email and password are required")
+		return
+	}
+
+	user, err := h.userRepo.GetByEmailOrUsername(r.Context(), req.Email)
+	if err != nil || user == nil {
+		writeError(w, http.StatusUnauthorized, "Invalid email or password")
+		return
+	}
+
+	if user.PasswordHash == "" {
+		writeError(w, http.StatusUnauthorized, "Account has no password set. Please log in using your OAuth provider or register.")
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		writeError(w, http.StatusUnauthorized, "Invalid email or password")
+		return
+	}
+
+	tokens, err := h.mintTokens(r.Context(), user.ID, user.Username)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to generate tokens")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"access_token":  tokens.AccessToken,
+		"refresh_token": tokens.RefreshToken,
+		"expires_in":    tokens.ExpiresIn,
+		"user":          user,
+	})
+}
+
 func (h *AuthHandler) getConfig(provider string) (*oauth2.Config, error) {
 	switch provider {
 	case "github":
 		return oauth.NewGithubConfig(h.cfg), nil
-	case "google":
-		return oauth.NewGoogleConfig(h.cfg), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider")
 	}
@@ -118,23 +233,6 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(resp.Body).Decode(&u)
 		providerUserID = fmt.Sprintf("%d", u.ID)
 		username = u.Login
-		email = u.Email
-	} else if provider == "google" {
-		client := conf.Client(r.Context(), token)
-		resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, "Failed to fetch user data")
-			return
-		}
-		defer resp.Body.Close()
-		var u struct {
-			ID    string `json:"id"`
-			Email string `json:"email"`
-			Name  string `json:"name"`
-		}
-		json.NewDecoder(resp.Body).Decode(&u)
-		providerUserID = u.ID
-		username = u.Name
 		email = u.Email
 	}
 

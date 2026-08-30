@@ -3,9 +3,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const FOOTER_LINKS = [
-  { label: "Documentation", href: "/docs" },
-  { label: "Privacy", href: "/privacy" },
+  { label: "Docs", href: "/docs" },
   { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Copyright", href: "/copyright" },
   { label: "GitHub", href: "https://github.com" },
 ];
 
@@ -47,9 +48,12 @@ export function Footer({ className }: FooterProps) {
         ))}
       </nav>
 
-      <p className="font-display text-sm font-bold tracking-[1.2px] text-tv-text-hi uppercase">
+      <Link
+        href="/copyright"
+        className="font-display text-sm font-bold tracking-[1.2px] text-tv-text-hi uppercase transition-colors hover:text-tv-cyan"
+      >
         © 2026 Transverse
-      </p>
+      </Link>
     </footer>
   );
 }

@@ -16,6 +16,7 @@
 import { http, HttpResponse, delay } from "msw";
 import type {
   ApiErrorEnvelope,
+  AuthResponse,
   AuthTokenResponse,
   BatchExecuteRequest,
   CompleteNodeRequest,
@@ -183,6 +184,74 @@ export const handlers = [
   // ==========================================================================
   // Auth — public
   // ==========================================================================
+  http.post("*/api/v1/auth/login", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as { email?: string; password?: string };
+    if (!body.email || !body.password) {
+      return HttpResponse.json(errorBody("Email and password are required"), { status: 400 });
+    }
+    const responseBody: AuthResponse = {
+      access_token: MOCK_ACCESS_TOKEN,
+      refresh_token: mockRefreshToken(),
+      expires_in: 3600,
+      user: { ...rawUser, email: body.email },
+    };
+    return HttpResponse.json(responseBody, { status: 200 });
+  }),
+
+  http.post("*/api/v1/auth/signin", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as { email?: string; password?: string };
+    if (!body.email || !body.password) {
+      return HttpResponse.json(errorBody("Email and password are required"), { status: 400 });
+    }
+    const responseBody: AuthResponse = {
+      access_token: MOCK_ACCESS_TOKEN,
+      refresh_token: mockRefreshToken(),
+      expires_in: 3600,
+      user: { ...rawUser, email: body.email },
+    };
+    return HttpResponse.json(responseBody, { status: 200 });
+  }),
+
+  http.post("*/api/v1/auth/register", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as { email?: string; password?: string; username?: string };
+    if (!body.email || !body.password) {
+      return HttpResponse.json(errorBody("Email and password are required"), { status: 400 });
+    }
+    const responseBody: AuthResponse = {
+      access_token: MOCK_ACCESS_TOKEN,
+      refresh_token: mockRefreshToken(),
+      expires_in: 3600,
+      user: {
+        ...rawUser,
+        email: body.email,
+        username: body.username || body.email.split("@")[0],
+      },
+    };
+    return HttpResponse.json(responseBody, { status: 201 });
+  }),
+
+  http.post("*/api/v1/auth/signup", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as { email?: string; password?: string; username?: string };
+    if (!body.email || !body.password) {
+      return HttpResponse.json(errorBody("Email and password are required"), { status: 400 });
+    }
+    const responseBody: AuthResponse = {
+      access_token: MOCK_ACCESS_TOKEN,
+      refresh_token: mockRefreshToken(),
+      expires_in: 3600,
+      user: {
+        ...rawUser,
+        email: body.email,
+        username: body.username || body.email.split("@")[0],
+      },
+    };
+    return HttpResponse.json(responseBody, { status: 201 });
+  }),
+
   http.get("*/api/v1/auth/oauth/:provider/redirect", async () => {
     // Real backend 307s to the OAuth provider. Mock mode short-circuits
     // straight to the frontend callback with working tokens so sign-in is

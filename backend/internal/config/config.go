@@ -55,9 +55,6 @@ type Config struct {
 	OAuthGithubClientID     string `json:"oauth_github_client_id"`
 	OAuthGithubClientSecret string `json:"oauth_github_client_secret"`
 	OAuthGithubRedirectURL  string `json:"oauth_github_redirect_url"`
-	OAuthGoogleClientID     string `json:"oauth_google_client_id"`
-	OAuthGoogleClientSecret string `json:"oauth_google_client_secret"`
-	OAuthGoogleRedirectURL  string `json:"oauth_google_redirect_url"`
 	JWTAccessTTLMinutes     int    `json:"jwt_access_ttl_minutes"`
 	JWTRefreshTTLDays       int    `json:"jwt_refresh_ttl_days"`
 
@@ -110,9 +107,6 @@ func Load() *Config {
 		OAuthGithubClientID:     os.Getenv("OAUTH_GITHUB_CLIENT_ID"),
 		OAuthGithubClientSecret: os.Getenv("OAUTH_GITHUB_CLIENT_SECRET"),
 		OAuthGithubRedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URL"),
-		OAuthGoogleClientID:     os.Getenv("OAUTH_GOOGLE_CLIENT_ID"),
-		OAuthGoogleClientSecret: os.Getenv("OAUTH_GOOGLE_CLIENT_SECRET"),
-		OAuthGoogleRedirectURL:  os.Getenv("OAUTH_GOOGLE_REDIRECT_URL"),
 		JWTAccessTTLMinutes:     getEnvAsInt("JWT_ACCESS_TTL_MINUTES", 15),
 		JWTRefreshTTLDays:       getEnvAsInt("JWT_REFRESH_TTL_DAYS", 30),
 

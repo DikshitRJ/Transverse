@@ -591,6 +591,24 @@ export interface AuthTokenResponse {
   expires_in: number;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  username?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number;
+  user?: User;
+}
+
 export interface RefreshRequest {
   refresh_token: string;
 }
@@ -599,7 +617,7 @@ export interface LogoutRequest {
   refresh_token?: string;
 }
 
-export type OAuthProvider = "github" | "google";
+export type OAuthProvider = "github";
 
 // ============================================================================
 // backend/internal/jobs/queue.go — GET /jobs/{id}, and the job.completed /

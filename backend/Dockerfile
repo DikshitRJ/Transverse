@@ -24,6 +24,11 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
     -o seed_pipeline \
     ./pipeline/seed
 
+RUN CGO_ENABLED=1 GOOS=linux go build \
+    -ldflags="-w -s" \
+    -o ingest_pipeline \
+    ./pipeline/ingest
+
 # Final minimal production image
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tzdata && rm -rf /var/lib/apt/lists/*

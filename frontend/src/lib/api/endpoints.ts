@@ -10,6 +10,7 @@
 import { apiFetch, apiGet, apiPost } from "@/lib/api/client";
 import { getAccessToken } from "@/lib/auth/token-store";
 import type {
+  AuthResponse,
   BatchExecuteRequest,
   BatchExecuteResponse,
   CloseSessionResponse,
@@ -26,10 +27,12 @@ import type {
   GetSessionResponse,
   HealthResponse,
   Job,
+  LoginRequest,
   OAuthProvider,
   PracticeSession,
   ProblemSearchParams,
   ProblemSearchResponse,
+  RegisterRequest,
   RequestHintRequest,
   RequestHintResponse,
   RoadmapActionResponse,
@@ -53,6 +56,40 @@ import type {
 // ============================================================================
 // Auth — backend/internal/handlers/auth_handler.go
 // ============================================================================
+
+/**
+ * POST /api/auth/login — hits Next.js Route Handler
+ */
+export async function authLogin(req: LoginRequest): Promise<AuthResponse> {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: "Login failed" }));
+    throw new Error(body.error || "Login failed");
+  }
+  return res.json();
+}
+
+/**
+ * POST /api/auth/register — hits Next.js Route Handler
+ */
+export async function authRegister(req: RegisterRequest): Promise<AuthResponse> {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: "Registration failed" }));
+    throw new Error(body.error || "Registration failed");
+  }
+  return res.json();
+}
 
 /**
  * NOT a fetch call — GET /auth/oauth/{provider}/redirect is a real browser

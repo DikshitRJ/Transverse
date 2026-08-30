@@ -54,6 +54,7 @@ type User struct {
 	GlickoRD     float64         `json:"glicko_rd" db:"glicko_rd"`
 	GlickoVol    float64         `json:"glicko_vol" db:"glicko_vol"`
 	DNARaw       json.RawMessage `json:"dna" db:"dna"`
+	PasswordHash string          `json:"-" db:"password_hash"`
 	CreatedAt    time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt    time.Time       `json:"updated_at" db:"updated_at"`
 }

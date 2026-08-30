@@ -39,6 +39,8 @@ interface AuthContextValue {
    * from anywhere other than that one redirect.
    */
   completeOAuthCallback: (params: CompleteOAuthCallbackParams) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, username?: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetches GET /auth/me. Useful after evidence sync / onboarding completes. */
   refreshUser: () => Promise<void>;
@@ -117,6 +119,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loadUser],
   );
 
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const errorJson = await res.json().catch(() => ({ error: "Invalid email or password" }));
+        throw new Error(errorJson.error || "Invalid email or password");
+      }
+      const data = (await res.json()) as { access_token: string; user?: User };
+      setAccessToken(data.access_token);
+      if (data.user) {
+        setUser(data.user);
+      } else {
+        await loadUser();
+      }
+    },
+    [loadUser],
+  );
+
+  const register = useCallback(
+    async (email: string, password: string, username?: string) => {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, username }),
+      });
+      if (!res.ok) {
+        const errorJson = await res.json().catch(() => ({ error: "Registration failed" }));
+        throw new Error(errorJson.error || "Registration failed");
+      }
+      const data = (await res.json()) as { access_token: string; user?: User };
+      setAccessToken(data.access_token);
+      if (data.user) {
+        setUser(data.user);
+      } else {
+        await loadUser();
+      }
+    },
+    [loadUser],
+  );
+
   const logout = useCallback(async () => {
     await authLogout();
     setAccessToken(null);
@@ -130,10 +178,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(accessToken) && user !== null,
       isLoading: user === undefined,
       completeOAuthCallback,
+      login,
+      register,
       logout,
       refreshUser: loadUser,
     }),
-    [user, accessToken, completeOAuthCallback, logout, loadUser],
+    [user, accessToken, completeOAuthCallback, login, register, logout, loadUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

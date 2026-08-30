@@ -75,11 +75,10 @@ buffer.
 
 ## Docker and the full stack
 
-To run the complete backend + frontend + dependencies (Postgres, Redis, Judge0, MinIO):
+To run the complete backend + frontend + dependencies (Postgres, Redis, Judge0, MinIO), run this from the root of the repository:
 
 ```bash
-cd backend
-docker compose -f docker-compose.yml up
+docker-compose up --build -d
 ```
 
 This builds and starts the entire stack:

@@ -20,8 +20,9 @@ Transverse is a skill verification and adaptive learning platform. This reposito
   - `oauth/`, `middleware/`: Identity and access management.
 - `backend/sql/`: Postgres schema migrations.
 - `backend/pipeline/seed/`: Offline CLI tool for seeding problems and tutorials.
+- `frontend/`: Next.js 15 (App Router) frontend application.
 - `Documentation/`: Contains the formal `openapi.yaml`, architecture diagrams, and end-to-end integration walkthroughs.
-- `data/`: Contains `topics.json`, the canonical topic DAG.
+- `data/`: Contains `topics.json`, the canonical topic DAG, generated seed data, and `tutorial.json`.
 
 ## Status
 
@@ -29,20 +30,18 @@ Transverse is a skill verification and adaptive learning platform. This reposito
 - Full infrastructure configuration (Postgres/pgvector, Redis, MinIO, Judge0).
 - All 11 milestones of the backend architecture (Evidence, Connectors, OAuth, LLM, Quiz, Roadmap, Practice Loop, Remediation, Content Ingestion).
 - Formal API contracts (OpenAPI 3.1) and testing suites.
+- Next.js Frontend implementation (UI and Server Actions).
+- Content ingestion for problems and tutorials.
 
 **Left to do:**
-- Next.js Frontend implementation (UI and Server Actions).
+- Ongoing improvements and bug fixes.
 
 ## Getting Started
 
-1. Set up your `.env` file (use `backend/.env.example` as a template).
-2. Start the infrastructure:
+1. Set up your `.env` files (use `backend/.env.example` and `frontend/.env.example` as templates).
+2. Start the entire infrastructure and applications (Backend + Frontend + DB + Redis + Judge0 + MinIO):
    ```bash
-   cd backend
-   docker-compose up -d
+   docker-compose up --build -d
    ```
-3. Run the API:
-   ```bash
-   go run ./cmd/server
-   ```
+3. The frontend is accessible at `http://localhost:3000` and the backend at `http://localhost:8080`.
 4. Refer to `Documentation/end-to-end-walkthrough.md` to simulate a user journey.

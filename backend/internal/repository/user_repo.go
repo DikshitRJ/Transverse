@@ -40,11 +40,11 @@ func (r *UserRepo) GetByID(ctx context.Context, id string) (*models.User, error)
 	var u models.User
 	err := r.pool.QueryRow(ctx, `
 		SELECT id, username, email, theta, glicko_rating, glicko_rd, glicko_vol,
-		       dna, created_at, updated_at
+		       dna, COALESCE(password_hash, ''), created_at, updated_at
 		FROM users WHERE id = $1
 	`, id).Scan(
 		&u.ID, &u.Username, &u.Email, &u.Theta, &u.GlickoRating, &u.GlickoRD, &u.GlickoVol,
-		&u.DNARaw, &u.CreatedAt, &u.UpdatedAt,
+		&u.DNARaw, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -58,6 +58,55 @@ func (r *UserRepo) GetByID(ctx context.Context, id string) (*models.User, error)
 	}
 
 	return &u, nil
+}
+
+// GetByEmailOrUsername retrieves a user by their email or username (case-insensitive).
+func (r *UserRepo) GetByEmailOrUsername(ctx context.Context, identifier string) (*models.User, error) {
+	var u models.User
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, username, email, theta, glicko_rating, glicko_rd, glicko_vol,
+		       dna, COALESCE(password_hash, ''), created_at, updated_at
+		FROM users
+		WHERE LOWER(email) = LOWER($1) OR LOWER(username) = LOWER($1)
+	`, identifier).Scan(
+		&u.ID, &u.Username, &u.Email, &u.Theta, &u.GlickoRating, &u.GlickoRD, &u.GlickoVol,
+		&u.DNARaw, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt,
+	)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, fmt.Errorf("user not found: %s", identifier)
+		}
+		return nil, fmt.Errorf("user_repo: get by identifier %q: %w", identifier, err)
+	}
+
+	return &u, nil
+}
+
+// CreateWithPassword registers a new user with a hashed password.
+func (r *UserRepo) CreateWithPassword(ctx context.Context, id, username, email, passwordHash string) (*models.User, error) {
+	defaultDNABytes, err := json.Marshal(models.DefaultDNA())
+	if err != nil {
+		return nil, fmt.Errorf("user_repo: marshal default dna: %w", err)
+	}
+
+	var created models.User
+	err = r.pool.QueryRow(ctx, `
+		INSERT INTO users (id, username, email, theta, glicko_rating, glicko_rd, glicko_vol, dna, password_hash, created_at, updated_at)
+		VALUES ($1, $2, $3, 1500, 1500, 350, 0.06, $4::jsonb, $5, NOW(), NOW())
+		RETURNING id, username, email, theta, glicko_rating, glicko_rd, glicko_vol, dna, COALESCE(password_hash, ''), created_at, updated_at
+	`, id, username, email, defaultDNABytes, passwordHash).Scan(
+		&created.ID, &created.Username, &created.Email, &created.Theta, &created.GlickoRating,
+		&created.GlickoRD, &created.GlickoVol, &created.DNARaw, &created.PasswordHash, &created.CreatedAt, &created.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("user_repo: create with password: %w", err)
+	}
+
+	if r.cache != nil {
+		_ = r.cache.Set(ctx, fmt.Sprintf("user:%s", created.ID), created, 60*time.Second)
+	}
+
+	return &created, nil
 }
 
 // GetOrCreate retrieves an existing user by ID or creates a baseline user account if not found.
@@ -84,10 +133,10 @@ func (r *UserRepo) GetOrCreate(ctx context.Context, id, username, email string) 
 		INSERT INTO users (id, username, email, theta, glicko_rating, glicko_rd, glicko_vol, dna, created_at, updated_at)
 		VALUES ($1, $2, $3, 1500, 1500, 350, 0.06, $4::jsonb, NOW(), NOW())
 		ON CONFLICT (id) DO UPDATE SET updated_at = NOW()
-		RETURNING id, username, email, theta, glicko_rating, glicko_rd, glicko_vol, dna, created_at, updated_at
+		RETURNING id, username, email, theta, glicko_rating, glicko_rd, glicko_vol, dna, COALESCE(password_hash, ''), created_at, updated_at
 	`, id, username, email, defaultDNABytes).Scan(
 		&created.ID, &created.Username, &created.Email, &created.Theta, &created.GlickoRating,
-		&created.GlickoRD, &created.GlickoVol, &created.DNARaw, &created.CreatedAt, &created.UpdatedAt,
+		&created.GlickoRD, &created.GlickoVol, &created.DNARaw, &created.PasswordHash, &created.CreatedAt, &created.UpdatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("user_repo: get or create: %w", err)

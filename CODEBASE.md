@@ -31,6 +31,7 @@ This document details the structural layout, design patterns, and core systems o
 │   │   └── seed/            # Problem embedding generator and DB seeder
 │   └── sql/                 # Ordered Postgres migrations (001 - 011)
 ├── data/                    # The canonical topics.json DAG and generated seed data
+├── frontend/                # Next.js 15 App Router frontend application
 ├── Documentation/           # OpenAPI specs, Walkthroughs, and specific design schemas
 └── docker-compose.yml       # Dev/Prod infrastructure stack
 ```

@@ -192,6 +192,10 @@ func main() {
 	r.Route("/api/v1", func(r chi.Router) {
 		// Public routes
 		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", authH.Register)
+			r.Post("/signup", authH.Register)
+			r.Post("/login", authH.Login)
+			r.Post("/signin", authH.Login)
 			r.Get("/oauth/{provider}/redirect", authH.Redirect)
 			r.Get("/oauth/{provider}/callback", authH.Callback)
 			r.Post("/refresh", authH.Refresh)

@@ -285,6 +285,50 @@ components:
 security:
   - bearerAuth: []
 paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                username:
+                  type: string
+      responses:
+        '201':
+          description: User registered and authenticated
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User authenticated
   /auth/oauth/{provider}/redirect:
     get:
       tags:
@@ -297,7 +341,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [github, google]
+            enum: [github]
       responses:
         '302':
           description: Redirect to OAuth provider
@@ -313,7 +357,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [github, google]
+            enum: [github]
       responses:
         '200':
           description: OK
